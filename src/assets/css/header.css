@@ -1,0 +1,19 @@
+header{
+    background-color: var(--cor-fundo);
+    padding: var(--espacamento-padrao);
+}
+
+header nav ul{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header nav ul li{
+    color: var(--cor-branco);
+}
+
+.links{
+    display: flex;
+    column-gap: 2rem;
+}
