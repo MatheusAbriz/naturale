@@ -1,0 +1,23 @@
+.container-pesquisar{
+    position: relative;
+}
+
+.container-pesquisar input{
+    background-color: var(--cor-fundo-botao);
+    padding: .3rem .5rem .3rem .8rem;
+    border-radius: 25px;
+    color: var(--cor-preto);
+}
+
+.container-pesquisar span{
+    background-image: url('../img/pesquisar.svg');
+    width: 1.5rem;
+    height: 1.5rem;
+
+    background-size: cover;
+    background-repeat: no-repeat;
+    
+    position: absolute;
+    right: 12px;
+    top: 4px;
+}
