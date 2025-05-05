@@ -15,3 +15,7 @@
     --espacamento-padrao: 2rem;
     --espacamento-botao: .3rem .5rem .3rem 1rem;
 }
+
+body{
+    background-color: var(--cor-branco);
+}
