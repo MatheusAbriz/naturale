@@ -1,0 +1,19 @@
+*{
+    box-sizing: border-box;
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+}
+ 
+:root{
+    --cor-fundo: #518C81;
+    --cor-suporte: #BF895A;
+    --cor-branco: #F2F2F2;
+    --cor-preto: #2F4F4F;
+    --cor-fundo-botao: #D9D9D9;
+ 
+    --espacamento-padrao: 2rem;
+    --espacamento-botao: .3rem .5rem .3rem 1rem;
+}
+
+body{
+    background-color: var(--cor-branco);
+}
