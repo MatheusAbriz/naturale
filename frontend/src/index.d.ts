@@ -1,0 +1,8 @@
+declare module "*/png"
+declare module "*/svg"
+declare module "*/jpg"
+declare module "*/pagination"
+declare module "*/css"
+declare module "*/useFetch"
+declare module "*/useUpdate"
+declare module "*"

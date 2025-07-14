@@ -14,6 +14,17 @@ export async function selecionarUsuario(id){
             }
 }
 
+//Selecionar nome_usuario pelo ID
+export async function selecionarNomeUsuario(id){
+    try{
+        const results = await pool.query("SELECT nome_usuario from usuario WHERE id_usuario = $1", [id])
+        //Retornando os resultados
+        if(results.rows.length >= 1) return results.rows; else return false;
+    }catch(err){
+        console.log(err)
+    }
+}
+
 export async function adicionarUsuario(usuario){
     try{
         const { nome_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario } = usuario

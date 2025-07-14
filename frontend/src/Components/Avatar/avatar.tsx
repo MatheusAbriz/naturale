@@ -1,8 +1,12 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
 
+export type AvatarProps = {
+    img: string;
+    options: any;
+}
 
 //Componente de Avatar com Dropdown
-const Avatar = ({ img, options }) =>{
+const Avatar = ({ img, options } : AvatarProps) =>{
     return(
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -12,7 +16,7 @@ const Avatar = ({ img, options }) =>{
                 <DropdownMenuLabel className="avatar-item">{options.label}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                {options.item.map((item) =>(
+                {options.item.map((item:any) =>(
                     <DropdownMenuItem className="avatar-item cursor-pointer" key={item.id}>{item.texto}</DropdownMenuItem>
                 ))}
                 </DropdownMenuGroup>

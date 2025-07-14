@@ -1,7 +1,11 @@
 import { useState } from 'react';
 
-const Search = ({ texto }) =>{
-    const [ pesquisa, setPesquisa ] = useState("")
+export type SearchProps = {
+    texto: string;
+}
+
+const Search = ({ texto } : SearchProps) =>{
+    const [ pesquisa, setPesquisa ] = useState<any | null>(null)
 
     const pesquisar = () =>{
         console.log(pesquisa)

@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from 'axios'
 
-const useFetch = (url) =>{
-    const [ data, setData ] = useState(null)
-    const [ error, setError ] = useState(null)
-    const [ loading, setIsLoading ] = useState(false)
+export type FetchProps = {
+    url: string;
+}
+
+const useFetch = ({ url } : FetchProps)=>{
+    const [ data, setData ] = useState<any | null>(null)
+    const [ error, setError ] = useState<boolean>(false)
+    const [ loading, setIsLoading ] = useState<boolean>(false)
 
     useEffect(() =>{
         (
@@ -14,7 +18,8 @@ const useFetch = (url) =>{
                     const res = await axios.get(url)
                     setData(res.data)
                 }catch(err){
-                    setError(err)
+                    setIsLoading(false)
+                    setError(true)
                 }finally{
                     setIsLoading(false)
                 }

@@ -1,16 +1,14 @@
 import logo from '../../assets/img/logo.svg'
 import imgPerfil from '../../assets/img/usuario-demo.jpg'
-import Search from '../Search/search.jsx'
-import Avatar from '../Avatar/avatar.jsx'
+import Search from '../Search/search.tsx'
+import Avatar from '../Avatar/avatar.tsx'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
- 
-
 
 const Header = () =>{
 
     //Opcoes
-    const [ options, setOptions ] = useState({
+    const [ options, setOptions ] = useState<any | null>({
         label: "Nome_Perfil",
         item: [{id: 1, texto: "Configurações"}, {id: 2, texto: "Favoritos"}, {id: 3, texto: "Sair"}]
     })

@@ -26,7 +26,10 @@ create table post(
 );
 
 insert into usuario(nome_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario) values('Matheus', '988257303', '53826433858', 'math@gmail.com', '123456');
+insert into usuario(nome_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario) values('Pedro', '11988257303', '123456789', 'pedro@gmail.com', '123456789');
 
 insert into post(id_usuario, titulo_post, texto_post, ingredientes_post, tempo_post, qtd_curtidas, status_post) values(1, 'Strogonoff de Frango', 'Passo a passo: Lorem ipsum dolor sit amet', '1kg de Frango, 450g de arroz, 2 alhos, 2 colheres de sopa de manteiga...', '45 mins', 0,true);
 insert into post(id_usuario, titulo_post, texto_post, ingredientes_post, tempo_post, qtd_curtidas, status_post) values(1, 'Lasanha de Carne', 'Passo a passo: Lorem ipsum dolor sit amet', '1kg de Carne, 450g de arroz, 2 alhos, 2 colheres de sopa de manteiga...', '1h', 0,true);
 insert into post(id_usuario, titulo_post, texto_post, ingredientes_post, tempo_post, qtd_curtidas, status_post) values(1, 'Stronoff de Carne', 'Passo a passo: Lorem ipsum dolor sit amet', '1kg de Carne, 450g de arroz, 2 alhos, 2 colheres de sopa de manteiga...', '1h', 0,true);
+
+insert into post(id_usuario, titulo_post, texto_post, ingredientes_post, tempo_post, qtd_curtidas, status_post) values(6, 'Feijoada', 'Passo a passo: Lorem ipsum dolor sit amet', '1kg de Carne de porco, 500g de arroz, 500g de couve...', '2h', 0,true);

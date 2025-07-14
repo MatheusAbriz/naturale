@@ -2,13 +2,18 @@ import cardImg from '../../assets/img/card-img.png'
 import usuarioDemo from '../../assets/img/usuario-demo.jpg'
 import { HeartIcon } from '@heroicons/react/24/outline'
 import Avatar from '../Avatar/avatar'
-import useUpdate from '../../hooks/useUpdate'
-import AlertaTemporario from '../AlertaTemporario/alertaTemporario'
 import { useState } from 'react'
 
+export type CardProps = {
+    titulo: string,
+    autor: string,
+    post: string,
+    qtdLikes: number,
+    handleClick: () => void
+}
 
-const Card = ({ titulo, autor, post, qtdLikes, handleClick }) =>{
-    const [ options, setOptions ] = useState({
+const Card = ({ titulo, autor, post, qtdLikes, handleClick } : CardProps) =>{
+    const [ options, setOptions ] = useState<any | null>({
         label: autor,
         post: post,
         qtdLikes: qtdLikes,
