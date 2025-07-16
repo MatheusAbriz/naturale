@@ -1,6 +1,6 @@
 # 🌿 Naturale
 
-**Naturale** é uma **rede social saudável** inspirada em plataformas como *FatSecret*, voltada para pessoas que buscam uma alimentação equilibrada e bem-estar por meio da culinária. Na aplicação, usuários podem compartilhar receitas, buscar por ingredientes específicos e salvar suas favoritas.
+**Naturale** é uma **rede social saudável** voltada para pessoas que buscam uma alimentação equilibrada e bem-estar por meio da culinária. Na aplicação, usuários podem compartilhar receitas, buscar por ingredientes específicos e salvar suas favoritas.
 
 ---
 
