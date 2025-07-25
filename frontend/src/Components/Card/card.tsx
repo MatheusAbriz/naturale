@@ -8,11 +8,12 @@ export type CardProps = {
     titulo: string,
     autor: string,
     post: string,
+    isLiked: boolean;
     qtdLikes: number,
     handleClick: () => void
 }
 
-const Card = ({ titulo, autor, post, qtdLikes, handleClick } : CardProps) =>{
+const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProps) =>{
     const [ options, setOptions ] = useState<any | null>({
         label: autor,
         post: post,
@@ -32,7 +33,9 @@ const Card = ({ titulo, autor, post, qtdLikes, handleClick } : CardProps) =>{
                     <h1 className="text-md">{ titulo }</h1>
 
                     <div className="flex gap-x-2">
-                        <button className="cursor-pointer" onClick={handleClick}><HeartIcon className="size-6 fill-(--cor-fundo) text-(--cor-preto) transition-all duration-500 ease-out"/></button>
+                        <button className="cursor-pointer" onClick={handleClick}>
+                            <HeartIcon className={`size-6 ${isLiked ? "fill-(--cor-fundo)" : "fill-white" } text-(--cor-preto) transition-all duration-500 ease-out`}/>
+                        </button>
                         <h6>{qtdLikes}</h6>
                     </div>
                 </div>

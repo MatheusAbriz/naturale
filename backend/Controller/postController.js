@@ -12,8 +12,8 @@ router.get('/post/lerTodosPosts/', (req, res) =>{
 })
 
 //CRUD - Posts - Atualizar Likes por Curtida
-router.patch('/post/atualizarPostCurtida/:id', (req, res) =>{
-    atualizarPostCurtida(req.params.id).then(resultado =>{
+router.patch('/post/atualizarPostCurtida/:idUsuario/:idPost', (req, res) =>{
+    atualizarPostCurtida(req.params.idUsuario, req.params.idPost).then(resultado =>{
         if(resultado) return res.status(200).send("Sucesso! Usuário atualizado com sucesso"); else return res.status(400).send("Erro! Usuário não encontrado");
     })
 })
