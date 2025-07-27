@@ -1,13 +1,12 @@
 import Header from "../../components/Header/header";
 import Card from '../../components/Card/card';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
-import useFetchPostsData from "../../hooks/useFetchPostsData";
 import useFetchData from '../../hooks/useFetchData';
 import useUpdate from "../../hooks/useUpdate";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import AlertaTemporario from "../../components/AlertaTemporario/alertaTemporario";
 import { usePosts } from '../../stores/posts';
-import axios from "axios";
+import useUpdateData from "../../hooks/useUpdateData";
 
 const Home = () =>{
 
@@ -73,30 +72,35 @@ const Home = () =>{
     const { data: dataLikes } = 
      useFetchData({ queryKey: 'likes', urlParams: 'likes/lerTodosLikes', onSuccess: onSuccessLikes, onError })
 
+    //Likes - Responsável pela mutação de atualizar(adicionar/remover) likes do BD
+    const { mutate: updateLikes } = 
+     useUpdateData()
+
+    //Variavel responsável para caso dê erro em alguma parte da requisicao do like
+    const [ errorUpdate, setErrorUpdate ] = useState<boolean>(false)
+
     //Posts - variavel final
     const [ posts, setPosts ] = useState<any>([])
 
     //Likes - armazena o id do usuario e id do post
     const [ likes, setLikes ] = useState<any>([])
     
-    const [ url, setUrl ] = useState<string>("http://localhost:5173")
-
     //Dados de atualizar a curtida do POST
-    const { errorUpdate } = useUpdate({ url })
 
     //Retornando o nome do usuario com base em seu ID
     const [ nomeUsuario, setNomeUsuario ] = useState<string | null>(null)
+    
 
     //Função que irá adicionar um like à postagem
     const handleClick = async(usuario:number, post:number) =>{
-        //Atualizando no BD e também no zustand
-        //TODO: dando problema aqui, precisa colocar no updateLikePost o idUsuario/idPost, e também ver um jeito de imprimir o erro
         try{
-            const res = await axios.get(`${import.meta.env.VITE_APP_BASE_URL}/likes/lerLike/${usuario}/${post}`)
-            //remove like
+            const res = useFetchData({ queryKey: 'likes', urlParams: `${import.meta.env.VITE_APP_BASE_URL}/likes/lerLike/${usuario}/${post}` })
+
+            //caso ja tenha um like, remove ele
             if(res.data.length > 0){
                 setLikes(likes.filter((like: any) => !(like.id_post === post && like.id_usuario === usuario)))
-                setUrl(`${import.meta.env.VITE_APP_BASE_URL}/post/atualizarPostCurtida/${usuario}/${post}`)
+                updateLikes( `${import.meta.env.VITE_APP_BASE_URL}/post/atualizarPostCurtida/${usuario}/${post}`)
+
 
                 // Atualizando o número de likes no post
                 setPosts((prevPosts: any) =>
@@ -105,9 +109,9 @@ const Home = () =>{
                     )
                 );
             }else{
-                setUrl(`${import.meta.env.VITE_APP_BASE_URL}/post/atualizarPostCurtida/${usuario}/${post}`)
                 //Adiciona like
                 setLikes([...likes, { id_post: post, id_usuario: usuario }]);
+                updateLikes( `${import.meta.env.VITE_APP_BASE_URL}/post/atualizarPostCurtida/${usuario}/${post}`)
 
                 // Atualizando o número de likes no post
                 setPosts((prevPosts: any) =>
@@ -120,7 +124,7 @@ const Home = () =>{
             //Atualiza no zustand
             updateLikePosts(usuario, post, false)
         }catch(err){
-            console.log("Erroooo")
+            setErrorUpdate(true)
         }
     }
 

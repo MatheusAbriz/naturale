@@ -6,11 +6,11 @@ export async function lerTodosLikes(){
         const results = await pool.query("SELECT * FROM likes")
         
         if(results.rows.length > 0){
-            return results.rows;
+            return { status: true, msg: results.rows };
         }
     }catch(err){
         console.log(err)
-        return [];
+        return {status: false, msg: "Não há likes" };
     }
 } 
 
@@ -20,10 +20,10 @@ export async function lerLike(idUsuario, idPost){
         const results = await pool.query("SELECT * FROM likes WHERE id_usuario = $1 AND id_post = $2", [idUsuario, idPost])
 
         if(results.rows.length > 0){
-            return { status: true, msg: results.rows }
+            return { status: true, msg: results.rows };
         }
 
-        return { status: true, msg: "Sem likes disponíveis" };
+        return { status: false, msg: "Sem likes disponíveis" };
     }catch(err){
         return { status: false, msg: "Error!" };
     }
