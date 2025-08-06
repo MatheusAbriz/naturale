@@ -1,19 +1,22 @@
-import axios from 'axios'
-import { useMutation, useQueryClient } from 'react-query'
-
-//Tipando as props
-export type updateFetch = {
-    urlParams: string;
-}
-
-
-//Criando minha funcao para a requisição HTTP
-const mutateData = (urlParams: string) => {
-    return axios.patch(urlParams)
-}
+import axios, { AxiosError, type AxiosResponse } from 'axios'
+import { useMutation, useQueryClient } from 'react-query';
 
 const useUpdateData = () =>{
-    return useMutation((urlParams: string) => mutateData(urlParams))
+    const queryClient = useQueryClient()
+
+    return useMutation<AxiosResponse, AxiosError, string>(
+        (urlParams: string) => axios.patch(urlParams),
+        {
+            onSuccess: () => {
+                //Forçando atualizacao
+                queryClient.invalidateQueries('posts')
+                queryClient.invalidateQueries('likes')
+            },
+            onError: (err: AxiosError) =>{
+                console.error(`Erro na mutate: ${err}`)
+            }
+        }
+    )
 }
 
 export default useUpdateData;

@@ -8,9 +8,10 @@ export async function lerTodosLikes(){
         if(results.rows.length > 0){
             return { status: true, msg: results.rows };
         }
+        return { status: true, msg: 0 };
     }catch(err){
         console.log(err)
-        return {status: false, msg: "Não há likes" };
+        return { status: false, msg: "Não há likes" };
     }
 } 
 

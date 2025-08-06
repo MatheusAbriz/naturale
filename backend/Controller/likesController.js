@@ -5,7 +5,7 @@ router.use(express.json())
 
 router.get('/likes/lerTodosLikes', (req, res) =>{
     lerTodosLikes().then(resultado =>{
-        if(resultado.status) return res.status(200).send(`${JSON.stringify(resultado.msg)}`); else return res.status(400).send("ERRO! Não há likes");
+        if(resultado.status) return res.status(200).send(`${JSON.stringify(resultado.msg)}`); else return res.status(400).send(resultado.msg);
     }) 
 })
 

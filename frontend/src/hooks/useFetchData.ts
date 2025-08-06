@@ -19,7 +19,12 @@ const useFetchData = ({ queryKey, urlParams, onSuccess, onError }: FetchProps) =
         onError,
         refetchOnWindowFocus: false,
         // Dando fetch e retornando os dados
-        select: (data) => {
+        select: (data: any) => {
+            
+            // 0 = sem likes
+            if(data.data === 0){
+                return null;
+            }
             const result = data.data.map((item: any) => item);
 
             return result;

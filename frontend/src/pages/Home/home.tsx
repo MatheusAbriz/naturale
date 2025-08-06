@@ -2,10 +2,8 @@ import Header from "../../components/Header/header";
 import Card from '../../components/Card/card';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import useFetchData from '../../hooks/useFetchData';
-import useUpdate from "../../hooks/useUpdate";
-import {  useState } from "react";
+import { useState } from "react";
 import AlertaTemporario from "../../components/AlertaTemporario/alertaTemporario";
-import { usePosts } from '../../stores/posts';
 import useUpdateData from "../../hooks/useUpdateData";
 
 const Home = () =>{
@@ -39,8 +37,6 @@ const Home = () =>{
         )
     }
 
-    //Armazenando em uma zustand store os posts
-    const { addPosts, getAllPosts, updateLikePosts } = usePosts()
 
     //AREA DE FETCHES E CUSTOM HOOKS - React Query
 
@@ -50,13 +46,11 @@ const Home = () =>{
 
         //AddPosts - Zustand Store, setPosts - useState local
         setPosts(posts)
+        //addPosts(posts) -> Por enquanto Zustand não está sendo utilizado, pois o proprio React Query faz a mágica de revalidar dados
     }
 
     const onSuccessLikes = (data: any) => {
-        const likes = data;
-
-        //Armazenando os likes em um useState local
-        setLikes(likes);
+        return;
     }
 
     //Criando um onError que irá imprimir o erro no console para debug
@@ -66,26 +60,31 @@ const Home = () =>{
 
     //Posts - Acessando para depois armazenar na zustand(dentro da funcao onSuccess)
     const { isLoading: isLoadingPosts, data: dataPosts, isError: isErrorPosts } =
-     useFetchData({ queryKey: 'posts', urlParams: 'post/lerTodosPosts', onSuccess: onSuccessPosts, onError })
+     useFetchData(
+        { 
+            queryKey: 'posts', 
+            urlParams: 'post/lerTodosPosts', 
+            onSuccess: onSuccessPosts, 
+            onError 
+        }
+    )
 
-    //Likes - Acessando para depois armazenar na zustand(dentro da funcao onSuccess)
+
     const { data: dataLikes } = 
-     useFetchData({ queryKey: 'likes', urlParams: 'likes/lerTodosLikes', onSuccess: onSuccessLikes, onError })
+     useFetchData(
+        { 
+            queryKey: 'likes', 
+            urlParams: 'likes/lerTodosLikes', 
+            onSuccess: onSuccessLikes, 
+            onError 
+        }
+    )
 
     //Likes - Responsável pela mutação de atualizar(adicionar/remover) likes do BD
-    const { mutate: updateLikes } = 
-     useUpdateData()
-
-    //Variavel responsável para caso dê erro em alguma parte da requisicao do like
-    const [ errorUpdate, setErrorUpdate ] = useState<boolean>(false)
+    const { mutate: updateLikes, isError } = useUpdateData()
 
     //Posts - variavel final
     const [ posts, setPosts ] = useState<any>([])
-
-    //Likes - armazena o id do usuario e id do post
-    const [ likes, setLikes ] = useState<any>([])
-    
-    //Dados de atualizar a curtida do POST
 
     //Retornando o nome do usuario com base em seu ID
     const [ nomeUsuario, setNomeUsuario ] = useState<string | null>(null)
@@ -94,37 +93,9 @@ const Home = () =>{
     //Função que irá adicionar um like à postagem
     const handleClick = async(usuario:number, post:number) =>{
         try{
-            const res = useFetchData({ queryKey: 'likes', urlParams: `${import.meta.env.VITE_APP_BASE_URL}/likes/lerLike/${usuario}/${post}` })
-
-            //caso ja tenha um like, remove ele
-            if(res.data.length > 0){
-                setLikes(likes.filter((like: any) => !(like.id_post === post && like.id_usuario === usuario)))
-                updateLikes( `${import.meta.env.VITE_APP_BASE_URL}/post/atualizarPostCurtida/${usuario}/${post}`)
-
-
-                // Atualizando o número de likes no post
-                setPosts((prevPosts: any) =>
-                    prevPosts.map((item: any) =>
-                        item.id_post === post ? { ...item, qtd_curtidas: item.qtd_curtidas - 1 } : item
-                    )
-                );
-            }else{
-                //Adiciona like
-                setLikes([...likes, { id_post: post, id_usuario: usuario }]);
-                updateLikes( `${import.meta.env.VITE_APP_BASE_URL}/post/atualizarPostCurtida/${usuario}/${post}`)
-
-                // Atualizando o número de likes no post
-                setPosts((prevPosts: any) =>
-                    prevPosts.map((item: any) =>
-                        item.id_post === post ? { ...item, qtd_curtidas: item.qtd_curtidas + 1 } : item
-                    )
-                );
-            }
-
-            //Atualiza no zustand
-            updateLikePosts(usuario, post, false)
+            await updateLikes(`${import.meta.env.VITE_APP_BASE_URL}/post/atualizarPostCurtida/${usuario}/${post}`)
         }catch(err){
-            setErrorUpdate(true)
+            console.error(err)
         }
     }
 
@@ -139,23 +110,24 @@ const Home = () =>{
            {isErrorPosts && <div>Erro! Site fora do ar no momento.</div>}
            {posts && (
                 posts.map((item: any) =>{
-                    const isLiked = likes.some((like: any) => like.id_post === item?.id_post && like.id_usuario === item?.id_usuario);
+                    {/* Filtro que checa os likes (do BD, pelo id_post e id_usuario) com o id_post e id_usuario da entidade post no BD*/}
+                    const isLiked = dataLikes?.some((like: any) => like.id_post === item?.id_post && like.id_usuario === item?.id_usuario);
                     return (
                         <Card 
-                        key={item?.id_post}
-                        titulo={item?.titulo_post}
-                        autor={item?.id_usuario} //TODO: Criar um store para o usuário para que assim seja possível puxar o id do usuario, usando o do autor por teste apenas
-                        post={item?.id_post} 
-                        isLiked={isLiked}
-                        qtdLikes={item?.qtd_curtidas}
-                        handleClick={() => handleClick(item?.id_usuario, item?.id_post)}
+                         key={item?.id_post}
+                         titulo={item?.titulo_post}
+                         autor={item?.id_usuario} 
+                         post={item?.id_post} 
+                         isLiked={isLiked}
+                         qtdLikes={item?.qtd_curtidas}
+                         handleClick={() => handleClick(item?.id_usuario, item?.id_post)} //TODO: Criar um store para o usuário para manter o usuário logado, e no handleClick, puxar o ID do usuario logado. Usando o do autor apenas para teste
                         />
                     )
                 })
             )}
 
             <Paginacao/>
-            {errorUpdate ? (<AlertaTemporario texto="Opa! Algo deu errado, tente novamente depois."/>) : (<></>)}
+            {isError ? (<AlertaTemporario texto="Opa! Algo deu errado, tente novamente depois."/>) : (<></>)}
         </section>
         
         </>
