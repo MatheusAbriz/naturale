@@ -4,10 +4,11 @@ import { HeartIcon } from '@heroicons/react/24/outline'
 import Avatar from '../Avatar/avatar'
 import { useState } from 'react'
 
+//Por enquanto autor está vindo como number, mas mudar para string(nome do autor) assim que possível
 export type CardProps = {
     titulo: string,
-    autor: string,
-    post: string,
+    autor: number,
+    post: number,
     isLiked: boolean;
     qtdLikes: number,
     handleClick: () => void

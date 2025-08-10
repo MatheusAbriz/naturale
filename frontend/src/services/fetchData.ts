@@ -1,0 +1,35 @@
+import axios from 'axios';
+import { useQuery } from 'react-query';
+
+export type FetchProps = {
+    queryKey: string;
+    urlParams: string;
+    onSuccess?: (data: any) => void;
+    onError?: (error: any) => void;
+}   
+
+const data = (urlParams: string) => {
+    return axios.get(`${import.meta.env.VITE_APP_BASE_URL}/${urlParams}`);
+}
+
+const fetchData = ({ queryKey, urlParams, onSuccess, onError }: FetchProps) => {
+
+    return useQuery(queryKey, () => data(urlParams), {
+        onSuccess,
+        onError,
+        refetchOnWindowFocus: false,
+        // Dando fetch e retornando os dados
+        select: (data: any) => {
+            
+            // 0 = sem likes
+            if(data.data === 0){
+                return null;
+            }
+            const result = data.data.map((item: any) => item);
+
+            return result;
+        }
+    })
+}
+
+export default fetchData;

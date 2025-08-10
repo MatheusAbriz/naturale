@@ -1,4 +1,4 @@
-import logo from '../../assets/img/logo.svg'
+import logo from '../../assets/img/logo-branco.svg'
 import imgPerfil from '../../assets/img/usuario-demo.jpg'
 import Search from '../Search/search.tsx'
 import Avatar from '../Avatar/avatar.tsx'

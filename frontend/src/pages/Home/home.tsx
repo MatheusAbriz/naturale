@@ -1,12 +1,32 @@
 import Header from "../../components/Header/header";
 import Card from '../../components/Card/card';
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
-import useFetchData from '../../hooks/useFetchData';
-import { useState } from "react";
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { useEffect, useState } from "react";
 import AlertaTemporario from "../../components/AlertaTemporario/alertaTemporario";
-import useUpdateData from "../../hooks/useUpdateData";
+import { useNavigate, navigate } from 'react-router-dom';
 
-const Home = () =>{
+import fetchData  from "../../services/fetchData";
+import updateData from '../../services/updateData';
+import { useAuth } from "../../hooks/useAuth";
+
+//Tipagem correta para posts e likes
+type Posts = {
+    id_post: number;
+    id_usuario: number;
+    titulo_post: string;
+    texto_post: string;
+    ingredientes_post: string;
+    qtd_curtidas: number;
+    status_post: boolean;
+}
+
+type Likes = {
+    id_like: number;
+    id_post: number;
+    id_usuario: number;
+}
+
+export const Home = () =>{
 
     const Paginacao = () =>{
         return(
@@ -37,30 +57,29 @@ const Home = () =>{
         )
     }
 
-
-    //AREA DE FETCHES E CUSTOM HOOKS - React Query
+    //AREA DE FETCHES E SERVICES - React Query
 
     //Criando um onSuccess que irá adicionar os posts na zustand store
-    const onSuccessPosts = (data: any) =>{
-        const posts = data
+    const onSuccessPosts = (data: Posts[]) =>{
+        const posts = data;
 
         //AddPosts - Zustand Store, setPosts - useState local
-        setPosts(posts)
+        setPosts(posts);
         //addPosts(posts) -> Por enquanto Zustand não está sendo utilizado, pois o proprio React Query faz a mágica de revalidar dados
     }
 
-    const onSuccessLikes = (data: any) => {
+    const onSuccessLikes = (data: Likes) => {
         return;
     }
 
     //Criando um onError que irá imprimir o erro no console para debug
-    const onError = (error: any) =>{
+    const onError = (error: Error) =>{
         console.error("Erro ao buscar os posts:", error);
     }
 
     //Posts - Acessando para depois armazenar na zustand(dentro da funcao onSuccess)
     const { isLoading: isLoadingPosts, data: dataPosts, isError: isErrorPosts } =
-     useFetchData(
+     fetchData(
         { 
             queryKey: 'posts', 
             urlParams: 'post/lerTodosPosts', 
@@ -71,7 +90,7 @@ const Home = () =>{
 
 
     const { data: dataLikes } = 
-     useFetchData(
+     fetchData(
         { 
             queryKey: 'likes', 
             urlParams: 'likes/lerTodosLikes', 
@@ -81,13 +100,13 @@ const Home = () =>{
     )
 
     //Likes - Responsável pela mutação de atualizar(adicionar/remover) likes do BD
-    const { mutate: updateLikes, isError } = useUpdateData()
+    const { mutate: updateLikes, isError } = updateData()
 
     //Posts - variavel final
-    const [ posts, setPosts ] = useState<any>([])
+    const [ posts, setPosts ] = useState<Array<Posts>>([])
 
     //Retornando o nome do usuario com base em seu ID
-    const [ nomeUsuario, setNomeUsuario ] = useState<string | null>(null)
+    //const [ nomeUsuario, setNomeUsuario ] = useState<string | null>(null)
     
 
     //Função que irá adicionar um like à postagem
@@ -109,9 +128,9 @@ const Home = () =>{
            {isLoadingPosts && <div>Carregando...</div>}
            {isErrorPosts && <div>Erro! Site fora do ar no momento.</div>}
            {posts && (
-                posts.map((item: any) =>{
+                posts.map((item: Posts) =>{
                     {/* Filtro que checa os likes (do BD, pelo id_post e id_usuario) com o id_post e id_usuario da entidade post no BD*/}
-                    const isLiked = dataLikes?.some((like: any) => like.id_post === item?.id_post && like.id_usuario === item?.id_usuario);
+                    const isLiked = dataLikes?.some((like: Likes) => like.id_post === item?.id_post && like.id_usuario === item?.id_usuario);
                     return (
                         <Card 
                          key={item?.id_post}
@@ -133,5 +152,3 @@ const Home = () =>{
         </>
     )
 }
-
-export default Home;
