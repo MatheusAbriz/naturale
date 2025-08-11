@@ -11,6 +11,7 @@ type User = {
 //Tipando o contexto de autenticacao
 type AuthContextType = {
     user: User | undefined;
+    loading: boolean;
     signInWithGoogle: () => Promise<void>;
 }
 
@@ -23,6 +24,7 @@ export const AuthContext = createContext({} as AuthContextType);
 
 export const AuthContextProvider = (props: AuthContextProviderProps) =>{
     const [ user, setUser ] = useState<User>();
+    const [ loading, setLoading ] = useState<boolean>(true);
 
     useEffect(() =>{
         //Criando um useEffect pra verificar se o usuario esta logado e depois o unsubscribe pra evitar memory leak
@@ -38,8 +40,10 @@ export const AuthContextProvider = (props: AuthContextProviderProps) =>{
                     nome: displayName,
                     email: email,
                     avatar: photoURL
-                })
+                })   
             }
+            
+            setLoading(false);
         })
 
         return () => {
@@ -67,7 +71,7 @@ export const AuthContextProvider = (props: AuthContextProviderProps) =>{
     }
 
    return(
-        <AuthContext.Provider value={{ user, signInWithGoogle }} >
+        <AuthContext.Provider value={{ user, loading, signInWithGoogle }} >
             {props.children}
         </AuthContext.Provider>
    );

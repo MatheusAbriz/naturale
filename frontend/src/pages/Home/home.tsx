@@ -1,13 +1,11 @@
 import Header from "../../components/Header/header";
 import Card from '../../components/Card/card';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AlertaTemporario from "../../components/AlertaTemporario/alertaTemporario";
-import { useNavigate, navigate } from 'react-router-dom';
 
 import fetchData  from "../../services/fetchData";
 import updateData from '../../services/updateData';
-import { useAuth } from "../../hooks/useAuth";
 
 //Tipagem correta para posts e likes
 type Posts = {
