@@ -14,8 +14,19 @@ export type CardProps = {
     handleClick: () => void
 }
 
+//Tipagem opcoes
+type Options = {
+    label: number;
+    post: number;
+    qtdLikes: number;
+    item: {
+        id: number;
+        texto: string;
+    }[]
+}
+
 const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProps) =>{
-    const [ options, setOptions ] = useState<any | null>({
+    const [ options, setOptions ] = useState<Options>({
         label: autor,
         post: post,
         qtdLikes: qtdLikes,

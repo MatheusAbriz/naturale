@@ -5,10 +5,18 @@ import Avatar from '../Avatar/avatar.tsx'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 
+//Tipagem options
+type Options = {
+    label: string;
+    item: {
+        id: number;
+        texto: string;
+    }[]
+}
 const Header = () =>{
 
     //Opcoes
-    const [ options, setOptions ] = useState<any | null>({
+    const [ options, setOptions ] = useState<Options>({
         label: "Nome_Perfil",
         item: [{id: 1, texto: "Configurações"}, {id: 2, texto: "Favoritos"}, {id: 3, texto: "Sair"}]
     })

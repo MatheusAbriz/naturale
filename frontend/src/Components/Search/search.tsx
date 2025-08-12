@@ -6,7 +6,7 @@ export type SearchProps = {
 }
 
 const Search = ({ texto } : SearchProps) =>{
-    const [ pesquisa, setPesquisa ] = useState<any | null>(null)
+    const [ pesquisa, setPesquisa ] = useState<string>('')
 
     const pesquisar = () =>{
         console.log(pesquisa)
