@@ -110,7 +110,7 @@ export const Home = () =>{
     //Função que irá adicionar um like à postagem
     const handleClick = async(usuario:number, post:number) =>{
         try{
-            await updateLikes(`${import.meta.env.VITE_APP_BASE_URL}/post/atualizarPostCurtida/${usuario}/${post}`)
+            updateLikes(`${import.meta.env.VITE_APP_BASE_URL}/post/atualizarPostCurtida/${usuario}/${post}`)
         }catch(err){
             console.error(err)
         }

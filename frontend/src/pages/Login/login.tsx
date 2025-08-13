@@ -7,11 +7,15 @@ import { Button } from "../../components/ui/button";
 import Input from "../../components/Input/input";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import './login.scss';
+import loginImg from '../../assets/img/login.svg';
+import { useForm, type FieldValues } from 'react-hook-form';
 
 export const Login = () =>{
     const { user, signInWithGoogle } = useAuth();
+    const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate();
-    
+
     const handleLoginGoogle = async() =>{
 
         if(!user){
@@ -20,8 +24,10 @@ export const Login = () =>{
         navigate('/');
 
     }
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) =>{
-        event.preventDefault();
+
+    const handleLoginWithEmail = async(data: FieldValues) =>{
+        const { email, password } = data
+        console.log(`Ola ${email} ${password}`)
     }
 
     return(<>
@@ -36,13 +42,13 @@ export const Login = () =>{
         </aside>
 
         <main
-         className="flex flex-col justify-center items-center w-1/2"
+         className="main-content flex flex-col justify-center items-center w-1/2"
         >
             <div className="flex flex-col gap-y-4 w-80">
                 <img src={logo} alt="imagem logo"/>
 
                 <Button 
-                 className="text-(--cor-branco) bg-[#EA4335] hover:bg-[#EA4335]/80 transition-all duration-200 ease-out cursor-pointer h-10"
+                 className="text-(--cor-branco) cursor-pointer h-10 google-button"
                  onClick={handleLoginGoogle}
                  >
                     <img src={gooogle} alt="imagem google"/>
@@ -50,29 +56,55 @@ export const Login = () =>{
                 </Button>
 
                 <div 
-                 className="w-full flex items-center before:content[''] before:flex-1 before:h-px before:bg-gray-300 before:mr-3 after:content[''] after:flex-1 after:h-px after:bg-gray-300 after:ml-3">
+                 className="separator">
                     <p>Ou entre com o seu login</p>
                 </div>
 
                 <form
                  className="flex flex-col gap-y-4"
-                 onSubmit={(e) => handleSubmit(e)}
+                 onSubmit={handleSubmit(handleLoginWithEmail)}
                 >
-                    <Input 
-                     type="email"
-                     placeholder="Digite seu email"
-                     className=""
-                    />
 
-                    <Input
-                     type="password"
-                     placeholder="Digite sua senha"
-                    />
+                    <div className="flex flex-col">
+                        <Input 
+                         placeholder="nome@gmail.com"
+                         className="input-form h-10"
+                         register={register}
+                         minLength={6}
+                         maskType="email"
+                         name="email"
+                         isRequired
+                        />
+                        {errors.email && <span className="mensagem-erro">{errors.email.message?.toString()}</span>}
+                    </div>
+                    
+                    <div className="flex flex-col">
+                        <Input
+                         placeholder="digite sua senha"
+                         className="input-form h-10"
+                         register={register}
+                         minLength={6}
+                         name="password"
+                         maskType="password"
+                         isRequired
+                        />
+                        {errors.password && <span className="mensagem-erro">{errors.password.message?.toString()}</span>}
+                    </div>
+                   
 
-                    <Input
-                     type="submit"
-                     value="Logar"
-                    />
+                    <div className="flex items-center justify-center">
+                        <Button
+                         type="submit"
+                         className="input-submit h-10 cursor-pointer w-full"
+                        >
+                            <img src={loginImg} alt="logar"/>
+                            <p>Logar</p>
+
+                        </Button>
+                    </div>
+
+                    <span>Não tem conta? Clique aqui e crie uma</span>
+                    
                 </form>
             </div>
         </main>

@@ -1,0 +1,25 @@
+@use '../../styles/input.scss';
+
+.section-login{
+    .main-content{
+
+        .google-button{
+            background: #EA4335;
+            animation: var(--animacao-botao);
+
+            &:hover{
+                opacity: .8;
+            }
+        }
+
+        .relative{
+            span{
+                background-image: url('../../assets/img/login.svg') ;
+                width: 1.5rem;
+                height: 1.5rem;
+                left: 108px;
+                top: 7px;
+            }
+        }
+    }
+}

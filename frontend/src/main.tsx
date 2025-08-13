@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import './assets/css/reset.css';
-import './assets/css/variaveis.css';
+import './assets/css/variaveis.scss';
 import { QueryClientProvider, QueryClient } from 'react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Home } from './pages/Home/home';
