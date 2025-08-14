@@ -1,15 +1,5 @@
-import type{ InputHTMLAttributes } from "react";
-import type{ UseFormRegister } from 'react-hook-form';
 import { maskEmail, maskPassword } from "../../utils/regexMasks";
-
-type InputProps = {
-    name: string;
-    register: UseFormRegister<any>;
-    minLength: number;
-    maxLength?: number;
-    isRequired?: boolean;
-    maskType?: 'email' | 'password';
-} & InputHTMLAttributes<HTMLInputElement>;
+import type { InputProps } from "../../types/types";
 
 const emailRegex = maskEmail();
 const passwordRegex = maskPassword();

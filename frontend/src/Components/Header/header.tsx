@@ -4,15 +4,8 @@ import Search from '../Search/search.tsx'
 import Avatar from '../Avatar/avatar.tsx'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
+import type { OptionsHeader as Options } from '../../types/types.ts'
 
-//Tipagem options
-type Options = {
-    label: string;
-    item: {
-        id: number;
-        texto: string;
-    }[]
-}
 const Header = () =>{
 
     //Opcoes

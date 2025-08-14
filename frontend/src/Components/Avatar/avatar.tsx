@@ -1,9 +1,5 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
-
-export type AvatarProps = {
-    img: string;
-    options: any;
-}
+import type { AvatarProps } from "../../types/types";
 
 //Componente de Avatar com Dropdown
 const Avatar = ({ img, options } : AvatarProps) =>{

@@ -1,4 +1,5 @@
 import Header from "../../components/Header/header";
+import toast from "react-hot-toast";
 
 import logo from '../../assets/img/logo-preto.svg';
 import login from '../../assets/img/login.jpg';
@@ -27,7 +28,8 @@ export const Login = () =>{
 
     const handleLoginWithEmail = async(data: FieldValues) =>{
         const { email, password } = data
-        console.log(`Ola ${email} ${password}`)
+        
+        toast.success("Usuário logado com sucesso")
     }
 
     return(<>
@@ -45,7 +47,7 @@ export const Login = () =>{
          className="main-content flex flex-col justify-center items-center w-1/2"
         >
             <div className="flex flex-col gap-y-4 w-80">
-                <img src={logo} alt="imagem logo"/>
+                <img src={logo} alt="imagem logo" className="mb-4"/>
 
                 <Button 
                  className="text-(--cor-branco) cursor-pointer h-10 google-button"
@@ -72,6 +74,7 @@ export const Login = () =>{
                          register={register}
                          minLength={6}
                          maskType="email"
+                         type="email"
                          name="email"
                          isRequired
                         />
@@ -85,6 +88,7 @@ export const Login = () =>{
                          register={register}
                          minLength={6}
                          name="password"
+                         type="password"
                          maskType="password"
                          isRequired
                         />
@@ -103,7 +107,7 @@ export const Login = () =>{
                         </Button>
                     </div>
 
-                    <span>Não tem conta? Clique aqui e crie uma</span>
+                    <p>Não tem conta? <span className="cursor-pointer">Clique aqui</span> e crie uma</p>
                     
                 </form>
             </div>

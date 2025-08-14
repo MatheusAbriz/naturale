@@ -3,28 +3,8 @@ import usuarioDemo from '../../assets/img/usuario-demo.jpg'
 import { HeartIcon } from '@heroicons/react/24/outline'
 import Avatar from '../Avatar/avatar'
 import { useState } from 'react'
+import type { CardProps, OptionsPost as Options } from '../../types/types'
 import './card.scss'
-
-//Por enquanto autor está vindo como number, mas mudar para string(nome do autor) assim que possível
-export type CardProps = {
-    titulo: string,
-    autor: number,
-    post: number,
-    isLiked: boolean;
-    qtdLikes: number,
-    handleClick: () => void
-}
-
-//Tipagem opcoes
-type Options = {
-    label: number;
-    post: number;
-    qtdLikes: number;
-    item: {
-        id: number;
-        texto: string;
-    }[]
-}
 
 const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProps) =>{
     const [ options, setOptions ] = useState<Options>({

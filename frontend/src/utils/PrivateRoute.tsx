@@ -1,10 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import type{ JSX, ReactNode } from "react";
-
-interface PrivateRouteProps {
-  children: ReactNode;
-}
+import type{ JSX } from "react";
+import type{ PrivateRouteProps } from "../types/types";
 
 const LoadingDemo = () =>{
   return(

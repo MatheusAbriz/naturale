@@ -7,22 +7,7 @@ import AlertaTemporario from "../../components/AlertaTemporario/alertaTemporario
 import fetchData  from "../../services/fetchData";
 import updateData from '../../services/updateData';
 
-//Tipagem correta para posts e likes
-type Posts = {
-    id_post: number;
-    id_usuario: number;
-    titulo_post: string;
-    texto_post: string;
-    ingredientes_post: string;
-    qtd_curtidas: number;
-    status_post: boolean;
-}
-
-type Likes = {
-    id_like: number;
-    id_post: number;
-    id_usuario: number;
-}
+import type { Posts, Likes } from "../../types/types";
 
 export const Home = () =>{
 

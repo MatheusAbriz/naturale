@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import './search.scss';
 import InputSearch from '../Input/inputSearch';
-
-type SearchProps = {
-    texto: string;
-}
+import type { SearchProps } from '../../types/types';
 
 const Search = ({ texto } : SearchProps) =>{
     const [ pesquisa, setPesquisa ] = useState<string>('')

@@ -1,24 +1,7 @@
-import { createContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useEffect, useState} from "react";
 import { auth, signInWithPopup, provider } from "../services/firebase";
+import type { User, AuthContextType, AuthContextProviderProps } from '../types/types';
 
-//Tipagem usuario
-type User = {
-    nome: string;
-    email: string;
-    avatar: string | null;
-}
-
-//Tipando o contexto de autenticacao
-type AuthContextType = {
-    user: User | undefined;
-    loading: boolean;
-    signInWithGoogle: () => Promise<void>;
-}
-
-//Tipando o provider do contexto
-type AuthContextProviderProps = {
-    children: ReactNode;
-}
 
 export const AuthContext = createContext({} as AuthContextType);
 

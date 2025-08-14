@@ -1,9 +1,8 @@
 import { Toaster, toast } from "sonner"
 import { useEffect } from "react";
+import type{ AlertaProps } from "../../types/types";
  
-export type AlertaProps = {
-    texto: string
-}
+
 const AlertaTemporario = ({ texto } : AlertaProps) =>{
     useEffect(() =>{
         toast.error(texto)

@@ -1,9 +1,4 @@
-import type{ InputHTMLAttributes } from "react";
-import type{ UseFormRegister } from 'react-hook-form';
-import { maskEmail, maskCpf } from "../../utils/regexMasks";
-
-type InputProps = InputHTMLAttributes<HTMLInputElement>;
-
+import type { InputPropsSearch as InputProps } from "../../types/types";
 
 const InputSearch = ({...props }: InputProps) =>{
     return(

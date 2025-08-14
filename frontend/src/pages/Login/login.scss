@@ -12,13 +12,18 @@
             }
         }
 
-        .relative{
-            span{
-                background-image: url('../../assets/img/login.svg') ;
-                width: 1.5rem;
-                height: 1.5rem;
-                left: 108px;
-                top: 7px;
+        form{
+            p{
+                span{
+                    color: var(--cor-suporte);
+                    font-weight: 600;
+                    text-decoration: underline;
+                    animation: var(--animacao-botao);
+
+                    &:hover{
+                        opacity: .8;
+                    }
+                }
             }
         }
     }
