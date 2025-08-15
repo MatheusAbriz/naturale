@@ -11,12 +11,13 @@ import { useNavigate } from "react-router-dom";
 import './login.scss';
 import loginImg from '../../assets/img/login.svg';
 import { useForm, type FieldValues } from 'react-hook-form';
+import useLogin from "../../hooks/useLogin";
 
 export const Login = () =>{
     const { user, signInWithGoogle } = useAuth();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate();
-
+    const { mutateAsync: loginUser, isLoading } = useLogin();
     const handleLoginGoogle = async() =>{
 
         if(!user){
@@ -26,10 +27,18 @@ export const Login = () =>{
 
     }
 
+
     const handleLoginWithEmail = async(data: FieldValues) =>{
         const { email, password } = data
+        //Simulando um try catch
+        try{
+            await loginUser({ email, senha: password });
+            toast.success("Usuário logado com sucesso")
+        }catch(e: any){
+            toast.error("Erro ao logar", e)
+            console.log(e)
+        }
         
-        toast.success("Usuário logado com sucesso")
     }
 
     return(<>

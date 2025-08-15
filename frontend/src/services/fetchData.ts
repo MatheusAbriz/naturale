@@ -1,12 +1,6 @@
 import axios from 'axios';
 import { useQuery } from 'react-query';
-
-export type FetchProps = {
-    queryKey: string;
-    urlParams: string;
-    onSuccess?: (data: any) => void;
-    onError?: (error: any) => void;
-}   
+import type {  FetchProps } from '../types/types'; 
 
 const data = (urlParams: string) => {
     return axios.get(`${import.meta.env.VITE_APP_BASE_URL}/${urlParams}`);

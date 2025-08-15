@@ -100,3 +100,11 @@ export type Likes = {
 export interface PrivateRouteProps {
   children: ReactNode;
 }
+
+//Tipagem de services
+export type FetchProps = {
+    queryKey: string;
+    urlParams: string;
+    onSuccess?: (data: any) => void;
+    onError?: (error: any) => void;
+}  
