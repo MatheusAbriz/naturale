@@ -1,4 +1,3 @@
-// services/loginUser.ts
 import axios from "axios";
 
 const loginUser = async (email: string, senha: string) => {
@@ -6,7 +5,7 @@ const loginUser = async (email: string, senha: string) => {
     `${import.meta.env.VITE_APP_BASE_URL}/usuario/logarUsuario/${email}/${senha}`
   );
 
-  if (response.status !== 200) {
+  if (response.status === 400) {
     throw new Error("Erro ao logar o usuário");
   }
 

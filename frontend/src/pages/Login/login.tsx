@@ -14,7 +14,7 @@ import { useForm, type FieldValues } from 'react-hook-form';
 import useLogin from "../../hooks/useLogin";
 
 export const Login = () =>{
-    const { user, signInWithGoogle } = useAuth();
+    const { user, signInWithGoogle, signInWithEmailAndPassword } = useAuth();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate();
     const { mutateAsync: loginUser, isLoading } = useLogin();
@@ -24,7 +24,6 @@ export const Login = () =>{
             return await signInWithGoogle();
         }
         navigate('/');
-
     }
 
 
@@ -32,11 +31,20 @@ export const Login = () =>{
         const { email, password } = data
         //Simulando um try catch
         try{
-            await loginUser({ email, senha: password });
-            toast.success("Usuário logado com sucesso")
-        }catch(e: any){
-            toast.error("Erro ao logar", e)
-            console.log(e)
+            const res = await loginUser({ email, senha: password });
+            
+            //Formatando o res
+            const user = {
+                id: res[0].id_usuario,
+                nome: res[0].nome_usuario,
+                email: res[0].email_usuario, 
+            }
+
+            await signInWithEmailAndPassword(user);
+            toast.success("Usuário logado com sucesso");
+            navigate('/');
+        }catch(e){
+            toast.error("Erro ao logar");
         }
         
     }
@@ -120,6 +128,7 @@ export const Login = () =>{
                     
                 </form>
             </div>
+            {isLoading && <div>Carregando...</div>}
         </main>
     </section>
 

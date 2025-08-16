@@ -1,5 +1,5 @@
 import express from 'express'
-import { adicionarUsuario, atualizarEmailUsuario, atualizarNomeUsuario, atualizarSenhaUsuario, atualizarTelefoneUsuario, deletarUsuario, selecionarNomeUsuario, selecionarUsuario } from '../Service/usuarioService.js'
+import { adicionarUsuario, atualizarEmailUsuario, atualizarNomeUsuario, atualizarSenhaUsuario, atualizarTelefoneUsuario, deletarUsuario, logarUsuario, selecionarNomeUsuario, selecionarUsuario } from '../Service/usuarioService.js'
 const router = express.Router()
 
 router.use(express.json())
@@ -36,6 +36,13 @@ router.get('/usuario/lerNomeUsuario/:id', (req, res) =>{
     selecionarNomeUsuario(req.params.id).then(usuario =>{
         //Caso ache...
         if(usuario) return res.status(200).send(`${ JSON.stringify(usuario) }`); else return res.status(400).send("Erro! Não foi possível achar o usuário");
+    })
+})
+
+//CRUD - Login usuario
+router.get('/usuario/logarUsuario/:email/:senha', (req, res) => {
+    logarUsuario(req.params.email, req.params.senha).then(usuario =>{
+        if(usuario.status) return res.status(200).send(`${JSON.stringify(usuario.msg)}`); else return res.status(400).send("Erro! Não foi possível logar o usuário");
     })
 })
 

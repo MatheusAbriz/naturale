@@ -16,6 +16,7 @@ export type CardProps = {
     titulo: string,
     autor: number,
     post: number,
+    img?: any,
     isLiked: boolean;
     qtdLikes: number,
     handleClick: () => void
@@ -58,11 +59,13 @@ export type SearchProps = {
 }
 
 //Tipagem de contextos
-//Tipagem usuario
+//Tipagem usuario, serve tanto para logar com google como login com email/senha
 export type User = {
+    id?: number;
+    token?: string;
     nome: string;
     email: string;
-    avatar: string | null;
+    avatar?: string | null; //Caso haja algum erro no banco, vai trazer null
 }
 
 //Tipando o contexto de autenticacao
@@ -70,6 +73,7 @@ export type AuthContextType = {
     user: User | undefined;
     loading: boolean;
     signInWithGoogle: () => Promise<void>;
+    signInWithEmailAndPassword: (user: User) => Promise<void>;
 }
 
 //Tipando o provider do contexto
@@ -108,3 +112,11 @@ export type FetchProps = {
     onSuccess?: (data: any) => void;
     onError?: (error: any) => void;
 }  
+
+export type SkeletonImageProps = {
+    src: string;
+    alt: string; 
+    width?: number;
+    height?: number;
+    className?: string;
+}

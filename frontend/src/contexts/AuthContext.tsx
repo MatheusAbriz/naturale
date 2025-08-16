@@ -26,7 +26,15 @@ export const AuthContextProvider = (props: AuthContextProviderProps) =>{
                 })   
             }
             
+            //Agora, vamos verificar se o usuario é logado com email/senha manual
+            const userLocalStorage : User = JSON.parse(localStorage.getItem('user') || '{}');
+
+            //Verificando se é undefined ou nao
+            if(userLocalStorage.id !== undefined && userLocalStorage.nome !== undefined && userLocalStorage.email !== undefined){
+                setUser(userLocalStorage);
+            }
             setLoading(false);
+
         })
 
         return () => {
@@ -45,7 +53,7 @@ export const AuthContextProvider = (props: AuthContextProviderProps) =>{
                 throw new Error('Informações cruciais da conta não foram encontradas, tente novamente');
             }
 
-            setUser({
+            return setUser({
                 nome: displayName,
                 email: email,
                 avatar: photoURL
@@ -53,8 +61,16 @@ export const AuthContextProvider = (props: AuthContextProviderProps) =>{
         }
     }
 
+    const signInWithEmailAndPassword = async(user: User) =>{
+        if(user.id === undefined || user.nome === undefined || user.email === undefined) {
+            throw new Error("Erro ao logar o usuário")
+        }
+        localStorage.setItem('user', JSON.stringify(user));
+        return setUser(user);
+    }
+
    return(
-        <AuthContext.Provider value={{ user, loading, signInWithGoogle }} >
+        <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithEmailAndPassword }} >
             {props.children}
         </AuthContext.Provider>
    );

@@ -3,6 +3,7 @@ import Card from '../../components/Card/card';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useState } from "react";
 import AlertaTemporario from "../../components/AlertaTemporario/alertaTemporario";
+import Loading from "../../Components/Loading/loading";
 
 import fetchData  from "../../services/fetchData";
 import updateData from '../../services/updateData';
@@ -88,9 +89,6 @@ export const Home = () =>{
     //Posts - variavel final
     const [ posts, setPosts ] = useState<Array<Posts>>([])
 
-    //Retornando o nome do usuario com base em seu ID
-    //const [ nomeUsuario, setNomeUsuario ] = useState<string | null>(null)
-    
 
     //Função que irá adicionar um like à postagem
     const handleClick = async(usuario:number, post:number) =>{
@@ -108,7 +106,7 @@ export const Home = () =>{
          className="section-cards flex justify-center items-center flex-wrap gap-x-20 p-(--espacamento-padrao)"
          >
 
-           {isLoadingPosts && <div>Carregando...</div>}
+           {isLoadingPosts && <Loading/>}
            {isErrorPosts && <div>Erro! Site fora do ar no momento.</div>}
            {posts && (
                 posts.map((item: Posts) =>{

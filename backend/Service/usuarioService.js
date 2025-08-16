@@ -25,6 +25,17 @@ export async function selecionarNomeUsuario(id){
     }
 }
 
+//Login de usuario - Obrigatoriamente trazer id, nome, token e avatar(imagem dele)
+export async function logarUsuario(email, senha){
+    try{
+        const results = await pool.query("SELECT id_usuario, nome_usuario, email_usuario FROM usuario WHERE email_usuario = $1 AND senha_usuario = $2", [email, senha])
+
+        if(results.rows.length >= 1) return { status: true, msg: results.rows }; else return { status: false, msg: "Usuario ou senha incorretos" };
+    }catch(err){
+        return { status: false, msg: "Erro na requisição" };
+    }
+}
+
 export async function adicionarUsuario(usuario){
     try{
         const { nome_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario } = usuario
