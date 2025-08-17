@@ -37,7 +37,9 @@ export const Login = () =>{
             const user = {
                 id: res[0].id_usuario,
                 nome: res[0].nome_usuario,
-                email: res[0].email_usuario, 
+                email: res[0].email_usuario,
+                tipo_usuario: res[0].tipo_usuario,
+                avatar: res[0].avatar || null
             }
 
             await signInWithEmailAndPassword(user);
@@ -116,7 +118,8 @@ export const Login = () =>{
                     <div className="flex items-center justify-center">
                         <Button
                          type="submit"
-                         className="input-submit h-10 cursor-pointer w-full"
+                         className={`input-submit h-10 cursor-pointer w-full ${isLoading ? 'disabled' : ''}`}
+                         disabled={isLoading}
                         >
                             <img src={loginImg} alt="logar"/>
                             <p>Logar</p>
@@ -128,7 +131,6 @@ export const Login = () =>{
                     
                 </form>
             </div>
-            {isLoading && <div>Carregando...</div>}
         </main>
     </section>
 

@@ -54,6 +54,13 @@
             font-weight: 500;
         }
     }
+
+    //Button - Disabled
+    .disabled{
+        opacity: .5;
+        pointer-events: none;
+    }
+
 }
 
 body{

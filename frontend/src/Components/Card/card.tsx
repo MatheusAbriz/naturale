@@ -2,11 +2,17 @@ import cardImg from '../../assets/img/card-img.png'
 import usuarioDemo from '../../assets/img/usuario-demo.jpg'
 import { HeartIcon } from '@heroicons/react/24/outline'
 import Avatar from '../Avatar/avatar'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CardProps, OptionsPost as Options } from '../../types/types'
 import './card.scss'
+import LoadingImages from '../Loading/loadingImages'
 
 const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProps) =>{
+    const [ loaded, setLoaded ] = useState(false);
+    const onImageLoaded = () => {
+        setLoaded(true)
+    };
+
     const [ options, setOptions ] = useState<Options>({
         label: autor,
         post: post,
@@ -20,7 +26,14 @@ const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProp
                     <Avatar img={usuarioDemo} options={options}/>
                     <h1 className="text-md">{autor}</h1>
                 </div>
-                <img src={ cardImg } alt="imagem comida"/>
+                <img 
+                     src={ cardImg } 
+                     alt="imagem comida"
+                     onLoad={onImageLoaded}
+                     className={`flex ${!loaded ? 'hidden' : ''}`}
+                    />
+
+                {!loaded && <LoadingImages />}
 
                 <div className="flex justify-between mt-2">
                     <h1 className="text-md">{ titulo }</h1>

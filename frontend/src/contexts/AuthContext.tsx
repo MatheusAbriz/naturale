@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState} from "react";
 import { auth, signInWithPopup, provider } from "../services/firebase";
 import type { User, AuthContextType, AuthContextProviderProps } from '../types/types';
+import { UserEnums } from "../enums/userEnums";
 
 
 export const AuthContext = createContext({} as AuthContextType);
@@ -19,10 +20,12 @@ export const AuthContextProvider = (props: AuthContextProviderProps) =>{
                     throw new Error("Informações cruciais da conta não foram encontradas, tente novamente");
                 }
 
+                //Um usuário que loga pelo Google, SEMPRE será um USER
                 setUser({
                     nome: displayName,
                     email: email,
-                    avatar: photoURL
+                    avatar: photoURL,
+                    tipo_usuario: UserEnums.USER
                 })   
             }
             
@@ -53,10 +56,12 @@ export const AuthContextProvider = (props: AuthContextProviderProps) =>{
                 throw new Error('Informações cruciais da conta não foram encontradas, tente novamente');
             }
 
+            //Um usuário que loga pelo Google, SEMPRE será um USER
             return setUser({
                 nome: displayName,
                 email: email,
-                avatar: photoURL
+                avatar: photoURL,
+                tipo_usuario: UserEnums.USER
             })
         }
     }

@@ -1,5 +1,6 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
 import type { UseFormRegister } from "react-hook-form";
+import { UserEnums } from '../enums/userEnums';
 
 //Tipagem de componentes
 export type AlertaProps = {
@@ -59,13 +60,15 @@ export type SearchProps = {
 }
 
 //Tipagem de contextos
+
 //Tipagem usuario, serve tanto para logar com google como login com email/senha
 export type User = {
     id?: number;
-    token?: string;
+    token?: string; //Token teoricamente guardará o email/senha/etc
     nome: string;
     email: string;
-    avatar?: string | null; //Caso haja algum erro no banco, vai trazer null
+    tipo_usuario: UserEnums;
+    avatar: string | null; //Caso haja algum erro no banco, vai trazer null
 }
 
 //Tipando o contexto de autenticacao
