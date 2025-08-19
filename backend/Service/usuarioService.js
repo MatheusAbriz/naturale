@@ -30,7 +30,7 @@ export async function selecionarNomeUsuario(id) {
 export async function logarUsuario(email, senha) {
     try {
         const results = await pool.query(
-            "SELECT id_usuario, nome_usuario, email_usuario, senha_usuario, tipo_usuario, avatar FROM usuario WHERE email_usuario = $1",
+            "SELECT id_usuario, nome_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario FROM usuario WHERE email_usuario = $1",
             [email]
         );
 
@@ -60,7 +60,7 @@ export async function logarUsuario(email, senha) {
                 id: usuario.id_usuario,
                 nome: usuario.nome_usuario,
                 tipo: usuario.tipo_usuario,
-                avatar: usuario.avatar,
+                avatar: usuario.avatar_usuario,
                 token
             }
         };
@@ -73,16 +73,16 @@ export async function logarUsuario(email, senha) {
 // Adicionar usuário com senha criptografada
 export async function adicionarUsuario(usuario) {
     try {
-        const { nome_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar } = usuario;
+        const { nome_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario } = usuario;
 
         // Criptografar a senha
         const hash = await bcrypt.hash(senha_usuario, 10);
 
         const result = await pool.query(
-            `INSERT INTO usuario (nome_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar) 
+            `INSERT INTO usuario (nome_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario) 
              VALUES ($1, $2, $3, $4, $5, $6, $7) 
-             RETURNING id_usuario, nome_usuario, email_usuario, tipo_usuario, avatar`,
-            [nome_usuario, telefone_usuario, cpf_usuario, email_usuario, hash, tipo_usuario, avatar]
+             RETURNING id_usuario, nome_usuario, email_usuario, tipo_usuario, avatar_usuario`,
+            [nome_usuario, telefone_usuario, cpf_usuario, email_usuario, hash, tipo_usuario, avatar_usuario]
         );
 
         return result.rows[0];

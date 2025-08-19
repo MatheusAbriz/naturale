@@ -1,4 +1,4 @@
-import pool from "../Model/pool.js";
+import pool from "../model/pool.js";
 
 //CRUD DA ENTIDADE POST
 

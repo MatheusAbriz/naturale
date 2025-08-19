@@ -17,7 +17,7 @@ export function verifyToken(req, res, next) {
       return res.status(403).json({ message: "Token inválido ou expirado" });
     }
 
-    req.user = decoded; // agora você tem { id, tipo } em req.user
+    req.user = decoded;
     next();
   });
 }

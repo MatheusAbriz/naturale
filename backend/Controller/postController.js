@@ -1,5 +1,5 @@
 import express from 'express'
-import { lerTodosPosts, atualizarPostCurtida } from '../Service/postService.js'
+import { lerTodosPosts, atualizarPostCurtida } from '../service/postService.js'
 const router = express.Router()
 
 router.use(express.json())

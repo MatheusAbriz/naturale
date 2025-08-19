@@ -1,5 +1,5 @@
 import express from 'express'
-import { lerLike, lerTodosLikes } from '../Service/likesService.js'
+import { lerLike, lerTodosLikes } from '../service/likesService.js'
 const router = express.Router()
 router.use(express.json())
 
