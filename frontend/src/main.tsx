@@ -9,6 +9,7 @@ import PrivateRoute from './utils/PrivateRoute';
 import ToastSuccess from './components/Toasts/toastSuccess';
 import ToastError from './Components/Toasts/toastError';
 import { AuthContextProvider } from './contexts/AuthContext';
+import ChatBot from './pages/ChatBot/chatBot';
 
 //Criando um cliente para o React Query
 const queryClient = new QueryClient()
@@ -22,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
         <Routes>
           <Route path="/" element={<PrivateRoute><Home/></PrivateRoute>}></Route>
           <Route path="login" element={ <Login/> }/>
+          <Route path="/chat" element={<ChatBot/>}/>
         </Routes>
       </AuthContextProvider>
     </BrowserRouter>

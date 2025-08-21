@@ -1,0 +1,25 @@
+.section-chat{
+    height: 100dvh;
+
+    form textarea{
+        background-color: var(--cor-fundo-botao);
+        resize: none;
+        overflow-y: none;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        
+        *::-webkit-scrollbar{
+            display: none;
+        }
+
+        &, &::placeholder{
+            font-size: .8rem;
+        }
+    }
+
+    form span{        
+        font-size: .8rem;
+        color: #CCC;
+        align-self: flex-start;
+    }
+}

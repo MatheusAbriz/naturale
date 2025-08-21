@@ -47,9 +47,7 @@ export const Home = () =>{
     const onSuccessPosts = (data: Posts[]) =>{
         const posts = data;
 
-        //AddPosts - Zustand Store, setPosts - useState local
         setPosts(posts);
-        //addPosts(posts) -> Por enquanto Zustand não está sendo utilizado, pois o proprio React Query faz a mágica de revalidar dados
     }
 
     const onSuccessLikes = (data: Likes) => {

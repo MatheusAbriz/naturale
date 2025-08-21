@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, ReactNode } from "react";
+import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
 import type { UseFormRegister } from "react-hook-form";
 import { UserEnums } from '../enums/userEnums';
 
@@ -42,6 +42,14 @@ export type OptionsHeader = {
         texto: string;
     }[]
 }
+
+export type TextAreaProps = {
+    name: string;
+    register: UseFormRegister<any>;
+    minLength: number;
+    maxLength: number;
+    isRequired: boolean;
+} & TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 export type InputProps = {
     name: string;
