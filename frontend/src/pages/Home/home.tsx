@@ -3,7 +3,7 @@ import Card from '../../components/Card/card';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useState } from "react";
 import AlertaTemporario from "../../components/AlertaTemporario/alertaTemporario";
-import Loading from "../../Components/Loading/loading";
+import Loading from "../../components/Loading/loading";
 
 import fetchData  from "../../services/fetchData";
 import updateData from '../../services/updateData';
