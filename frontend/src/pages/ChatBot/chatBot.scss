@@ -2,6 +2,7 @@
     height: 100dvh;
 
     form textarea{
+        height: 2rem;
         background-color: var(--cor-fundo-botao);
         resize: none;
         overflow-y: none;
@@ -21,5 +22,12 @@
         font-size: .8rem;
         color: #CCC;
         align-self: flex-start;
+    }
+
+    .container-resposta{
+        margin-bottom: 2rem;
+        p{
+            line-height: 1.5rem;
+        }
     }
 }

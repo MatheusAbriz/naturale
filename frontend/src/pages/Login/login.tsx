@@ -2,7 +2,7 @@ import Header from "../../components/Header/header";
 import toast from "react-hot-toast";
 
 import logo from '../../assets/img/logo-preto.svg';
-import login from '../../assets/img/login.jpg';
+import login from '../../assets/img/login.png';
 import gooogle from '../../assets/img/google.svg';
 import { Button } from "../../components/ui/button";
 import Input from "../../components/Input/input";
@@ -54,16 +54,16 @@ export const Login = () =>{
     return(<>
     <Header/>
     <section
-     className="section-login p-(--espacamento-padrao) flex justify-center items-center gap-x-8"
+     className="section-login flex justify-center items-center gap-x-8"
     >
         <aside
-         className="flex flex-col justify-center gap-y-4 w-1/2 p-4"
+         className="flex flex-col justify-center gap-y-4 w-1/2 "
         >
             <img src={login} alt="login imagem"/>
         </aside>
 
         <main
-         className="main-content flex flex-col justify-center items-center w-1/2"
+         className="main-content flex flex-col justify-center items-center w-1/2 p-(--espacamento-padrao)"
         >
             <div className="flex flex-col gap-y-4 w-80">
                 <img src={logo} alt="imagem logo" className="mb-4"/>

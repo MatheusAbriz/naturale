@@ -7,7 +7,7 @@ router.use(express.json())
 
 
 router.get('/usuario/', (req, res, next) =>{
-    res.send(`Olá, deu tudo certo! ${connection}`)
+    res.send(`Olá, deu tudo certo!`)
 })
 
 //CRUD - Cria Usuario
@@ -24,7 +24,7 @@ router.get('/usuario/lerUsuario/:id', (req, res) => {
 
         //Verificando se a query deu OK(verdadeira, exibir resultados) ou falsa(erro)
         if(usuario){
-            res.status(200).send(`${ JSON.stringify(usuario) }`)
+            res.status(200).send(`${JSON.stringify(usuario)}`)
         }else{
             res.status(400).send("Erro! Não foi possível achar usuário")
         }

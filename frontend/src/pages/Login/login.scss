@@ -1,6 +1,13 @@
 @use '../../styles/input.scss';
 
 .section-login{
+
+    aside{
+        img{
+            height: 100dvh;
+        }
+    }
+
     .main-content{
 
         .google-button{

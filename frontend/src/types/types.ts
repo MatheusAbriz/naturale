@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
+import type { ForwardedRef, InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
 import type { UseFormRegister } from "react-hook-form";
 import { UserEnums } from '../enums/userEnums';
 

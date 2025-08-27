@@ -4,6 +4,8 @@ import type { TextAreaProps } from "../../types/types";
 const TextArea = ({name, minLength, maxLength=255, register, isRequired,...props }: TextAreaProps) =>{
     return(
         <textarea
+        maxLength={maxLength}
+        minLength={minLength}
          {...props}
          {...register(name, { required: isRequired ? 'Campo obrigatorio' : '', minLength: {
             value: minLength,
