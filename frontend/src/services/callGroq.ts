@@ -6,7 +6,7 @@ export const callGroq = async (userInput: string) =>{
             'https://api.groq.com/openai/v1/chat/completions', {
                 model: 'llama3-8b-8192',
                 messages: [
-                    { role: 'system', content: 'Você é um assistente culinário' },
+                    { role: 'system', content: 'Você é um assistente culinário. Lembre de limitar suas respostas a mais ou menos 500 caracteres. Não corte a mensagem no meio. Ao invés disso, faça-a caber em 500 caracteres.' },
                     { role: 'user', content: userInput },
                 ],
                 temperature: 0.7

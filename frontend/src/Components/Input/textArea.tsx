@@ -5,7 +5,6 @@ const TextArea = ({name, minLength, maxLength=255, register, isRequired,...props
     return(
         <textarea
         maxLength={maxLength}
-        minLength={minLength}
          {...props}
          {...register(name, { required: isRequired ? 'Campo obrigatorio' : '', minLength: {
             value: minLength,
