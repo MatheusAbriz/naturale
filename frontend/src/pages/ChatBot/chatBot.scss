@@ -1,5 +1,5 @@
 .section-chat{
-    height: 100dvh;
+    height: 80dvh;
     overflow-y: scroll;
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -35,6 +35,12 @@
         p{
             line-height: 1.5rem;
         }
+
+        img{
+            width: 100dvw;
+            max-width: 12rem;
+            height: auto;
+        }
     }
 
     .container-chat > div{
@@ -49,6 +55,14 @@
             background: var(--cor-fundo-botao);
             border-radius: 1rem;
             padding: .3rem 1rem;
+        }
+    }
+
+    .container-chat{
+        aside{
+            p{
+                color: #CECECE;
+            }
         }
     }
 }

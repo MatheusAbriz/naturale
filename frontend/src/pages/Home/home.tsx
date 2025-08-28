@@ -101,7 +101,7 @@ export const Home = () =>{
         <Header/>
 
         <section 
-         className="section-cards flex justify-center items-center flex-wrap gap-x-20 p-(--espacamento-padrao)"
+         className="section-cards flex justify-center items-center flex-wrap gap-x-20 gap-y-10 p-(--espacamento-padrao)"
          >
 
            {isLoadingPosts && <Loading/>}

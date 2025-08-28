@@ -8,6 +8,7 @@ import { ArrowUpIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import Loading from '../../components/Loading/loading';
 import Header from '../../components/Header/header';
+import botIcon from '../../assets/img/bot.svg';
 
 const ChatBot = () => {
   const [ perguntas, setPerguntas ] = useState<string[]>([]);
@@ -68,6 +69,13 @@ const ChatBot = () => {
       </form>
 
       <div className="container-chat">
+        {perguntas.length <= 0 && (
+            <aside className="container-bot flex flex-col justify-center items-center">
+              <img src={botIcon}/>
+              <p>Posso ajudar hoje?</p>
+            </aside>
+          )
+        }
         {loading ? (
           <Loading/>
         ) : (<>
