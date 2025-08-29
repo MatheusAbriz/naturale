@@ -1,10 +1,10 @@
 import logo from '../../assets/img/logo-branco.svg'
 import imgPerfil from '../../assets/img/usuario-demo.jpg'
-import Search from '../Search/search.tsx'
-import Avatar from '../Avatar/avatar.tsx'
+import Search from '../Search/search'
+import Avatar from '../Avatar/avatar'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import type { OptionsHeader as Options } from '../../types/types.ts'
+import type { OptionsHeader as Options } from '../../types/types'
 
 const Header = () =>{
 

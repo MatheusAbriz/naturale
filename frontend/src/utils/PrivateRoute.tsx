@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import Loading from "../Components/Loading/loading";
+import Loading from "../components/Loading/loading";
 import type{ JSX } from "react";
 import type{ PrivateRouteProps } from "../types/types";
 

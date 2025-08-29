@@ -7,7 +7,7 @@ import { Home } from './pages/Home/home';
 import { Login } from './pages/Login/login';
 import PrivateRoute from './utils/PrivateRoute';
 import ToastSuccess from './components/Toasts/toastSuccess';
-import ToastError from './Components/Toasts/toastError';
+import ToastError from './components/Toasts/toastError';
 import { AuthContextProvider } from './contexts/AuthContext';
 import ChatBot from './pages/ChatBot/chatBot';
 
