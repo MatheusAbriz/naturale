@@ -38,11 +38,11 @@ const ChatBot = () => {
   return (<>
     <Header/>
     <section 
-     className="section-chat py-4 pt-24 px-16 flex justify-between items-center flex-col-reverse"
+     className="section-chat py-4 pt-24 px-16 flex items-center flex-col-reverse"
     >
       
       <form 
-        className="flex gap-x-8 w-full justify-center items-center" 
+        className="flex gap-x-8 w-full justify-center items-center absolute bottom-0" 
         onSubmit={handleSubmit(handleSend)}
        >
         <span 
