@@ -6,6 +6,8 @@ import { useState } from 'react'
 import type { CardProps, OptionsPost as Options } from '../../types/types'
 import './card.scss'
 import LoadingImages from '../Loading/loadingImages'
+import { ChatBubbleOvalLeftIcon } from '@heroicons/react/24/outline'
+import { BookmarkIcon } from 'lucide-react'
 
 const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProps) =>{
     const [ loaded, setLoaded ] = useState(false);
@@ -22,7 +24,7 @@ const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProp
 
     return(
             <div className="container-card flex flex-col">
-                <div className="flex items-center gap-x-2">
+                <div className="flex items-center gap-x-2 mb-2">
                     <Avatar img={usuarioDemo} options={options}/>
                     <h1 className="text-md">{autor}</h1>
                 </div>
@@ -35,14 +37,29 @@ const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProp
 
                 {!loaded && <LoadingImages />}
 
-                <div className="flex justify-between mt-2">
-                    <h1 className="text-md">{ titulo }</h1>
-
-                    <div className="flex gap-x-2">
+                <div className="flex justify-between mt-2 mb-1">
+                    <div className="flex gap-x-2 items-center">
                         <button className="cursor-pointer" onClick={handleClick}>
                             <HeartIcon className={`size-6 ${isLiked ? "fill-(--cor-fundo)" : "fill-white" } text-(--cor-preto) `}/>
                         </button>
-                        <h6>{qtdLikes}</h6>
+                        <button>
+                            <ChatBubbleOvalLeftIcon className="size-6 text-(--cor-preto)"/>
+                        </button>
+                    </div>
+
+                    <div className="align-self-end">
+                        <button>
+                            <BookmarkIcon className="size-6 text-(--cor-preto)"/>
+                        </button>
+                    </div>
+                </div>
+                    
+                <div className="container-curtidas">
+                    <span>{qtdLikes} curtidas</span>
+
+                    <div className="flex gap-x-2 items-center justify-start">
+                        <span>{ autor }</span>
+                        <h1 className="text-md">{ titulo }</h1>
                     </div>
                 </div>
             </div>

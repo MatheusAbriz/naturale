@@ -62,7 +62,6 @@ export type InputProps = {
 
 export type InputPropsSearch = InputHTMLAttributes<HTMLInputElement>;
 
-
 export type SearchProps = {
     texto: string;
 }
