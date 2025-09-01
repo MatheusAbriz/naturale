@@ -37,3 +37,7 @@ app.get('/', (req, res) => {
         status: 'OK'
     });
 });
+
+app.listen(port, () =>{
+    console.log(`Servidor de exemplo iniciado na porta ${ port }`)
+})
