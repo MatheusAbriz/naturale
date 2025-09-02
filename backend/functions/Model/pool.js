@@ -5,8 +5,10 @@ const { Pool  } = pg
 dotenv.config()
 
 //Criando a conexão com o BD
+const connectionString = "postgresql://postgres:HcRpARovWsBtSwGd@db.lgnanqqwuvnmhiernohc.supabase.co:5432/postgres"
+console.log("Database URL", connectionString)
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: connectionString,
     ssl: {
         rejectUnauthorized: false, // necessário em provedores cloud
     },

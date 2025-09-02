@@ -1,9 +1,10 @@
+/*
 import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
-import usuario from './Controller/usuarioController.js'
-import post from './Controller/postController.js'
-import likes from './Controller/likesController.js'
+import usuario from './functions/Controller/usuarioController.js'
+import post from './functions/Controller/postController.js'
+import likes from './functions/Controller/likesController.js'
 import pkg from 'swagger-ui-express'
 import { readFileSync } from 'fs'
 const swaggerUi = pkg
@@ -41,3 +42,4 @@ app.get('/', (req, res) => {
 app.listen(port, () =>{
     console.log(`Servidor de exemplo iniciado na porta ${ port }`)
 })
+*/
