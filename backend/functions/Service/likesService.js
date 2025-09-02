@@ -3,10 +3,10 @@ import pool from "../Model/pool.js";
 //Pega todos os likes e posts
 export async function lerTodosLikes(){
     try{
-        const results = await pool.query("SELECT * FROM likes")
+        const results = await pool`SELECT * FROM likes`
         
-        if(results.rows.length > 0){
-            return { status: true, msg: results.rows };
+        if(results.length > 0){
+            return { status: true, msg: results };
         }
         return { status: true, msg: 0 };
     }catch(err){
@@ -18,10 +18,10 @@ export async function lerTodosLikes(){
 //Verificar se o likes existe
 export async function lerLike(idUsuario, idPost){
     try{
-        const results = await pool.query("SELECT * FROM likes WHERE id_usuario = $1 AND id_post = $2", [idUsuario, idPost])
+        const results = await pool`SELECT * FROM likes WHERE id_usuario = ${idUsuario} AND id_post = ${idPost}`
 
-        if(results.rows.length > 0){
-            return { status: true, msg: results.rows };
+        if(results.length > 0){
+            return { status: true, msg: results };
         }
 
         return { status: false, msg: "Sem likes disponíveis" };

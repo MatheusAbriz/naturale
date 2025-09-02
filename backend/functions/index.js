@@ -15,11 +15,6 @@ app.use(usuario);
 app.use(likes);
 app.use(post);
 
-setGlobalOptions({
-  region: 'us-central1',
-  memory: '256MB',
-  timeoutSeconds: 120,
-  maxInstances: 10
-});
+setGlobalOptions({maxInstances: 10});
 
 export const api = onRequest(app);
