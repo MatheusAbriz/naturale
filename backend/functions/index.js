@@ -9,7 +9,7 @@ import post from './Controller/postController.js';
 
 admin.initializeApp();
 const app = express();
-app.use(cors({ origin: true }));
+app.use(cors({ origin: "*" }));
 
 app.use(usuario);
 app.use(likes);

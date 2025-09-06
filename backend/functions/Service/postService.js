@@ -7,7 +7,10 @@ export async function lerTodosPosts(){
     try{
         const results = await pool`SELECT * FROM post`;
         //Retornando o resultado
-        if(results.length >=1 ) return results; else return false;
+        if(results.count >= 1){
+            return results;
+        }
+        return false;
     }catch(err){
         console.log(err)
     }
@@ -19,7 +22,7 @@ export async function atualizarPostCurtida(idUsuario, idPost){
         const verificaLike = await pool`SELECT * FROM likes WHERE id_usuario = ${idUsuario} AND id_post = ${idPost}`;
 
         //Se já tiver likes...
-        if(verificaLike.length > 0){
+        if(verificaLike.count > 0){
             await pool.query`DELETE FROM likes WHERE id_usuario = ${idUsuario} AND id_post = ${idPost}`;
             
             //Decrementando o like
@@ -33,7 +36,7 @@ export async function atualizarPostCurtida(idUsuario, idPost){
 
         //Incrementando no a quantidade de likes
         const results = await pool`UPDATE post SET qtd_curtidas = qtd_curtidas + 1 WHERE id_post = ${idPost}`;
-        if(results.length >= 1) return true; else return false;
+        if(results.count >= 1) return true; else return false;
     }catch(err){
         console.log(err)
     }

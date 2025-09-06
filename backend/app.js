@@ -1,5 +1,5 @@
 
-import express from 'express'
+/*
 import dotenv from 'dotenv'
 import cors from 'cors'
 import usuario from './functions/Controller/usuarioController.js'
@@ -42,3 +42,4 @@ app.get('/', (req, res) => {
 app.listen(port, () =>{
     console.log(`Servidor de exemplo iniciado na porta ${ port }`)
 })
+*/

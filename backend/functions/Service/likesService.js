@@ -5,7 +5,7 @@ export async function lerTodosLikes(){
     try{
         const results = await pool`SELECT * FROM likes`
         
-        if(results.length > 0){
+        if(results.count > 0){
             return { status: true, msg: results };
         }
         return { status: true, msg: 0 };
@@ -20,7 +20,7 @@ export async function lerLike(idUsuario, idPost){
     try{
         const results = await pool`SELECT * FROM likes WHERE id_usuario = ${idUsuario} AND id_post = ${idPost}`
 
-        if(results.length > 0){
+        if(results.count > 0){
             return { status: true, msg: results };
         }
 
