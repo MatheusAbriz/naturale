@@ -1,8 +1,10 @@
 import pool from "../model/pool.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import dotenv from 'dotenv';
+dotenv.config();
 
-const SECRET = "minha_chave_secreta"; // ideal usar process.env.JWT_SECRET
+const SECRET = process.env.JWT_SECRET
 
 // Selecionar usuário pelo ID
 export async function selecionarUsuario(id) {    
@@ -73,22 +75,40 @@ export async function logarUsuario(email, senha) {
 // Adicionar usuário com senha criptografada
 export async function adicionarUsuario(usuario) {
     try {
-        const { nome_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario } = usuario;
+        const { nome_usuario, apelido_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario } = usuario;
+
+        // Verifica se o email já está cadastrado
+        const existingUser = await pool.query("SELECT * FROM usuario WHERE email_usuario = $1", [email_usuario]);
+        if(existingUser.rows.length > 0) {
+            return { status: false, msg: "Email já cadastrado" };
+        }
 
         // Criptografar a senha
         const hash = await bcrypt.hash(senha_usuario, 10);
 
         const result = await pool.query(
-            `INSERT INTO usuario (nome_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario) 
-             VALUES ($1, $2, $3, $4, $5, $6, $7) 
-             RETURNING id_usuario, nome_usuario, email_usuario, tipo_usuario, avatar_usuario`,
-            [nome_usuario, telefone_usuario, cpf_usuario, email_usuario, hash, tipo_usuario, avatar_usuario]
+            `INSERT INTO usuario (nome_usuario, apelido_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+             RETURNING id_usuario, apelido_usuario, email_usuario, tipo_usuario, avatar_usuario`,
+            [nome_usuario, apelido_usuario, telefone_usuario, cpf_usuario, email_usuario, hash, tipo_usuario, avatar_usuario]
         );
 
-        return result.rows[0];
+        const token = jwt.sign(
+            { id: result.rows[0].id_usuario, tipo: result.rows[0].tipo_usuario },
+            SECRET,
+            { expiresIn: "1h" }
+        );
+
+        return {
+            status: true,
+            usuario: {
+                ...result.rows[0],
+                token
+            }
+        };
     } catch (err) {
         console.log(err);
-        throw err;
+        return { status: false, msg: "Erro ao cadastrar usuário" };
     }
 }
 
@@ -109,6 +129,16 @@ export async function atualizarNomeUsuario(id, usuario) {
     const { nome_usuario } = usuario;
     try {
         await pool.query("UPDATE usuario SET nome_usuario = $1 WHERE id_usuario = $2", [nome_usuario, id]);
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
+export async function atualizarApelidoUsuario(id, usuario) {
+    const { apelido_usuario } = usuario;
+    try {
+        await pool.query("UPDATE usuario SET apelido_usuario = $1 WHERE id_usuario = $2", [apelido_usuario, id]);
         return true;
     } catch (err) {
         return false;

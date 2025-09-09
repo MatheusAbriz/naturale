@@ -1,4 +1,5 @@
 import express from 'express';
+import { verifyToken } from "../middlewares/authMiddleware.js";
 import { 
   adicionarUsuario, 
   atualizarEmailUsuario, 
@@ -10,7 +11,6 @@ import {
   selecionarNomeUsuario, 
   selecionarUsuario 
 } from '../service/usuarioService.js';
-import { verifyToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -66,35 +66,41 @@ router.get('/usuario/perfil/:id', verifyToken, (req, res) => {
 });
 
 // CRUD - Atualizar nome
-router.put('/usuario/atualizarNomeUsuario/:id', (req, res) =>{
+router.put('/usuario/atualizarNomeUsuario/:id', verifyToken, (req, res) =>{
     atualizarNomeUsuario(req.params.id, req.body).then(resultado =>{
         resultado ? res.status(200).send("Usuário atualizado com sucesso!") : res.status(400).send("Erro! Não foi possível atualizar o usuário");
     });
 });
 
+router.put('/usuario/atualizarApelidoUsuario/:id', (req, res) =>{
+    atualizarApelidoUsuario(req.params.id, req.body).then(resultado =>{
+        resultado ? res.status(200).send("Usuário atualizado com sucesso!") : res.status(400).send("Erro! Não foi possível atualizar o usuário");
+    });
+});
+
 // CRUD - Atualizar telefone
-router.put('/usuario/atualizarTelefoneUsuario/:id', (req, res) =>{
+router.put('/usuario/atualizarTelefoneUsuario/:id', verifyToken, (req, res) =>{
     atualizarTelefoneUsuario(req.params.id, req.body).then(resultado =>{
         resultado ? res.status(200).send("Usuário atualizado com sucesso!") : res.status(400).send("Erro! Não foi possível atualizar o usuário");
     });
 });
 
 // CRUD - Atualizar email
-router.put('/usuario/atualizarEmailUsuario/:id', (req, res) =>{
+router.put('/usuario/atualizarEmailUsuario/:id', verifyToken, (req, res) =>{
     atualizarEmailUsuario(req.params.id, req.body).then(resultado =>{
         resultado ? res.status(200).send("Usuário atualizado com sucesso!") : res.status(400).send("Erro! Não foi possível atualizar o usuário");
     });
 });
 
 // CRUD - Atualizar senha
-router.put('/usuario/atualizarSenhaUsuario/:id', (req, res) =>{
+router.put('/usuario/atualizarSenhaUsuario/:id', verifyToken, (req, res) =>{
     atualizarSenhaUsuario(req.params.id, req.body).then(resultado =>{
         resultado ? res.status(200).send("Usuário atualizado com sucesso!") : res.status(400).send("Erro! Não foi possível atualizar o usuário");
     });
 });
 
 // CRUD - Deletar usuário
-router.delete('/usuario/deletarUsuario/:id', (req, res) =>{
+router.delete('/usuario/deletarUsuario/:id', verifyToken, (req, res) =>{
     deletarUsuario(req.params.id).then(resultado =>{
         resultado ? res.status(200).send() : res.status(400).send("Erro! Não foi possível deletar o usuário com esse ID");
     });
