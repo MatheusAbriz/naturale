@@ -7,11 +7,13 @@ import gooogle from '../../assets/img/google.svg';
 import { Button } from "../../components/ui/button";
 import Input from "../../components/Input/input";
 import { useAuth } from "../../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import './login.scss';
 import loginImg from '../../assets/img/login.svg';
 import { useForm, type FieldValues } from 'react-hook-form';
 import useLogin from "../../hooks/useLogin";
+import type { UserLoginDTO } from "../../types/types";
+import type { UserEnums } from "../../enums/userEnums";
 
 export const Login = () =>{
     const { user, signInWithGoogle, signInWithEmailAndPassword } = useAuth();
@@ -29,17 +31,22 @@ export const Login = () =>{
 
     const handleLoginWithEmail = async(data: FieldValues) =>{
         const { email, password } = data
+        let userLogin : UserLoginDTO;
+        userLogin = {
+            email: email,
+            senha: password
+        }
         //Simulando um try catch
         try{
-            const res = await loginUser({ email, senha: password });
+            const res = await loginUser(userLogin);
             
             //Formatando o res
             const user = {
-                id: res[0].id_usuario,
-                nome: res[0].nome_usuario,
-                email: res[0].email_usuario,
-                tipo_usuario: res[0].tipo_usuario,
-                avatar: res[0].avatar || null
+                id: res[0].id_usuario as number,
+                nome: res[0].nome_usuario as string,
+                email: res[0].email_usuario as string,
+                tipo_usuario: res[0].tipo_usuario as UserEnums,
+                avatar: res[0].avatar as string || null
             }
 
             await signInWithEmailAndPassword(user);
@@ -127,7 +134,7 @@ export const Login = () =>{
                         </Button>
                     </div>
 
-                    <p>Não tem conta? <span className="cursor-pointer">Clique aqui</span> e crie uma</p>
+                    <p>Não tem conta? <Link to="/register" className="cursor-pointer">Clique aqui</Link> e crie uma</p>
                     
                 </form>
             </div>

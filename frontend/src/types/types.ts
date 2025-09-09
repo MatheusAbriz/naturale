@@ -78,6 +78,22 @@ export type User = {
     avatar: string | null; //Caso haja algum erro no banco, vai trazer null
 }
 
+export type UserCreateDTO = {
+    nome: string,
+    apelido: string,
+    telefone: string,
+    cpf: string,
+    email: string,
+    senha: string,
+    avatar: string,
+    tipo: UserEnums 
+}
+
+export type UserLoginDTO = {
+    email: string,
+    senha: string
+}
+
 //Tipando o contexto de autenticacao
 export type AuthContextType = {
     user: User | undefined;

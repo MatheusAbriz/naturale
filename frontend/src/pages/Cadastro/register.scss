@@ -1,0 +1,16 @@
+.section-register{
+    form{
+        p{
+            a{
+                color: var(--cor-suporte);
+                    font-weight: 600;
+                    text-decoration: underline;
+                    animation: var(--animacao-botao);
+
+                    &:hover{
+                        opacity: .8;
+                    }
+            }
+        }
+    }
+}

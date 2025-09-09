@@ -3,8 +3,8 @@ import loginUser from "../services/loginUser";
 
 const useLogin = () => {
   return useMutation(
-    async ({ email, senha }: { email: string; senha: string }) => {
-      return await loginUser(email, senha);
+    async ({ email, senha }: { email: string; senha: string | undefined }) => {
+      return await loginUser(email, senha!);
     }
   );
 };
