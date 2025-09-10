@@ -1,7 +1,7 @@
-@use '../../styles/input.scss';
+import { styled } from "styled-components";
+import { theme } from "../../assets/css/variaveis";
 
-.section-login{
-
+export const StyledSectionLogin = styled.section`
     aside{
         img{
             height: 100dvh;
@@ -12,7 +12,7 @@
 
         .google-button{
             background: #EA4335;
-            animation: var(--animacao-botao);
+            animation: ${theme.animacaoBotao};
 
             &:hover{
                 opacity: .8;
@@ -22,10 +22,10 @@
         form{
             p{
                 a{
-                    color: var(--cor-suporte);
+                    color: ${theme.corSuporte};
                     font-weight: 600;
                     text-decoration: underline;
-                    animation: var(--animacao-botao);
+                    animation: ${theme.animacaoBotao};
 
                     &:hover{
                         opacity: .8;
@@ -34,4 +34,5 @@
             }
         }
     }
-}
+
+`

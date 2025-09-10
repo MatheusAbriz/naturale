@@ -5,6 +5,7 @@ import Avatar from '../Avatar/avatar'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import type { OptionsHeader as Options } from '../../types/types'
+import { StyledHeader } from '.'
 
 const Header = () =>{
 
@@ -15,7 +16,7 @@ const Header = () =>{
     })
 
     return(
-        <header className="bg-(--cor-fundo) p-(--espacamento-padrao)">
+        <StyledHeader>
             <nav className="flex  items-center justify-between">
                 <ul className="flex space-between items-center">
                     <li>
@@ -24,7 +25,7 @@ const Header = () =>{
                 </ul>
  
                 <ul className="flex space-between items-center">
-                    <li className="links flex text-(--cor-branco) gap-x-8">
+                    <li className="links flex gap-x-8">
                         <Link to="/">Início</Link>
                         <Link to="/">Receitas</Link>
                         <Link to="/">Favoritas</Link>
@@ -38,7 +39,7 @@ const Header = () =>{
                     </li>
                 </ul>
             </nav>
-        </header>
+        </StyledHeader>
     )
 }
  

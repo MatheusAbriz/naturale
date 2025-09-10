@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { callGroq } from '../../services/callGroq';
-import './chatBot.scss';
-import { Button } from '../../components/ui/button';
-import TextArea from '../../Components/Input/textArea';
 import { useForm } from 'react-hook-form';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
-import Loading from '../../components/Loading/loading';
-import Header from '../../components/Header/header';
+import Loading from '../../Components/Loading/loading';
+import Header from '../../Components/Header/header';
 import botIcon from '../../assets/img/bot.svg';
-
+import { StyledTextArea } from '../../globals/inputs';
+import { StyledButton } from '../../globals/buttons';
+import { StyledSectionChat } from './';
 const ChatBot = () => {
   const [ perguntas, setPerguntas ] = useState<string[]>([]);
   const [ loading, setLoading ] = useState(false);
@@ -37,7 +36,7 @@ const ChatBot = () => {
 
   return (<>
     <Header/>
-    <section 
+    <StyledSectionChat 
      className="section-chat py-4 pt-24 px-16 flex items-center flex-col-reverse"
     >
       
@@ -50,7 +49,7 @@ const ChatBot = () => {
         >
           {caracteres?.length}/255
         </span>
-        <TextArea
+        <StyledTextArea
          name="textarea"
          placeholder="Digite sua pergunta..."
          register={register}
@@ -59,13 +58,13 @@ const ChatBot = () => {
          isRequired
          className="rounded-lg w-80 p-2"
         />
-        <Button 
+        <StyledButton 
          variant="outline" 
          type="submit" 
          className={`h-10 cursor-pointer ${loading || errors.textarea ? 'disabled' : ''} rounded-full`}
         >
             <ArrowUpIcon className="size-4"/>
-        </Button>
+        </StyledButton>
       </form>
 
       <div className="container-chat">
@@ -93,7 +92,7 @@ const ChatBot = () => {
             )) }
         </>)}
       </div>
-    </section>
+    </StyledSectionChat>
   </>);
 };
 

@@ -4,10 +4,11 @@ import { HeartIcon } from '@heroicons/react/24/outline'
 import Avatar from '../Avatar/avatar'
 import { useState } from 'react'
 import type { CardProps, OptionsPost as Options } from '../../types/types'
-import './card.scss'
 import LoadingImages from '../Loading/loadingImages'
 import { ChatBubbleOvalLeftIcon } from '@heroicons/react/24/outline'
 import { BookmarkIcon } from 'lucide-react'
+import { StyledButton } from '../../globals/buttons'
+import { StyledContainerCard } from './'
 
 const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProps) =>{
     const [ loaded, setLoaded ] = useState(false);
@@ -23,7 +24,7 @@ const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProp
     })
 
     return(
-            <div className="container-card flex flex-col">
+            <StyledContainerCard className="flex flex-col">
                 <div className="flex items-center gap-x-2 mb-2">
                     <Avatar img={usuarioDemo} options={options}/>
                     <h1 className="text-md">{autor}</h1>
@@ -39,17 +40,17 @@ const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProp
 
                 <div className="flex justify-between mt-2 mb-1">
                     <div className="flex gap-x-2 items-center">
-                        <button className="cursor-pointer" onClick={handleClick}>
-                            <HeartIcon className={`size-6 ${isLiked ? "fill-(--cor-fundo)" : "fill-white" } text-(--cor-preto) `}/>
-                        </button>
+                        <StyledButton hasBackground={false} className="cursor-pointer" onClick={handleClick}>
+                            <HeartIcon className={`size-6 ${isLiked ? "fill-[#518C81]" : "fill-white" } text-[#518C81] `}/>
+                        </StyledButton>
                         <button>
-                            <ChatBubbleOvalLeftIcon className="size-6 text-(--cor-preto)"/>
+                            <ChatBubbleOvalLeftIcon className="size-6 text-[#518C81]"/>
                         </button>
                     </div>
 
                     <div className="align-self-end">
                         <button>
-                            <BookmarkIcon className="size-6 text-(--cor-preto)"/>
+                            <BookmarkIcon className="size-6 text-[#518C81]"/>
                         </button>
                     </div>
                 </div>
@@ -62,7 +63,7 @@ const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProp
                         <h1 className="text-md">{ titulo }</h1>
                     </div>
                 </div>
-            </div>
+            </StyledContainerCard>
     )
 }
 

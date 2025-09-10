@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import './search.scss';
-import InputSearch from '../Input/inputSearch';
 import type { SearchProps } from '../../types/types';
+import { StyledInputPesquisar } from '../../globals/inputs';
+import { StyledContainerPesquisar } from './';
 
 const Search = ({ texto } : SearchProps) =>{
     const [ pesquisa, setPesquisa ] = useState<string>('')
@@ -11,19 +11,19 @@ const Search = ({ texto } : SearchProps) =>{
     }
 
     return(
-        <div className="container-pesquisar relative">
-            <InputSearch
+        <StyledContainerPesquisar className="relative">
+            <StyledInputPesquisar
              type="text" 
              name="pesquisar" 
              id="pesquisar" 
              placeholder={ texto } 
              onChange={e => setPesquisa(e.target.value)} 
-             className="bg-(--cor-fundo-botao) rounded-2xl text-(--cor-preto) input-pesquisar"
+             className="rounded-2xl input-pesquisar"
             />
             <span 
-             className="cursor-pointer bg-cover bg-no-repeat absolute" 
+             className="bg-cover bg-no-repeat absolute" 
              onClick={ pesquisar }/>
-        </div>
+        </StyledContainerPesquisar>
     )
 }
 

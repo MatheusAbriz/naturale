@@ -1,19 +1,21 @@
-import Header from "../../components/Header/header";
+import Header from "../../Components/Header/header";
 import toast from "react-hot-toast";
 
 import logo from '../../assets/img/logo-preto.svg';
-import login from '../../assets/img/login.png';
+import login from '../../assets/img/formulario_login.png';
 import gooogle from '../../assets/img/google.svg';
-import { Button } from "../../components/ui/button";
-import Input from "../../components/Input/input";
+import Input from "../../Components/Input/input";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
-import './login.scss';
 import loginImg from '../../assets/img/login.svg';
 import { useForm, type FieldValues } from 'react-hook-form';
 import useLogin from "../../hooks/useLogin";
 import type { UserLoginDTO } from "../../types/types";
 import type { UserEnums } from "../../enums/userEnums";
+import { StyledInputForm } from "../../globals/inputs";
+import { StyledButton } from "../../globals/buttons";
+import { StyledSectionLogin } from "@/pages/Login/index";
+import { StyledSeparator } from "../../globals/utils";
 
 export const Login = () =>{
     const { user, signInWithGoogle, signInWithEmailAndPassword } = useAuth();
@@ -60,8 +62,8 @@ export const Login = () =>{
 
     return(<>
     <Header/>
-    <section
-     className="section-login flex justify-center items-center gap-x-8"
+    <StyledSectionLogin
+     className="flex justify-center items-center gap-x-8"
     >
         <aside
          className="flex flex-col justify-center gap-y-4 w-1/2 "
@@ -75,18 +77,17 @@ export const Login = () =>{
             <div className="flex flex-col gap-y-4 w-80">
                 <img src={logo} alt="imagem logo" className="mb-4"/>
 
-                <Button 
+                <StyledButton 
                  className="text-(--cor-branco) cursor-pointer h-10 google-button"
                  onClick={handleLoginGoogle}
                  >
                     <img src={gooogle} alt="imagem google"/>
                     <p>Entrar com o Google</p>
-                </Button>
+                </StyledButton>
 
-                <div 
-                 className="separator">
+                <StyledSeparator>
                     <p>Ou entre com o seu login</p>
-                </div>
+                </StyledSeparator>
 
                 <form
                  className="flex flex-col gap-y-4"
@@ -94,7 +95,7 @@ export const Login = () =>{
                 >
 
                     <div className="flex flex-col">
-                        <Input 
+                        <StyledInputForm 
                          placeholder="nome@gmail.com"
                          className="input-form h-10"
                          register={register}
@@ -108,7 +109,7 @@ export const Login = () =>{
                     </div>
                     
                     <div className="flex flex-col">
-                        <Input
+                        <StyledInputForm
                          placeholder="digite sua senha"
                          className="input-form h-10"
                          register={register}
@@ -123,7 +124,7 @@ export const Login = () =>{
                    
 
                     <div className="flex items-center justify-center">
-                        <Button
+                        <StyledButton
                          type="submit"
                          className={`input-submit h-10 cursor-pointer w-full ${isLoading ? 'disabled' : ''}`}
                          disabled={isLoading}
@@ -131,7 +132,7 @@ export const Login = () =>{
                             <img src={loginImg} alt="logar"/>
                             <p>Logar</p>
 
-                        </Button>
+                        </StyledButton>
                     </div>
 
                     <p>Não tem conta? <Link to="/register" className="cursor-pointer">Clique aqui</Link> e crie uma</p>
@@ -139,7 +140,7 @@ export const Login = () =>{
                 </form>
             </div>
         </main>
-    </section>
+    </StyledSectionLogin>
 
     </>)
 };

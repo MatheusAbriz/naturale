@@ -1,9 +1,10 @@
-import Header from "../../components/Header/header";
-import Card from '../../components/Card/card';
+import Header from "../../Components/Header/header";
+import Card from "../../Components/Card/card";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useState } from "react";
-import AlertaTemporario from "../../components/AlertaTemporario/alertaTemporario";
-import Loading from "../../components/Loading/loading";
+import AlertaTemporario from "../../Components/AlertaTemporario/alertaTemporario";
+import { StyledSectionCard } from "./";
+import Loading from "../../Components/Loading/loading";
 
 import fetchData  from "../../services/fetchData";
 import updateData from '../../services/updateData';
@@ -17,24 +18,24 @@ export const Home = () =>{
             <Pagination>
                 <PaginationContent>
                     <PaginationItem>
-                    <PaginationPrevious href="#" />
+                    <PaginationPrevious/>
                     </PaginationItem>
                     <PaginationItem>
-                    <PaginationLink href="#" isActive>1</PaginationLink>
+                    <PaginationLink>1</PaginationLink>
                     </PaginationItem>
                     <PaginationItem>
-                    <PaginationLink href="#">
+                    <PaginationLink>
                         2
                     </PaginationLink>
                     </PaginationItem>
                     <PaginationItem>
-                    <PaginationLink href="#">3</PaginationLink>
+                    <PaginationLink>3</PaginationLink>
                     </PaginationItem>
                     <PaginationItem>
                     <PaginationEllipsis />
                     </PaginationItem>
                     <PaginationItem>
-                    <PaginationNext href="#" />
+                    <PaginationNext/>
                     </PaginationItem>
                 </PaginationContent>
             </Pagination>
@@ -100,8 +101,8 @@ export const Home = () =>{
     return(<>
         <Header/>
 
-        <section 
-         className="section-cards flex justify-center items-center flex-wrap gap-x-20 gap-y-10 p-(--espacamento-padrao)"
+        <StyledSectionCard
+         className="flex justify-center items-center flex-wrap gap-x-20 gap-y-10"
          >
 
            {isLoadingPosts && <Loading/>}
@@ -126,7 +127,7 @@ export const Home = () =>{
 
             <Paginacao/>
             {isError ? (<AlertaTemporario texto="Opa! Algo deu errado, tente novamente depois."/>) : (<></>)}
-        </section>
+        </StyledSectionCard>
         
         </>
     )

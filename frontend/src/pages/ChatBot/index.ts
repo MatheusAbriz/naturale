@@ -1,4 +1,7 @@
-.section-chat{
+import styled from "styled-components";
+import { theme } from "../../assets/css/variaveis";
+
+export const StyledSectionChat = styled.section`
     height: 80dvh;
     overflow-y: scroll;
     -ms-overflow-style: none;
@@ -10,7 +13,7 @@
 
     form textarea{
         height: 2rem;
-        background-color: var(--cor-fundo-botao);
+        background-color: ${theme.corFundoBotao};
         resize: none;
         overflow-y: none;
         -ms-overflow-style: none;
@@ -53,7 +56,7 @@
 
         .container-pergunta{
             align-self: end;
-            background: var(--cor-fundo-botao);
+            background: ${theme.corFundoBotao};
             border-radius: 1rem;
             padding: .3rem 1rem;
         }
@@ -66,4 +69,4 @@
             }
         }
     }
-}
+`

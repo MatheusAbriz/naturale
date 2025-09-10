@@ -1,9 +1,9 @@
-import Header from "../../components/Header/header";
+import Header from "../../Components/Header/header";
 import logo from '../../assets/img/logo-preto.svg';
-import Input from "../../components/Input/input";
 import { useForm, type FieldValues } from "react-hook-form";
-import './register.scss';
 import { Link } from "react-router-dom";
+import { StyledInputForm } from "../../globals/inputs";
+import { StyledSectionRegister } from "./";
 
 const Register = () =>{
     const { register, handleSubmit, formState: { errors } } = useForm();
@@ -14,18 +14,18 @@ const Register = () =>{
 
     return(<>
     <Header/>
-    <section
-        className="section-register flex justify-center items-center p-(--espacamento-padrao)"
+    <StyledSectionRegister
+        className="flex justify-center items-center p-(--espacamento-padrao)"
     >
         <aside
-            className="flex flex-col justify-center gap-y-4 w-80"
+            className="flex flex-col justify-center gap-y-4"
         >
             <img src={logo} alt="imagem cadastro" className="mb-4"/>
 
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-y-4">
                 <label htmlFor="nome" className="flex flex-col">
                     Nome
-                    <Input
+                    <StyledInputForm
                         placeholder="Digite seu nome completo..."
                         name="nome"
                         className="input-form h-10"
@@ -37,7 +37,7 @@ const Register = () =>{
 
                 <label htmlFor="apelido" className="flex flex-col">
                     Username
-                    <Input
+                    <StyledInputForm
                         placeholder="mathekkjk"
                         name="apelido"
                         className="input-form h-10"
@@ -50,7 +50,7 @@ const Register = () =>{
                 
                 <label htmlFor="telefone" className="flex flex-col">
                     Telefone
-                    <Input
+                    <StyledInputForm
                         placeholder="(xx) xxxxx-xxxx"
                         name="telefone"
                         className="input-form h-10"
@@ -64,7 +64,7 @@ const Register = () =>{
 
                 <label htmlFor="cpf" className="flex flex-col">
                     CPF
-                    <Input 
+                    <StyledInputForm 
                         placeholder="xxx.xxx.xxx-xx"
                         name="cpf"
                         className="input-form h-10"
@@ -77,7 +77,7 @@ const Register = () =>{
 
                 <label htmlFor="email" className="flex flex-col">
                     Email
-                    <Input
+                    <StyledInputForm
                         placeholder="email@gmail.com"
                         name="email"
                         type="email"
@@ -92,7 +92,7 @@ const Register = () =>{
 
                 <label htmlFor="senha" className="flex flex-col">
                     Senha
-                    <Input 
+                    <StyledInputForm 
                         placeholder="******"
                         className="input-form h-10"
                         register={register}
@@ -106,7 +106,7 @@ const Register = () =>{
 
                 <label htmlFor="avatar" className="flex flex-col">
                     Avatar
-                    <Input
+                    <StyledInputForm
                         placeholder="Exemplo, vai virar um input de imagem depois"
                         className="input-form h-10"
                         register={register}
@@ -121,7 +121,7 @@ const Register = () =>{
 
         </aside>
 
-    </section>
+    </StyledSectionRegister>
     </>)
 };
 
