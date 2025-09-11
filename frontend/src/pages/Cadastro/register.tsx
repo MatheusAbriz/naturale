@@ -1,9 +1,10 @@
 import Header from "../../Components/Header/header";
-import logo from '../../assets/img/logo-preto.svg';
 import { useForm, type FieldValues } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { StyledInputForm } from "../../globals/inputs";
 import { StyledSectionRegister } from "./";
+import { StyledButton } from "../../globals/buttons";
+import { TextNormal, TextSmall, TextTitle } from "../../globals/texts";
 
 const Register = () =>{
     const { register, handleSubmit, formState: { errors } } = useForm();
@@ -15,14 +16,14 @@ const Register = () =>{
     return(<>
     <Header/>
     <StyledSectionRegister
-        className="flex justify-center items-center p-(--espacamento-padrao)"
+        className="flex justify-center items-center"
     >
         <aside
-            className="flex flex-col justify-center gap-y-4"
+            className="flex flex-col justify-center items-center"
         >
-            <img src={logo} alt="imagem cadastro" className="mb-4"/>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-y-4">
+            <TextTitle>Criar conta</TextTitle>
+            <TextNormal $color="#9e9b9b">Preencha os dados para criar sua conta</TextNormal>
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-y-4 mt-4">
                 <label htmlFor="nome" className="flex flex-col">
                     Nome
                     <StyledInputForm
@@ -115,6 +116,13 @@ const Register = () =>{
                         isRequired
                     />
                 </label>
+
+                <StyledButton
+                    type="submit"
+                    className="mt-2"
+                >
+                    Cadastrar
+                </StyledButton>
                 
                 <p>Já tem conta ou quer se logar pelo Google? <Link to="/login">Clique aqui</Link></p>
             </form>

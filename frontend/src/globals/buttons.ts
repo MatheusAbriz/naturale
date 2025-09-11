@@ -11,6 +11,7 @@ export const StyledButton = styled(Button)<{ $disabled?: boolean, hasBackground?
 
     &:hover{
         opacity: .8;
+        cursor: pointer;
     }
 
     opacity: ${props => props.$disabled ? '.5' : '1'};

@@ -146,3 +146,8 @@ export type SkeletonImageProps = {
     height?: number;
     className?: string;
 }
+
+//Tipagem de Props
+export type TitleProps = {
+    $color?: string
+}
