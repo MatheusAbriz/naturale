@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "deploy": "firebase deploy",
+    "testing": "firebase emulators:start",    
     "lint": "eslint .",
     "preview": "vite preview"
   },

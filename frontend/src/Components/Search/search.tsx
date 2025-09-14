@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { SearchProps } from '../../types/types';
 import { StyledInputPesquisar } from '../../globals/inputs';
 import { StyledContainerPesquisar } from './';
+import searchLogo from '../../assets/img/pesquisar.svg';
 
 const Search = ({ texto } : SearchProps) =>{
     const [ pesquisa, setPesquisa ] = useState<string>('')
@@ -20,9 +21,7 @@ const Search = ({ texto } : SearchProps) =>{
              onChange={e => setPesquisa(e.target.value)} 
              className="rounded-2xl input-pesquisar"
             />
-            <span 
-             className="bg-cover bg-no-repeat absolute" 
-             onClick={ pesquisar }/>
+            <img src={searchLogo} alt="icone pesquisa" className="absolute" onClick={pesquisar}/>
         </StyledContainerPesquisar>
     )
 }

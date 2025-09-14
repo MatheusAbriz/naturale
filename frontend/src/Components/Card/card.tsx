@@ -44,13 +44,13 @@ const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProp
                             <HeartIcon className={`size-6 ${isLiked ? "fill-[#518C81]" : "fill-white" } text-[#518C81] `}/>
                         </StyledButton>
                         <button>
-                            <ChatBubbleOvalLeftIcon className="size-6 text-[#518C81]"/>
+                            <ChatBubbleOvalLeftIcon className="size-6 text-[#518C81] cursor-pointer"/>
                         </button>
                     </div>
 
                     <div className="align-self-end">
                         <button>
-                            <BookmarkIcon className="size-6 text-[#518C81]"/>
+                            <BookmarkIcon className="size-6 text-[#518C81] cursor-pointer"/>
                         </button>
                     </div>
                 </div>

@@ -25,25 +25,94 @@ export async function selecionarNomeUsuario(id){
     }
 }
 
-//Login de usuario - Obrigatoriamente trazer id, nome, token e avatar(imagem dele)
-export async function logarUsuario(email, senha){
-    try{
-        const results = await pool`SELECT id_usuario, nome_usuario, email_usuario, tipo_usuario FROM usuario WHERE email_usuario = ${email} AND senha_usuario = ${senha}`
+// Login de usuário com autenticação JWT
+export async function logarUsuario(email, senha) {
+    try {
+        const results = await pool
+            `SELECT id_usuario, nome_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario FROM usuario WHERE email_usuario = ${email}`
 
-        if(results.count >= 1) return { status: true, msg: results }; else return { status: false, msg: "Usuario ou senha incorretos" };
-    }catch(err){
+        if (results.count === 0) {
+            return { status: false, msg: "Usuário não encontrado" };
+        }
+
+        const usuario = results.rows[0];
+
+        // Verificar senha com bcrypt
+        const senhaValida = await bcrypt.compare(senha, usuario.senha_usuario);
+        if (!senhaValida) {
+            return { status: false, msg: "Senha incorreta" };
+        }
+
+        // Criar token JWT
+        const token = jwt.sign(
+            { id: usuario.id_usuario, tipo: usuario.tipo_usuario },
+            SECRET,
+            { expiresIn: "5h" }
+        );
+
+        return {
+            status: true,
+            msg: "Login realizado com sucesso",
+            usuario: {
+                id: usuario.id_usuario,
+                nome: usuario.nome_usuario,
+                tipo: usuario.tipo_usuario,
+                avatar: usuario.avatar_usuario,
+                token
+            }
+        };
+    } catch (err) {
+        console.log(err);
         return { status: false, msg: "Erro na requisição" };
     }
 }
 
-export async function adicionarUsuario(usuario){
-    try{
-        const { nome_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario } = usuario
+// Adicionar usuário com senha criptografada
+export async function adicionarUsuario(usuario) {
+    try {
+        const { nome_usuario, apelido_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario } = usuario;
 
-        await pool`INSERT INTO usuario(nome_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario) VALUES (${nome_usuario}, ${telefone_usuario}, ${cpf_usuario}, ${email_usuario}, ${senha_usuario})`
-        return true
-    }catch(err){
-        console.log(err)
+        // Verifica se o email já está cadastrado
+        const existingUser = await pool`SELECT * FROM usuario WHERE email_usuario = ${email_usuario}`;
+        if(existingUser.count > 0) {
+            return { status: false, msg: "Email já cadastrado" };
+        }
+
+        // Criptografar a senha
+        const hash = await bcrypt.hash(senha_usuario, 10);
+
+        const result = await pool`INSERT INTO usuario (nome_usuario, apelido_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario) 
+            VALUES (${nome_usuario}, ${apelido_usuario}, ${telefone_usuario}, ${cpf_usuario}, ${email_usuario}, ${email_usuario}, ${hash}, ${tipo_usuario}, ${senha_usuario}, ${avatar_usuario}) 
+            RETURNING id_usuario, apelido_usuario, email_usuario, tipo_usuario, avatar_usuario`
+        
+            const token = jwt.sign(
+            { id: result.rows[0].id_usuario, tipo: result.rows[0].tipo_usuario },
+            SECRET,
+            { expiresIn: "5h" }
+        );
+
+        return {
+            status: true,
+            usuario: {
+                ...result.rows[0],
+                token
+            }
+        };
+    } catch (err) {
+        console.log(err);
+        return { status: false, msg: "Erro ao cadastrar usuário" };
+    }
+}
+
+// Atualizar senha (sempre criptografada)
+export async function atualizarSenhaUsuario(id, usuario) {
+    const { senha_usuario } = usuario;
+    try {
+        const hash = await bcrypt.hash(senha_usuario, 10);
+        await pool`UPDATE usuario SET senha_usuario = ${hash} WHERE id_usuario = ${id}`;
+        return true;
+    } catch (err) {
+        return false;
     }
 }
 
@@ -79,18 +148,6 @@ export async function atualizarEmailUsuario(id, usuario){
         return false
     }
 }
-
-export async function atualizarSenhaUsuario(id, usuario){
-    const { senha_usuario } = usuario
-
-    try{
-        await pool`UPDATE usuario SET senha_usuario = ${senha_usuario} WHERE id_usuario = ${id}` 
-        return true
-    }catch(err){
-        return false
-    }
-}
-
 
 export async function deletarUsuario(id){
     try{

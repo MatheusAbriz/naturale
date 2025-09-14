@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const loginUser = async (email: string, senha: string) => {
-  const response = await axios.get(
+  const response = await axios.post(
     `${import.meta.env.VITE_APP_BASE_URL}/usuario/logarUsuario/${email}/${senha}`
   );
 
