@@ -10,7 +10,7 @@ import {
   logarUsuario, 
   selecionarNomeUsuario, 
   selecionarUsuario 
-} from '../service/usuarioService.js';
+} from '../Service/usuarioService.js';
 
 const router = express.Router();
 

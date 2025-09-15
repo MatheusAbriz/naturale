@@ -1,14 +1,9 @@
 import axios from "axios";
+import type { UserLoginDTO } from "../types/types";
 
-const loginUser = async (email: string, senha: string) => {
-  const usuario = {
-    email: email,
-    senha: senha
-  }
+const loginUser = async (user: UserLoginDTO) => {
   const response = await axios.post(
-    `${import.meta.env.VITE_APP_BASE_URL}/usuario/logarUsuario`,{
-      usuario
-    }
+    `${import.meta.env.VITE_APP_BASE_URL}/usuario/logarUsuario`, user
   );
 
   if (response.status === 400) {

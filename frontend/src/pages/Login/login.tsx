@@ -33,8 +33,7 @@ export const Login = () =>{
 
     const handleLoginWithEmail = async(data: FieldValues) =>{
         const { email, password } = data
-        let userLogin : UserLoginDTO;
-        userLogin = {
+        const userLogin : UserLoginDTO = {
             email: email,
             senha: password
         }

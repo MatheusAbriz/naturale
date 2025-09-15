@@ -28,14 +28,13 @@ export async function selecionarNomeUsuario(id){
 // Login de usuário com autenticação JWT
 export async function logarUsuario(email, senha) {
     try {
-        const results = await pool
-            `SELECT id_usuario, nome_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario FROM usuario WHERE email_usuario = ${email}`
+        const results = await pool`SELECT id_usuario, nome_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario FROM usuario WHERE email_usuario = ${email}`;
 
         if (results.count === 0) {
             return { status: false, msg: "Usuário não encontrado" };
         }
 
-        const usuario = results.rows[0];
+        const usuario = results[0];
 
         // Verificar senha com bcrypt
         const senhaValida = await bcrypt.compare(senha, usuario.senha_usuario);
