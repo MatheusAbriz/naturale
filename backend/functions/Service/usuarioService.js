@@ -1,4 +1,10 @@
 import pool from "../Model/pool.js"
+import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+
+const SECRET = process.env.JWT_SECRET;
+dotenv.config();
 
 //Criando minhas funções de CRUD para exportar
 export async function selecionarUsuario(id){    
@@ -81,13 +87,19 @@ export async function adicionarUsuario(usuario) {
         const hash = await bcrypt.hash(senha_usuario, 10);
 
         const result = await pool`INSERT INTO usuario (nome_usuario, apelido_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario) 
-            VALUES (${nome_usuario}, ${apelido_usuario}, ${telefone_usuario}, ${cpf_usuario}, ${email_usuario}, ${email_usuario}, ${hash}, ${tipo_usuario}, ${senha_usuario}, ${avatar_usuario}) 
+            VALUES (${nome_usuario}, ${apelido_usuario}, ${telefone_usuario}, ${cpf_usuario}, ${email_usuario}, ${email_usuario}, ${hash}, ${tipo_usuario}, ${avatar_usuario}) 
             RETURNING id_usuario, apelido_usuario, email_usuario, tipo_usuario, avatar_usuario`
+
+            console.log(result)
         
             const token = jwt.sign(
-            { id: result.rows[0].id_usuario, tipo: result.rows[0].tipo_usuario },
-            SECRET,
-            { expiresIn: "5h" }
+            { 
+                id: result.rows[0].id_usuario, 
+                tipo: result.rows[0].tipo_usuario 
+            },
+            SECRET,{ 
+                expiresIn: "5h" 
+            }
         );
 
         return {

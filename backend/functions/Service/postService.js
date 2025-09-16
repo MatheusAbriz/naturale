@@ -5,7 +5,9 @@ import pool from "../Model/pool.js";
 //Ler todos os posts
 export async function lerTodosPosts(){
     try{
-        const results = await pool`SELECT * FROM post`;
+        const results = await pool
+        `select * from post`
+
         //Retornando o resultado
         if(results.count >= 1){
             return results;
