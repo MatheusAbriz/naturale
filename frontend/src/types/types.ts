@@ -1,4 +1,4 @@
-import type { ForwardedRef, InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
+import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
 import type { UseFormRegister } from "react-hook-form";
 import { UserEnums } from '../enums/userEnums';
 
@@ -98,7 +98,6 @@ export type UserLoginDTO = {
 export type AuthContextType = {
     user: User | undefined;
     loading: boolean;
-    signInWithGoogle: () => Promise<void>;
     signInWithEmailAndPassword: (user: User) => Promise<void>;
 }
 

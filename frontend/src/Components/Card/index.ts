@@ -9,10 +9,4 @@ export const StyledContainerCard = styled.div`
     svg{
         transition: ${theme.animacaoBotao};
     }
-
-    .container-curtidas{
-        span{
-            font-size: .8rem;
-        }
-    }
 `

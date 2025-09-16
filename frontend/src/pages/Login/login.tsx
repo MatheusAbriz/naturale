@@ -3,8 +3,6 @@ import toast from "react-hot-toast";
 
 import logo from '../../assets/img/logo-preto.svg';
 import login from '../../assets/img/formulario_login.png';
-import gooogle from '../../assets/img/google.svg';
-import Input from "../../Components/Input/input";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import loginImg from '../../assets/img/login.svg';
@@ -15,21 +13,16 @@ import type { UserEnums } from "../../enums/userEnums";
 import { StyledInputForm } from "../../globals/inputs";
 import { StyledButton } from "../../globals/buttons";
 import { StyledSectionLogin } from "@/pages/Login/index";
-import { StyledSeparator } from "../../globals/utils";
+import Loading from "../../Components/Loading/loading";
+import { useState } from "react";
+import GlobalLoading from "../../Components/Loading/globalLoading";
 
 export const Login = () =>{
-    const { user, signInWithGoogle, signInWithEmailAndPassword } = useAuth();
+    const { user, signInWithEmailAndPassword } = useAuth();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate();
     const { mutateAsync: loginUser, isLoading } = useLogin();
-    const handleLoginGoogle = async() =>{
-
-        if(!user){
-            return await signInWithGoogle();
-        }
-        navigate('/');
-    }
-
+    const [ loading, setLoading ] = useState(false);
 
     const handleLoginWithEmail = async(data: FieldValues) =>{
         const { email, password } = data
@@ -39,6 +32,7 @@ export const Login = () =>{
         }
         //Simulando um try catch
         try{
+            setLoading(true);
             const res = await loginUser(userLogin);
             
             //Formatando o res
@@ -55,6 +49,8 @@ export const Login = () =>{
             navigate('/');
         }catch(e){
             toast.error("Erro ao logar");
+        }finally{
+            setLoading(false);
         }
         
     }
@@ -75,18 +71,6 @@ export const Login = () =>{
         >
             <div className="flex flex-col gap-y-4 w-80">
                 <img src={logo} alt="imagem logo" className="mb-4"/>
-
-                <StyledButton 
-                 className="text-(--cor-branco) cursor-pointer h-10 google-button"
-                 onClick={handleLoginGoogle}
-                 >
-                    <img src={gooogle} alt="imagem google"/>
-                    <p>Entrar com o Google</p>
-                </StyledButton>
-
-                <StyledSeparator>
-                    <p>Ou entre com o seu login</p>
-                </StyledSeparator>
 
                 <form
                  className="flex flex-col gap-y-4"
@@ -136,6 +120,7 @@ export const Login = () =>{
 
                     <p>Não tem conta? <Link to="/register" className="cursor-pointer">Clique aqui</Link> e crie uma</p>
                     
+                    {loading && <GlobalLoading/>}
                 </form>
             </div>
         </main>

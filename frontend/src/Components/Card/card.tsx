@@ -9,6 +9,7 @@ import { ChatBubbleOvalLeftIcon } from '@heroicons/react/24/outline'
 import { BookmarkIcon } from 'lucide-react'
 import { StyledButton } from '../../globals/buttons'
 import { StyledContainerCard } from './'
+import { TextNormal, TextSmall } from '../../globals/texts'
 
 const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProps) =>{
     const [ loaded, setLoaded ] = useState(false);
@@ -56,11 +57,11 @@ const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProp
                 </div>
                     
                 <div className="container-curtidas">
-                    <span>{qtdLikes} curtidas</span>
+                    <TextSmall>{qtdLikes} curtidas</TextSmall>
 
                     <div className="flex gap-x-2 items-center justify-start">
-                        <span>{ autor }</span>
-                        <h1 className="text-md">{ titulo }</h1>
+                        <TextSmall>{ autor }</TextSmall>
+                        <TextNormal className="text-sm">{ titulo }</TextNormal>
                     </div>
                 </div>
             </StyledContainerCard>
