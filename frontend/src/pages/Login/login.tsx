@@ -16,6 +16,7 @@ import { StyledSectionLogin } from "@/pages/Login/index";
 import Loading from "../../Components/Loading/loading";
 import { useState } from "react";
 import GlobalLoading from "../../Components/Loading/globalLoading";
+import { StyledMensagemErro } from "../../globals/utils";
 
 export const Login = () =>{
     const { user, signInWithEmailAndPassword } = useAuth();
@@ -88,7 +89,7 @@ export const Login = () =>{
                          name="email"
                          isRequired
                         />
-                        {errors.email && <span className="mensagem-erro">{errors.email.message?.toString()}</span>}
+                        {errors.email && <StyledMensagemErro>{errors.email.message?.toString()}</StyledMensagemErro>}
                     </div>
                     
                     <div className="flex flex-col">
@@ -102,7 +103,7 @@ export const Login = () =>{
                          maskType="password"
                          isRequired
                         />
-                        {errors.password && <span className="mensagem-erro">{errors.password.message?.toString()}</span>}
+                        {errors.password && <StyledMensagemErro>{errors.password.message?.toString()}</StyledMensagemErro>}
                     </div>
                    
 
