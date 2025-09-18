@@ -24,7 +24,7 @@ router.get('/usuario/', (req, res) =>{
 // CRUD - Criar usuário
 router.post('/usuario/adicionarUsuario', (req, res) => {
     adicionarUsuario(req.body).then(resultado =>{
-        resultado ? res.status(200).send() : res.status(400).send("Erro! Verifique as informações corretamente");
+        resultado.status ? res.status(200).json(resultado.msg) : res.status(400).send(resultado.msg);
     });
 });
 
@@ -48,7 +48,7 @@ router.get('/usuario/lerNomeUsuario/:id', (req, res) =>{
 });
 
 // CRUD - Login usuário (POST seguro)
-router.post('/usuario/logarUsuario', (req, res) => {
+router.post('/usuario/logarUsuario',  (req, res) => {
     const { email, senha } = req.body;
 
     logarUsuario(email, senha).then(usuario =>{
@@ -72,7 +72,7 @@ router.put('/usuario/atualizarNomeUsuario/:id', verifyToken, (req, res) =>{
     });
 });
 
-router.put('/usuario/atualizarApelidoUsuario/:id', (req, res) =>{
+router.put('/usuario/atualizarApelidoUsuario/:id', verifyToken, (req, res) =>{
     atualizarApelidoUsuario(req.params.id, req.body).then(resultado =>{
         resultado ? res.status(200).send("Usuário atualizado com sucesso!") : res.status(400).send("Erro! Não foi possível atualizar o usuário");
     });

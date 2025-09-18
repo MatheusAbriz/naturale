@@ -3,30 +3,30 @@ import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-const SECRET = process.env.JWT_SECRET;
+const SECRET = "minha_chave_super_secreta";
 dotenv.config();
 
 //Criando minhas funções de CRUD para exportar
-export async function selecionarUsuario(id){    
-            try{
-                const results = await pool`SELECT * FROM usuario WHERE id_usuario = ${id}`
-                    //Retornando o resultado
-                    if(results.count >= 1){
-                        return results;
-                    }
-                    return false
-            }catch(err){
-                console.log(err)
-            }
+export async function selecionarUsuario(id) {
+    try {
+        const results = await pool`SELECT * FROM usuario WHERE id_usuario = ${id}`
+        //Retornando o resultado
+        if (results.count >= 1) {
+            return results;
+        }
+        return false
+    } catch (err) {
+        console.log(err)
+    }
 }
 
 //Selecionar nome_usuario pelo ID
-export async function selecionarNomeUsuario(id){
-    try{
+export async function selecionarNomeUsuario(id) {
+    try {
         const results = await pool`SELECT nome_usuario from usuario WHERE id_usuario = ${id}`
         //Retornando os resultados
-        if(results.count >= 1) return results; else return false;
-    }catch(err){
+        if (results.count >= 1) return results; else return false;
+    } catch (err) {
         console.log(err)
     }
 }
@@ -79,7 +79,7 @@ export async function adicionarUsuario(usuario) {
 
         // Verifica se o email já está cadastrado
         const existingUser = await pool`SELECT * FROM usuario WHERE email_usuario = ${email_usuario}`;
-        if(existingUser.count > 0) {
+        if (existingUser.count > 0) {
             return { status: false, msg: "Email já cadastrado" };
         }
 
@@ -87,31 +87,26 @@ export async function adicionarUsuario(usuario) {
         const hash = await bcrypt.hash(senha_usuario, 10);
 
         const result = await pool`INSERT INTO usuario (nome_usuario, apelido_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario) 
-            VALUES (${nome_usuario}, ${apelido_usuario}, ${telefone_usuario}, ${cpf_usuario}, ${email_usuario}, ${email_usuario}, ${hash}, ${tipo_usuario}, ${avatar_usuario}) 
+           VALUES (${nome_usuario}, ${apelido_usuario}, ${telefone_usuario}, ${cpf_usuario}, ${email_usuario}, ${hash}, ${tipo_usuario}, ${avatar_usuario})
+
             RETURNING id_usuario, apelido_usuario, email_usuario, tipo_usuario, avatar_usuario`
 
-            console.log(result)
-        
-            const token = jwt.sign(
-            { 
-                id: result.rows[0].id_usuario, 
-                tipo: result.rows[0].tipo_usuario 
+        const token = jwt.sign(
+            {
+                id: result.id_usuario,
+                tipo: result.tipo_usuario
             },
-            SECRET,{ 
-                expiresIn: "5h" 
-            }
+            SECRET, {
+            expiresIn: "5h"
+        }
         );
 
         return {
-            status: true,
-            usuario: {
-                ...result.rows[0],
-                token
-            }
+            status: true, msg: { ...result, token }
         };
     } catch (err) {
         console.log(err);
-        return { status: false, msg: "Erro ao cadastrar usuário" };
+        return { status: false, msg: `Erro ao cadastrar usuário ${err}` };
     }
 }
 
@@ -127,44 +122,44 @@ export async function atualizarSenhaUsuario(id, usuario) {
     }
 }
 
-export async function atualizarNomeUsuario(id, usuario){
+export async function atualizarNomeUsuario(id, usuario) {
     const { nome_usuario } = usuario
 
-    try{
-        await pool`UPDATE usuario SET nome_usuario = ${nome_usuario} WHERE id_usuario = ${id}` 
+    try {
+        await pool`UPDATE usuario SET nome_usuario = ${nome_usuario} WHERE id_usuario = ${id}`
         return true
-    }catch(err){
+    } catch (err) {
         return false
     }
 }
 
-export async function atualizarTelefoneUsuario(id, usuario){
+export async function atualizarTelefoneUsuario(id, usuario) {
     const { telefone_usuario } = usuario
 
-    try{
+    try {
         await pool`UPDATE usuario SET telefone_usuario = ${telefone_usuario} WHERE id_usuario = ${id}`
         return true
-    }catch(err){
+    } catch (err) {
         return false
     }
 }
 
-export async function atualizarEmailUsuario(id, usuario){
+export async function atualizarEmailUsuario(id, usuario) {
     const { email_usuario } = usuario
 
-    try{
-        await pool`UPDATE usuario SET email_usuario = ${email_usuario} WHERE id_usuario = ${id}` 
+    try {
+        await pool`UPDATE usuario SET email_usuario = ${email_usuario} WHERE id_usuario = ${id}`
         return true
-    }catch(err){
+    } catch (err) {
         return false
     }
 }
 
-export async function deletarUsuario(id){
-    try{
+export async function deletarUsuario(id) {
+    try {
         const results = await pool`DELETE FROM usuario WHERE id_usuario = ${id}`
         results.count >= 1 ? true : false
-    }catch(err){
+    } catch (err) {
         return false
     }
 }
