@@ -1,0 +1,72 @@
+import styled from "styled-components";
+import { theme } from "../../assets/css/variaveis";
+
+export const StyledSectionChat = styled.section`
+    height: 80dvh;
+    overflow-y: scroll;
+    -ms-overflow-style: none;
+    justify-content: start;
+    scrollbar-width: none;
+    *::-webkit-scrollbar{
+        display: none;
+    }
+
+    form textarea{
+        height: 2rem;
+        background-color: ${theme.corFundoBotao};
+        resize: none;
+        overflow-y: none;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        
+        *::-webkit-scrollbar{
+            display: none;
+        }
+
+        &, &::placeholder{
+            font-size: .8rem;
+        }
+    }
+
+    form span{        
+        font-size: .8rem;
+        color: #CCC;
+        align-self: flex-start;
+    }
+
+    .container-chat{
+        margin-bottom: 2rem;
+        p{
+            line-height: 1.5rem;
+        }
+
+        img{
+            width: 100dvw;
+            max-width: 12rem;
+            height: auto;
+        }
+    }
+
+    .container-chat > div{
+        display: flex;
+        flex-direction: column-reverse;
+        justify-content: center;
+        align-items: start;
+        row-gap: 1.5rem;
+
+        .container-pergunta{
+            align-self: end;
+            background: ${theme.corFundoBotao};
+            border-radius: 1rem;
+            padding: .3rem 1rem;
+        }
+    }
+
+    .container-chat{
+        aside{
+            p{
+                color: #CECECE;
+            }
+        }
+    }
+`

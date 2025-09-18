@@ -1,10 +1,11 @@
 import { useMutation } from "react-query";
 import loginUser from "../services/loginUser";
+import type { UserLoginDTO } from "../types/types";
 
 const useLogin = () => {
   return useMutation(
-    async ({ email, senha }: { email: string; senha: string }) => {
-      return await loginUser(email, senha);
+    async (userLoginDTO: UserLoginDTO) => {
+      return await loginUser(userLoginDTO);
     }
   );
 };

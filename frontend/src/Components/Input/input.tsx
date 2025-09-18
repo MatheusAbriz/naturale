@@ -4,10 +4,9 @@ import type { InputProps } from "../../types/types";
 const emailRegex = maskEmail();
 const passwordRegex = maskPassword();
 
-const Input = ({name, maskType, minLength, maxLength=255, register, isRequired,...props }: InputProps) =>{
+const Input = ({name, maskType, minLength, maxLength=255, register, isRequired, ...rest }: InputProps) =>{
     return(
         <input 
-         {...props}
          {...register(name, { required: isRequired ? 'Campo obrigatorio' : '', minLength: {
             value: minLength,
             message: `Mínimo de ${minLength} caracteres`
@@ -18,7 +17,8 @@ const Input = ({name, maskType, minLength, maxLength=255, register, isRequired,.
             value: maskType === 'email' ? emailRegex : passwordRegex,
             message: maskType === 'email' ? 'Email inválido' : 'Senha inválida. Inclua ao menos 1 letra minúscula, uma maiúscula e um caractere especial'
          }
-        })} 
+        })}
+        {...rest}
         />
     )
 }
