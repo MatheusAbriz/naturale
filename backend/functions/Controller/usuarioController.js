@@ -6,6 +6,7 @@ import {
   atualizarNomeUsuario, 
   atualizarSenhaUsuario, 
   atualizarTelefoneUsuario, 
+  atualizarApelidoUsuario,
   deletarUsuario, 
   logarUsuario, 
   selecionarNomeUsuario, 

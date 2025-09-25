@@ -1,10 +1,9 @@
-import pool from "../Model/pool.js"
-import dotenv from 'dotenv';
+
+import pool from "../Model/pool.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-const SECRET = "minha_chave_super_secreta";
-dotenv.config();
+const SECRET = process.env.JWT_SECRET;
 
 //Criando minhas funções de CRUD para exportar
 export async function selecionarUsuario(id) {
@@ -127,6 +126,17 @@ export async function atualizarNomeUsuario(id, usuario) {
 
     try {
         await pool`UPDATE usuario SET nome_usuario = ${nome_usuario} WHERE id_usuario = ${id}`
+        return true
+    } catch (err) {
+        return false
+    }
+}
+
+export async function atualizarApelidoUsuario(id, usuario) {
+    const { apelido_usuario } = usuario
+
+    try {
+        await pool`UPDATE usuario SET apelido_usuario = ${apelido_usuario} WHERE id_usuario = ${id}`
         return true
     } catch (err) {
         return false

@@ -1,5 +1,6 @@
 import {setGlobalOptions} from 'firebase-functions';
 import { onRequest } from 'firebase-functions/https';
+
 import admin from 'firebase-admin';
 import cors from 'cors';
 import express from 'express';
