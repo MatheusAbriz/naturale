@@ -167,9 +167,10 @@ export async function atualizarEmailUsuario(id, usuario) {
 
 export async function deletarUsuario(id) {
     try {
-        const results = await pool`DELETE FROM usuario WHERE id_usuario = ${id}`
-        results.count >= 1 ? true : false
+        const results = await pool`DELETE FROM usuario WHERE id_usuario = ${id}`;
+        return results.count >= 1;
     } catch (err) {
-        return false
+        console.log("Erro ao deletar usuário:", err);
+        return false;
     }
 }

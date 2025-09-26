@@ -21,9 +21,9 @@ router.get('/post/lerTodosPosts/', verifyToken, (req, res) => {
 router.patch('/post/atualizarPostCurtida/:idUsuario/:idPost', verifyToken, (req, res) => {
     atualizarPostCurtida(req.params.idUsuario, req.params.idPost).then(resultado => {
         if (resultado) {
-            return res.status(200).send("Sucesso! Usuário atualizado com sucesso");
+            return res.status(200).send("Sucesso! post atualizado com sucesso");
         } else {
-            return res.status(400).send("Erro! Usuário não encontrado");
+            return res.status(400).send("Erro! post não encontrado");
         }
     });
 });

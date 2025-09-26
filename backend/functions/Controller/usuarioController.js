@@ -103,7 +103,7 @@ router.put('/usuario/atualizarSenhaUsuario/:id', verifyToken, (req, res) =>{
 // CRUD - Deletar usuário
 router.delete('/usuario/deletarUsuario/:id', verifyToken, (req, res) =>{
     deletarUsuario(req.params.id).then(resultado =>{
-        resultado ? res.status(200).send() : res.status(400).send("Erro! Não foi possível deletar o usuário com esse ID");
+        resultado ? res.status(200).send("Usuario deletado com sucesso!") : res.status(400).send("Erro! Não foi possível deletar o usuário com esse ID");
     });
 });
 
