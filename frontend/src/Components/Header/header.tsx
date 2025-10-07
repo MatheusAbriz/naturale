@@ -3,16 +3,21 @@ import imgPerfil from '../../assets/img/usuario-demo.jpg'
 import Search from '../Search/search'
 import Avatar from '../Avatar/avatar'
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
-import type { OptionsHeader as Options } from '../../types/types'
+import { useEffect, useState } from 'react'
+import type { OptionsHeader as Options, User } from '../../types/types'
 import { StyledHeader } from '.'
+import { useAuth } from '../../hooks/useAuth'
 
 const Header = () =>{
+    const { user } = useAuth();    
 
-    const user = JSON.parse(localStorage.getItem('user') ?? '');
+    useEffect(() =>{
+        if(!user) return;
+    }, []);
+
     //Opcoes
     const [ options, setOptions ] = useState<Options>({
-        label: user.apelido,
+        label: user?.apelido || "",
         item: [{id: 1, texto: "Configurações"}, {id: 2, texto: "Favoritos"}, {id: 3, texto: "Sair"}]
     })
 

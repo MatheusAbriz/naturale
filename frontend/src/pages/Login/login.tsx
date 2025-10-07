@@ -39,6 +39,7 @@ export const Login = () =>{
             const user: User = {
                 id: res.id as number,
                 nome: res.nome as string,
+                apelido: res.apelido as string,
                 email: res.email as string,
                 tipo_usuario: res.tipo as UserEnums,
                 avatar: res.avatar as string || null,
