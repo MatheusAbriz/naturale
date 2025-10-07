@@ -3,9 +3,18 @@ import { useMutation, useQueryClient } from 'react-query';
 
 const updateData = () =>{
     const queryClient = useQueryClient()
+    let user = JSON.parse(localStorage.getItem('user') ?? '')
 
     return useMutation<AxiosResponse, AxiosError, string>(
-        (urlParams: string) => axios.patch(urlParams),
+        (urlParams: string) => axios.patch(
+            urlParams,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${user.token}`
+                }
+            }
+        ),
         {
             onSuccess: () => {
                 //Forçando atualizacao

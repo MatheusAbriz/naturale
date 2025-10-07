@@ -70,10 +70,10 @@ export type SearchProps = {
 
 //Tipagem usuario, serve tanto para logar com google como login com email/senha
 export type User = {
-    id?: number;
-    token?: string; //Token teoricamente guardará o email/senha/etc
+    email?: string;
+    id: number;
+    token: string; //Token teoricamente guardará o email/senha/etc
     nome: string;
-    email: string;
     tipo_usuario: UserEnums;
     avatar: string | null; //Caso haja algum erro no banco, vai trazer null
 }
@@ -86,7 +86,7 @@ export type UserCreateDTO = {
     email: string,
     senha: string,
     avatar: string,
-    tipo: UserEnums 
+    tipo: UserEnums
 }
 
 export type UserLoginDTO = {

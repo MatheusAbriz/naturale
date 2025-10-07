@@ -3,7 +3,13 @@ import { useQuery } from 'react-query';
 import type {  FetchProps } from '../types/types'; 
 
 const data = (urlParams: string) => {
-    return axios.get(`${import.meta.env.VITE_APP_BASE_URL}/${urlParams}`);
+    let user = JSON.parse(localStorage.getItem("user")  ?? '');
+
+    return axios.get(`${import.meta.env.VITE_APP_BASE_URL}/${urlParams}`, {
+        headers: {
+            'Authorization': `Bearer ${user.token}`
+        }
+    });
 }
 
 const fetchData = ({ queryKey, urlParams, onSuccess, onError }: FetchProps) => {

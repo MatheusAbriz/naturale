@@ -1,17 +1,51 @@
 import Header from "../../Components/Header/header";
-import { useForm, type FieldValues } from "react-hook-form";
+import { set, useForm, type FieldValues } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { StyledInputForm } from "../../globals/inputs";
 import { StyledSectionRegister } from "./";
 import { StyledButton } from "../../globals/buttons";
 import { TextNormal, TextSmall, TextTitle } from "../../globals/texts";
 import { StyledMensagemErro } from "../../globals/utils";
+import toast from "react-hot-toast";
+import type { UserCreateDTO } from "../../types/types";
+import { UserEnums } from "../../enums/userEnums";
+import GlobalLoading from "../../Components/Loading/globalLoading";
+import { useState } from "react";
+import axios from "axios";
+import createUser from "../../services/createUser";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const Register = () =>{
     const { register, handleSubmit, formState: { errors } } = useForm();
+    const [ loading, setLoading ] = useState(false);
 
-    const onSubmit = (data: FieldValues) =>{
-        console.log(data)
+    const onSubmit = async(data: FieldValues) =>{
+        if(data.password !== data.confirmarSenha){
+            toast.error("As senhas não coincidem");
+            return;
+        }
+
+        let user: UserCreateDTO = {
+            nome: data.nome,
+            apelido: data.apelido,
+            telefone: data.telefone,
+            cpf: data.cpf,
+            email: data.email,
+            senha: data.password,
+            avatar: data.avatar,
+            tipo: UserEnums.USER
+        }
+        
+        try{
+            setLoading(true);
+            const res = await createUser(user);
+            console.log(res);
+        }catch(e){
+            toast.error(`Erro ao cadastrar usuário ${e}`);
+        }finally{
+            setLoading(false);
+        }
+
     }
 
     return(<>
@@ -165,9 +199,9 @@ const Register = () =>{
                 
                 <p>Já tem conta ou quer se logar pelo Google? <Link to="/login">Clique aqui</Link></p>
             </form>
-
         </aside>
 
+        {loading && <GlobalLoading/>}
     </StyledSectionRegister>
     </>)
 };

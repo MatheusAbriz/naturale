@@ -13,10 +13,10 @@ const Input = ({name, maskType, minLength, maxLength=255, register, isRequired, 
          }, maxLength: {
             value: maxLength,
             message: `Máximo de ${maxLength} caracteres`
-         }, pattern: {
+         }, pattern: maskType ? {
             value: maskType === 'email' ? emailRegex : passwordRegex,
             message: maskType === 'email' ? 'Email inválido' : 'Senha inválida. Inclua ao menos 1 letra minúscula, uma maiúscula e um caractere especial'
-         }
+         } : undefined
         })}
         {...rest}
         />

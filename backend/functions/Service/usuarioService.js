@@ -60,6 +60,7 @@ export async function logarUsuario(email, senha) {
             usuario: {
                 id: usuario.id_usuario,
                 nome: usuario.nome_usuario,
+                email: usuario.email_usuario,
                 tipo: usuario.tipo_usuario,
                 avatar: usuario.avatar_usuario,
                 token
@@ -67,26 +68,26 @@ export async function logarUsuario(email, senha) {
         };
     } catch (err) {
         console.log(err);
-        return { status: false, msg: "Erro na requisição" };
+        return { status: false, msg: `Erro na requisição ${err}` };
     }
 }
 
 // Adicionar usuário com senha criptografada
 export async function adicionarUsuario(usuario) {
     try {
-        const { nome_usuario, apelido_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario } = usuario;
+        const { nome, apelido, telefone, cpf, email, senha, tipo, avatar } = usuario;
 
         // Verifica se o email já está cadastrado
-        const existingUser = await pool`SELECT * FROM usuario WHERE email_usuario = ${email_usuario}`;
+        const existingUser = await pool`SELECT * FROM usuario WHERE email_usuario = ${email}`;
         if (existingUser.count > 0) {
             return { status: false, msg: "Email já cadastrado" };
         }
 
         // Criptografar a senha
-        const hash = await bcrypt.hash(senha_usuario, 10);
+        const hash = await bcrypt.hash(senha, 10);
 
         const result = await pool`INSERT INTO usuario (nome_usuario, apelido_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario) 
-           VALUES (${nome_usuario}, ${apelido_usuario}, ${telefone_usuario}, ${cpf_usuario}, ${email_usuario}, ${hash}, ${tipo_usuario}, ${avatar_usuario})
+           VALUES (${nome}, ${apelido}, ${telefone}, ${cpf}, ${email}, ${hash}, ${tipo}, ${avatar})
 
             RETURNING id_usuario, apelido_usuario, email_usuario, tipo_usuario, avatar_usuario`
 

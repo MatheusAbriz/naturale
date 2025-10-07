@@ -2,6 +2,7 @@ import axios from "axios";
 import type { UserLoginDTO } from "../types/types";
 
 const loginUser = async (user: UserLoginDTO) => {
+  console.log(user)
   const response = await axios.post(
     `${import.meta.env.VITE_APP_BASE_URL}/usuario/logarUsuario`, user
   );
