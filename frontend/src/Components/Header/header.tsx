@@ -9,9 +9,10 @@ import { StyledHeader } from '.'
 
 const Header = () =>{
 
+    const user = JSON.parse(localStorage.getItem('user') ?? '');
     //Opcoes
     const [ options, setOptions ] = useState<Options>({
-        label: "Nome_Perfil",
+        label: user.apelido,
         item: [{id: 1, texto: "Configurações"}, {id: 2, texto: "Favoritos"}, {id: 3, texto: "Sair"}]
     })
 

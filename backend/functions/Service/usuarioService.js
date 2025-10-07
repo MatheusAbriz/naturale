@@ -33,7 +33,7 @@ export async function selecionarNomeUsuario(id) {
 // Login de usuário com autenticação JWT
 export async function logarUsuario(email, senha) {
     try {
-        const results = await pool`SELECT id_usuario, nome_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario FROM usuario WHERE email_usuario = ${email}`;
+        const results = await pool`SELECT id_usuario, apelido_usuario, nome_usuario, email_usuario, senha_usuario, tipo_usuario, avatar_usuario FROM usuario WHERE email_usuario = ${email}`;
 
         if (results.count === 0) {
             return { status: false, msg: "Usuário não encontrado" };
@@ -60,6 +60,7 @@ export async function logarUsuario(email, senha) {
             usuario: {
                 id: usuario.id_usuario,
                 nome: usuario.nome_usuario,
+                apelido: usuario.apelido_usuario,
                 email: usuario.email_usuario,
                 tipo: usuario.tipo_usuario,
                 avatar: usuario.avatar_usuario,

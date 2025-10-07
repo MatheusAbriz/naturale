@@ -2,7 +2,6 @@ import axios from "axios";
 import type { UserCreateDTO } from "../types/types";
 
 const createUser = async (user: UserCreateDTO) => {
-    console.log(user);
     const response = await axios.post(
       `${import.meta.env.VITE_APP_BASE_URL}/usuario/adicionarUsuario`, user
     );

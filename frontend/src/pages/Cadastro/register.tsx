@@ -1,23 +1,24 @@
 import Header from "../../Components/Header/header";
 import { set, useForm, type FieldValues } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useNavigation } from "react-router-dom";
 import { StyledInputForm } from "../../globals/inputs";
 import { StyledSectionRegister } from "./";
 import { StyledButton } from "../../globals/buttons";
 import { TextNormal, TextSmall, TextTitle } from "../../globals/texts";
 import { StyledMensagemErro } from "../../globals/utils";
 import toast from "react-hot-toast";
-import type { UserCreateDTO } from "../../types/types";
+import type { User, UserCreateDTO } from "../../types/types";
 import { UserEnums } from "../../enums/userEnums";
 import GlobalLoading from "../../Components/Loading/globalLoading";
 import { useState } from "react";
-import axios from "axios";
 import createUser from "../../services/createUser";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { useAuth } from "../../hooks/useAuth";
 
 const Register = () =>{
+    const { signInWithEmailAndPassword } = useAuth();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [ loading, setLoading ] = useState(false);
+    const navigate = useNavigate()
 
     const onSubmit = async(data: FieldValues) =>{
         if(data.password !== data.confirmarSenha){
@@ -39,7 +40,21 @@ const Register = () =>{
         try{
             setLoading(true);
             const res = await createUser(user);
-            console.log(res);
+
+            const userDTO: User = {
+                id: res[0].id_usuario as number,
+                email: res[0].email_usuario as string,
+                apelido: res[0].apelido_usuario as string,
+                tipo_usuario: res[0].tipo_usuario as UserEnums,
+                avatar: res[0].avatar as string || null,
+                token: res.token as string
+            } 
+            console.log(userDTO)
+
+            await signInWithEmailAndPassword(userDTO);
+            toast.success("Usuário criado com sucesso!");
+            navigate('/')
+
         }catch(e){
             toast.error(`Erro ao cadastrar usuário ${e}`);
         }finally{

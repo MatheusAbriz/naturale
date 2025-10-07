@@ -44,7 +44,6 @@ export const Login = () =>{
                 avatar: res.avatar as string || null,
                 token: res.token as string
             }
-            console.log(user)
 
             await signInWithEmailAndPassword(user);
             toast.success("Usuário logado com sucesso");

@@ -73,7 +73,8 @@ export type User = {
     email?: string;
     id: number;
     token: string; //Token teoricamente guardará o email/senha/etc
-    nome: string;
+    nome?: string;
+    apelido?: string;
     tipo_usuario: UserEnums;
     avatar: string | null; //Caso haja algum erro no banco, vai trazer null
 }
