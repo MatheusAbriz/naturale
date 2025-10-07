@@ -18,7 +18,7 @@ const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProp
     };
 
     const [ options, setOptions ] = useState<Options>({
-        label: autor,
+        label: autor ?? "",
         post: post,
         qtdLikes: qtdLikes,
         item: [{id: 1, texto: "Perfil"}, {id: 2, texto: "Postagens"}] 

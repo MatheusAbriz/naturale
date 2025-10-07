@@ -15,9 +15,10 @@ export type AvatarProps = {
 //Por enquanto autor está vindo como number, mas mudar para string(nome do autor) assim que possível
 export type CardProps = {
     titulo: string,
-    autor: number,
+    autor: string | null,
     post: number,
     img?: any,
+    avatar?: string | null,
     isLiked: boolean;
     qtdLikes: number,
     handleClick: () => void
@@ -25,7 +26,7 @@ export type CardProps = {
 
 //Tipagem opcoes
 export type OptionsPost = {
-    label: number;
+    label: string;
     post: number;
     qtdLikes: number;
     item: {
@@ -111,14 +112,22 @@ export type AuthContextProviderProps = {
 
 //Tipagem correta para posts e likes
 export type Posts = {
-    id_post: number;
-    id_usuario: number;
-    titulo_post: string;
-    texto_post: string;
-    ingredientes_post: string;
-    qtd_curtidas: number;
-    status_post: boolean;
-}
+  id_post: number;
+  id_usuario: number;
+  titulo_post: string;
+  texto_post: string;
+  ingredientes_post: string;
+  img_post: string;
+  tempo_post: string;
+  qtd_curtidas: number;
+  status_post: boolean;
+
+  nome_usuario: string;
+  apelido_usuario: string | null;
+  avatar_usuario: string | null;
+  tipo_usuario: UserEnums;
+};
+
 
 export type Likes = {
     id_like: number;

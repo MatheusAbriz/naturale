@@ -1,7 +1,7 @@
 import Header from "../../Components/Header/header";
 import Card from "../../Components/Card/card";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AlertaTemporario from "../../Components/AlertaTemporario/alertaTemporario";
 import { StyledSectionCard } from "./";
 import Loading from "../../Components/Loading/loading";
@@ -10,8 +10,10 @@ import fetchData  from "../../services/fetchData";
 import updateData from '../../services/updateData';
 
 import type { Posts, Likes } from "../../types/types";
+import { useAuth } from "../../hooks/useAuth";
 
 export const Home = () =>{
+    const { user } = useAuth();
 
     const Paginacao = () =>{
         return(
@@ -110,16 +112,17 @@ export const Home = () =>{
            {posts && (
                 posts.map((item: Posts) =>{
                     {/* Filtro que checa os likes (do BD, pelo id_post e id_usuario) com o id_post e id_usuario da entidade post no BD*/}
-                    const isLiked = dataLikes?.some((like: Likes) => like.id_post === item?.id_post && like.id_usuario === item?.id_usuario);
+                    const isLiked = dataLikes?.some((like: Likes) => like.id_post === item?.id_post && like.id_usuario === user?.id);
                     return (
                         <Card 
                          key={item?.id_post}
                          titulo={item?.titulo_post}
-                         autor={item?.id_usuario} 
-                         post={item?.id_post} 
+                         autor={item?.apelido_usuario} 
+                         post={item?.id_post}
+                         avatar={item?.avatar_usuario} 
                          isLiked={isLiked}
                          qtdLikes={item?.qtd_curtidas}
-                         handleClick={() => handleClick(item?.id_usuario, item?.id_post)} //TODO: Criar um store para o usuário para manter o usuário logado, e no handleClick, puxar o ID do usuario logado. Usando o do autor apenas para teste
+                         handleClick={() => handleClick(user?.id!, item?.id_post)} //TODO: Criar um store para o usuário para manter o usuário logado, e no handleClick, puxar o ID do usuario logado. Usando o do autor apenas para teste
                         />
                     )
                 })
