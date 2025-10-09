@@ -11,6 +11,7 @@ import updateData from '../../services/updateData';
 
 import type { Posts, Likes } from "../../types/types";
 import { useAuth } from "../../hooks/useAuth";
+import { toast } from "react-hot-toast";
 
 export const Home = () =>{
     const { user } = useAuth();
@@ -83,9 +84,16 @@ export const Home = () =>{
             onError 
         }
     )
+    
+    const {  data: favorites, refetch } = fetchData({
+        queryKey: 'favorites',
+        urlParams: `favoritos/lerFavoritos/${user?.id!}`,
+    });
 
     //Likes - Responsável pela mutação de atualizar(adicionar/remover) likes do BD
     const { mutate: updateLikes, isError } = updateData()
+
+    const { mutate: insertFavorite } = updateData();
 
     //Posts - variavel final
     const [ posts, setPosts ] = useState<Array<Posts>>([])
@@ -97,6 +105,18 @@ export const Home = () =>{
             updateLikes(`${import.meta.env.VITE_APP_BASE_URL}/post/atualizarPostCurtida/${usuario}/${post}`)
         }catch(err){
             console.error(err)
+        }
+    }
+
+    const handleInsertOrRemoveFavorite = async(idUsuario: number, idPost: number) => {
+        try{
+            //TODO: Transformar atualizacao do favorite reativo na UI
+            insertFavorite(`${import.meta.env.VITE_APP_BASE_URL}/favoritos/inserirFavorito/${idUsuario}/${idPost}`);
+            await refetch();
+            toast.success("Status de favorito alterado com sucesso");
+        }catch(err){
+            console.error(err);
+            toast.error("Não é possível fazer isso no momento");
         }
     }
 
@@ -113,6 +133,7 @@ export const Home = () =>{
                 posts.map((item: Posts) =>{
                     {/* Filtro que checa os likes (do BD, pelo id_post e id_usuario) com o id_post e id_usuario da entidade post no BD*/}
                     const isLiked = dataLikes?.some((like: Likes) => like.id_post === item?.id_post && like.id_usuario === user?.id);
+                    const isFavorited = favorites?.some((favorite: Likes) => favorite.id_post === item?.id_post);
                     return (
                         <Card 
                          key={item?.id_post}
@@ -121,8 +142,10 @@ export const Home = () =>{
                          post={item?.id_post}
                          avatar={item?.avatar_usuario} 
                          isLiked={isLiked}
+                         isFavorited={isFavorited}
                          qtdLikes={item?.qtd_curtidas}
-                         handleClick={() => handleClick(user?.id!, item?.id_post)} //TODO: Criar um store para o usuário para manter o usuário logado, e no handleClick, puxar o ID do usuario logado. Usando o do autor apenas para teste
+                         handleClick={() => handleClick(user?.id!, item?.id_post)}
+                         handleInsertOrRemoveFavorite={() => handleInsertOrRemoveFavorite(user?.id!, item?.id_post)}
                         />
                     )
                 })

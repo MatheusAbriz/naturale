@@ -18,8 +18,8 @@ const updateData = () =>{
         {
             onSuccess: () => {
                 //Forçando atualizacao
-                queryClient.invalidateQueries('posts')
-                queryClient.invalidateQueries('likes')
+                queryClient.invalidateQueries(['posts'])
+                queryClient.invalidateQueries(['likes'])
             },
             onError: (err: AxiosError) =>{
                 console.error(`Erro na mutate: ${err}`)

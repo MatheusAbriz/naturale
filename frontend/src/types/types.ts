@@ -20,8 +20,10 @@ export type CardProps = {
     img?: any,
     avatar?: string | null,
     isLiked: boolean;
+    isFavorited: boolean;
     qtdLikes: number,
     handleClick: () => void
+    handleInsertOrRemoveFavorite: () => void;
 }
 
 //Tipagem opcoes

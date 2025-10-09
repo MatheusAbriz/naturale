@@ -2,20 +2,24 @@ import cardImg from '../../assets/img/card-img.png'
 import usuarioDemo from '../../assets/img/usuario-demo.jpg'
 import { HeartIcon } from '@heroicons/react/24/outline'
 import Avatar from '../Avatar/avatar'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { CardProps, OptionsPost as Options } from '../../types/types'
 import LoadingImages from '../Loading/loadingImages'
 import { ChatBubbleOvalLeftIcon } from '@heroicons/react/24/outline'
-import { BookmarkIcon } from 'lucide-react'
+import { Book, BookmarkIcon } from 'lucide-react'
 import { StyledButton } from '../../globals/buttons'
 import { StyledContainerCard } from './'
 import { TextNormal, TextSmall } from '../../globals/texts'
+import toast from 'react-hot-toast'
+import updateData from '../../services/updateData'
 
-const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProps) =>{
+const Card = ({ titulo, autor, post, isLiked, isFavorited, qtdLikes, handleClick, handleInsertOrRemoveFavorite } : CardProps) =>{
     const [ loaded, setLoaded ] = useState(false);
     const onImageLoaded = () => {
         setLoaded(true)
     };
+
+    const { mutate: insertFavorite } = updateData();
 
     const [ options, setOptions ] = useState<Options>({
         label: autor ?? "",
@@ -50,8 +54,8 @@ const Card = ({ titulo, autor, post, isLiked, qtdLikes, handleClick } : CardProp
                     </div>
 
                     <div className="align-self-end">
-                        <button>
-                            <BookmarkIcon className="size-6 text-[#518C81] cursor-pointer"/>
+                        <button onClick={handleInsertOrRemoveFavorite}>
+                            <BookmarkIcon className={`size-6 text-[#518C81] ${isFavorited ? "fill-[#518C81]" : "fill-white"} cursor-pointer`}/>
                         </button>
                     </div>
                 </div>
