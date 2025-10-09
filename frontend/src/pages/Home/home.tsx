@@ -15,6 +15,7 @@ import { toast } from "react-hot-toast";
 
 export const Home = () =>{
     const { user } = useAuth();
+    const [ isFavorited, setIsFavorited ] = useState<Array<boolean>>([]);
 
     const Paginacao = () =>{
         return(
@@ -113,12 +114,25 @@ export const Home = () =>{
             //TODO: Transformar atualizacao do favorite reativo na UI
             insertFavorite(`${import.meta.env.VITE_APP_BASE_URL}/favoritos/inserirFavorito/${idUsuario}/${idPost}`);
             await refetch();
+
+            setIsFavorited(prev => posts.map((post, index) => 
+                post.id_post === idPost ? !prev[index] : prev[index]
+            ))
             toast.success("Status de favorito alterado com sucesso");
         }catch(err){
             console.error(err);
             toast.error("Não é possível fazer isso no momento");
         }
     }
+
+    useEffect(() =>{
+        if (posts.length > 0 && favorites) {
+            const favoriteStatusArray = posts.map(post => 
+                favorites.some((fav: Likes) => fav.id_post === post.id_post)
+            );
+        setIsFavorited(favoriteStatusArray);
+    }
+    }, [posts, favorites])
 
     return(<>
         <Header/>
@@ -130,10 +144,9 @@ export const Home = () =>{
            {isLoadingPosts && <Loading/>}
            {isErrorPosts && <div>Erro! Site fora do ar no momento.</div>}
            {posts && (
-                posts.map((item: Posts) =>{
+                posts.map((item: Posts, index) =>{
                     {/* Filtro que checa os likes (do BD, pelo id_post e id_usuario) com o id_post e id_usuario da entidade post no BD*/}
                     const isLiked = dataLikes?.some((like: Likes) => like.id_post === item?.id_post && like.id_usuario === user?.id);
-                    const isFavorited = favorites?.some((favorite: Likes) => favorite.id_post === item?.id_post);
                     return (
                         <Card 
                          key={item?.id_post}
@@ -142,7 +155,7 @@ export const Home = () =>{
                          post={item?.id_post}
                          avatar={item?.avatar_usuario} 
                          isLiked={isLiked}
-                         isFavorited={isFavorited}
+                         isFavorited={isFavorited[index]}
                          qtdLikes={item?.qtd_curtidas}
                          handleClick={() => handleClick(user?.id!, item?.id_post)}
                          handleInsertOrRemoveFavorite={() => handleInsertOrRemoveFavorite(user?.id!, item?.id_post)}
