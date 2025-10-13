@@ -87,6 +87,7 @@ ADD CONSTRAINT comentarios_id_usuario_fkey FOREIGN KEY (id_usuario) REFERENCES u
 ALTER TABLE comentarios
 DROP CONSTRAINT comentarios_id_post_fkey,
 ADD CONSTRAINT comentarios_id_post_fkey FOREIGN KEY (id_post) REFERENCES post(id_post) ON DELETE CASCADE;
+ADD COLUMN id_comentario_pai INTEGER REFERENCES comentarios(id_comentario) ON DELETE CASCADE;
 
 insert into usuario(nome_usuario, telefone_usuario, cpf_usuario, email_usuario, senha_usuario, avatar_usuario, tipo_usuario) values('Matheus', '988257303', '53826433858', 'math@gmail.com', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZW5oYSI6IjA1MDU4MkBDcmlzIiwiaWF0IjoxNjk0Nzg3Mzg3LCJleHAiOjE2OTQ3OTA5ODd9.h6gK5O0Fm48dF2eLhJpG4vOqZ0c7hZ9sY2tW_tX8rYg
 ', 'img_exemplo_suario_base64', 'USER');
