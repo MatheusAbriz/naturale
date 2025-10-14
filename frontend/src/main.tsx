@@ -11,7 +11,6 @@ import { AuthContextProvider } from './contexts/AuthContext';
 import ChatBot from './pages/ChatBot/chatBot';
 import Register from './pages/Cadastro/register';
 import { GlobalStyles } from './assets/css/variaveis';
-import { Favorites } from './pages/Favorites/favorites';
 
 //Criando um cliente para o React Query
 const queryClient = new QueryClient()
