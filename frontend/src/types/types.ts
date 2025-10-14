@@ -146,6 +146,7 @@ export interface PrivateRouteProps {
 export type FetchProps = {
     queryKey: string;
     urlParams: string;
+    enabled?: boolean;
     onSuccess?: (data: any) => void;
     onError?: (error: any) => void;
 }  

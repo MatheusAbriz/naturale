@@ -34,7 +34,7 @@ const Header = () =>{
                     <li className="links flex gap-x-8">
                         <Link to="/">Início</Link>
                         <Link to="/">Receitas</Link>
-                        <Link to="/">Favoritas</Link>
+                        <Link to="/favoritos">Favoritas</Link>
                     </li>
                 </ul>
  
