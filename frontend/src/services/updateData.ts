@@ -20,6 +20,7 @@ const updateData = () =>{
                 //Forçando atualizacao
                 queryClient.invalidateQueries(['posts'])
                 queryClient.invalidateQueries(['likes'])
+                queryClient.invalidateQueries(['postFavorites'])
             },
             onError: (err: AxiosError) =>{
                 console.error(`Erro na mutate: ${err}`)

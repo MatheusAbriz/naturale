@@ -2,7 +2,28 @@ import pool from "../Model/pool.js";
 
 export async function lerFavoritos(idUsuario) {
     try {
-        const results = await pool`SELECT * FROM favoritos WHERE id_usuario = ${idUsuario}`;
+        const results = await pool`
+            SELECT 
+                p.id_post,
+                p.titulo_post,
+                p.texto_post,
+                p.ingredientes_post,
+                p.img_post,
+                p.tempo_post,
+                p.qtd_curtidas,
+                p.status_post,
+                u.id_usuario,
+                u.nome_usuario,
+                u.apelido_usuario,
+                u.avatar_usuario,
+                u.tipo_usuario
+            FROM favoritos f
+            INNER JOIN post p ON f.id_post = p.id_post
+            INNER JOIN usuario u ON p.id_usuario = u.id_usuario
+            WHERE f.id_usuario = ${idUsuario}
+            ORDER BY p.id_post DESC
+        `;
+        
         if (results.count >= 1) {
             return { status: true, msg: results };
         }

@@ -13,7 +13,6 @@ const data = (urlParams: string) => {
 }
 
 const fetchData = ({ queryKey, urlParams, enabled=true, onSuccess, onError }: FetchProps) => {
-
     return useQuery(queryKey, () => data(urlParams), {
         onSuccess,
         onError,
