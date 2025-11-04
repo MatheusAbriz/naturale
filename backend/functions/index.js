@@ -8,6 +8,7 @@ import usuario from './Controller/usuarioController.js';
 import likes from './Controller/likesController.js';
 import post from './Controller/postController.js';
 import favoritos from './Controller/favoritosController.js';
+import comentarios from './Controller/comentariosController.js';
 
 admin.initializeApp();
 const app = express();
@@ -17,6 +18,7 @@ app.use(usuario);
 app.use(likes);
 app.use(post);
 app.use(favoritos);
+app.use(comentarios);
 
 setGlobalOptions({maxInstances: 10});
 

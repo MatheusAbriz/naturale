@@ -1,4 +1,4 @@
-import pool from "../model/pool.js";
+import pool from "../Model/pool.js";
 
 //Pega todos os likes e posts
 export async function lerTodosLikes(){
