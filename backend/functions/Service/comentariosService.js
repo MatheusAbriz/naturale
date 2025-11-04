@@ -23,7 +23,7 @@ export async function lerComentariosPorPost(idPost) {
             return { status: true, msg: results };
         }
 
-        return { status: false, msg: "Nenhum comentário encontrado" };
+        return { status: true, msg: "Nenhum comentário encontrado" };
     } catch (err) {
         console.log("Erro ao buscar comentários:", err);
         return { status: false, msg: "Erro na requisição" };

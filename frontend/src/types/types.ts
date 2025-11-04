@@ -1,6 +1,7 @@
 import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
 import type { UseFormRegister } from "react-hook-form";
 import { UserEnums } from '../enums/userEnums';
+import type { QueryKey } from "react-query";
 
 //Tipagem de componentes
 export type AlertaProps = {
@@ -144,7 +145,15 @@ export interface PrivateRouteProps {
 
 //Tipagem de services
 export type FetchProps = {
-    queryKey: string;
+    queryKey: QueryKey;
+    urlParams: string;
+    enabled?: boolean;
+    onSuccess?: (data: any) => void;
+    onError?: (error: any) => void;
+}  
+
+export type FetchCommentsProps = {
+    queryKey: QueryKey;
     urlParams: string;
     enabled?: boolean;
     onSuccess?: (data: any) => void;
@@ -162,4 +171,8 @@ export type SkeletonImageProps = {
 //Tipagem de Props
 export type TitleProps = {
     $color?: string
+}
+
+export type CommentsProps = {
+    
 }

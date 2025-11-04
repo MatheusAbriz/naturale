@@ -12,6 +12,7 @@ import { StyledContainerCard } from './'
 import { TextNormal, TextSmall } from '../../globals/texts'
 import toast from 'react-hot-toast'
 import updateData from '../../services/updateData'
+import { ModalPost } from '../Modals/modal-post'
 
 const Card = ({ titulo, autor, post, isLiked, isFavorited, qtdLikes, handleClick, handleInsertOrRemoveFavorite } : CardProps) =>{
     const [ loaded, setLoaded ] = useState(false);
@@ -48,9 +49,12 @@ const Card = ({ titulo, autor, post, isLiked, isFavorited, qtdLikes, handleClick
                         <StyledButton hasBackground={false} className="cursor-pointer" onClick={handleClick}>
                             <HeartIcon className={`size-6 ${isLiked ? "fill-[#518C81]" : "fill-white" } text-[#518C81] `}/>
                         </StyledButton>
-                        <button>
-                            <ChatBubbleOvalLeftIcon className="size-6 text-[#518C81] cursor-pointer"/>
-                        </button>
+                        <ModalPost
+                            idPost={post}
+                            modalTrigger={
+                                <ChatBubbleOvalLeftIcon className="size-6 text-[#518C81] cursor-pointer"/>
+                            }
+                        />                            
                     </div>
 
                     <div className="align-self-end">
