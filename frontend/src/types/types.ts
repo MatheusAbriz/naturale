@@ -150,7 +150,7 @@ export type FetchProps = {
     enabled?: boolean;
     onSuccess?: (data: any) => void;
     onError?: (error: any) => void;
-}  
+}
 
 export type FetchCommentsProps = {
     queryKey: QueryKey;
@@ -173,6 +173,15 @@ export type TitleProps = {
     $color?: string
 }
 
-export type CommentsProps = {
-    
+export type Comentario = {
+  id_comentario: number;
+  texto_comentario: string;
+  data_comentario: string;
+  editado: boolean;
+  id_comentario_pai: number | null;
+  id_usuario: number;
+  nome_usuario: string;
+  apelido_usuario: string;
+  avatar_usuario: string;
+  respostas: Comentario[];
 }
