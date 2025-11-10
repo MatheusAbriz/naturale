@@ -14,7 +14,7 @@ import toast from 'react-hot-toast'
 import updateData from '../../services/updateData'
 import { ModalPost } from '../Modals/modal-post'
 
-const Card = ({ titulo, autor, post, isLiked, isFavorited, qtdLikes, handleClick, handleInsertOrRemoveFavorite } : CardProps) =>{
+const Card = ({ titulo, autor, avatar, post, isLiked, isFavorited, qtdLikes, handleClick, handleInsertOrRemoveFavorite } : CardProps) =>{
     const [ loaded, setLoaded ] = useState(false);
     const onImageLoaded = () => {
         setLoaded(true)
@@ -32,7 +32,7 @@ const Card = ({ titulo, autor, post, isLiked, isFavorited, qtdLikes, handleClick
     return(
             <StyledContainerCard className="flex flex-col">
                 <div className="flex items-center gap-x-2 mb-2">
-                    <Avatar img={usuarioDemo} options={options}/>
+                    <Avatar img={avatar ?? usuarioDemo} options={options}/>
                     <h1 className="text-md">{autor}</h1>
                 </div>
                 <img 
