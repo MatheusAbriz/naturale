@@ -9,6 +9,7 @@ import likes from './Controller/likesController.js';
 import post from './Controller/postController.js';
 import favoritos from './Controller/favoritosController.js';
 import comentarios from './Controller/comentariosController.js';
+import imagens from './Controller/imagemController.js';
 
 admin.initializeApp();
 const app = express();
@@ -19,6 +20,7 @@ app.use(likes);
 app.use(post);
 app.use(favoritos);
 app.use(comentarios);
+app.use(imagens);
 
 setGlobalOptions({maxInstances: 10});
 
