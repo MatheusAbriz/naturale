@@ -33,7 +33,7 @@ const Header = () =>{
                 <ul className="flex space-between items-center">
                     <li className="links flex gap-x-8">
                         <Link to="/">Início</Link>
-                        <Link to="/">Receitas</Link>
+                        <Link to="/chat">Chatbot</Link>
                         <Link to="/favorites">Favoritas</Link>
                     </li>
                 </ul>

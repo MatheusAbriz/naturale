@@ -152,7 +152,8 @@ export const Home = () =>{
                          titulo={item?.titulo_post}
                          autor={item?.apelido_usuario} 
                          post={item?.id_post}
-                         avatar={item?.avatar_usuario} 
+                         avatar={item?.avatar_usuario}
+                         img={item?.img_post} 
                          isLiked={isLiked}
                          isFavorited={isFavorited[index]}
                          qtdLikes={item?.qtd_curtidas}
