@@ -99,6 +99,20 @@ export type UserLoginDTO = {
     senha: string
 }
 
+export type CommentaryCreateDTO = {
+    id_usuario: number | string,
+    id_post: number | string,
+    texto_comentario: string,
+    token: string
+}
+
+export type ReplyCreateDTO = {
+    id_post: number | string,
+    id_usuario: number | string,
+    texto_comentario: string,
+    id_comentario_pai: number | string
+}
+
 //Tipando o contexto de autenticacao
 export type AuthContextType = {
     user: User | undefined;

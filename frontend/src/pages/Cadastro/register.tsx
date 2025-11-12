@@ -49,7 +49,6 @@ const Register = () =>{
                 avatar: res[0].avatar as string || null,
                 token: res.token as string
             } 
-            console.log(userDTO)
 
             await signInWithEmailAndPassword(userDTO);
             toast.success("Usuário criado com sucesso!");

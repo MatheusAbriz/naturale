@@ -1,4 +1,5 @@
 import { styled } from "styled-components";
+import { DialogFooter } from "../../ui/dialog";
 
 export const ListaComentarios = styled.div``;
 
@@ -41,5 +42,49 @@ export const RespostasContainer = styled.div`
   margin-left: 42px;
   padding-left: 10px;
   border-left: 2px solid #e2e8f0;
+  margin-top: 10px;
+`;
+
+export const StyledFooter = styled(DialogFooter)`
+  margin-top: 40px;
+  flex-direction: column;
+
+  &, form {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  form {
+    gap: 20px;
+  }
+`;
+
+export const AcoesComentario = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+`;
+
+export const BotaoAcao = styled.button`
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  cursor: pointer;
+  
+  &:hover {
+    color: #333;
+  }
+`;
+
+export const FormResposta = styled.form`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-top: 10px;
 `;
