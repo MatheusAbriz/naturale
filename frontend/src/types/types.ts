@@ -64,7 +64,9 @@ export type InputProps = {
     maskType?: 'email' | 'password';
 } & InputHTMLAttributes<HTMLInputElement>;
 
-export type InputPropsSearch = InputHTMLAttributes<HTMLInputElement>;
+export type InputPropsSearch = InputHTMLAttributes<HTMLInputElement> & {
+    register: UseFormRegister<any>;
+};
 
 export type SearchProps = {
     texto: string;

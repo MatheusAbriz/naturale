@@ -12,6 +12,7 @@ import ChatBot from './pages/ChatBot/chatBot';
 import Register from './pages/Cadastro/register';
 import { GlobalStyles } from './assets/css/variaveis';
 import Favorites from './pages/Favoritos/favorites';
+import { Post } from './pages/Posts/post';
 
 //Criando um cliente para o React Query
 const queryClient = new QueryClient()
@@ -25,10 +26,11 @@ createRoot(document.getElementById('root')!).render(
       <AuthContextProvider>
         <Routes>
           <Route path="/" element={<PrivateRoute><Home/></PrivateRoute>}></Route>
+          <Route path="/posts/:texto" element={<PrivateRoute><Post/></PrivateRoute>}/>
           <Route path="/register" element={<Register/>}/>
           <Route path="/login" element={ <Login/> }/>
-          <Route path="/favorites" element={ <Favorites/> }/>
-          <Route path="/chat" element={<ChatBot/>}/>
+          <Route path="/favorites" element={<PrivateRoute><Favorites/></PrivateRoute> }/>
+          <Route path="/chat" element={<PrivateRoute><ChatBot/></PrivateRoute>}/>
         </Routes>
       </AuthContextProvider>
     </BrowserRouter>

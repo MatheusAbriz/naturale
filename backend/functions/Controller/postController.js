@@ -1,5 +1,5 @@
 import express from 'express';
-import { lerTodosPosts, atualizarPostCurtida } from '../Service/postService.js';
+import { lerTodosPosts, atualizarPostCurtida, lerPostPorTitulo } from '../Service/postService.js';
 import { verifyToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
@@ -13,6 +13,16 @@ router.get('/post/lerTodosPosts/', verifyToken, (req, res) => {
             return res.status(200).send(JSON.stringify(resultado));
         } else {
             return res.status(400).send("Erro! Não foi possível achar esse POST");
+        }
+    });
+});
+
+router.get('/post/lerPostsPorTitulo/:texto', verifyToken, (req, res) => {
+    lerPostPorTitulo(req.params.texto).then(resultado => {
+        if (resultado.status){
+            return  res.status(200).send(JSON.stringify(resultado.msg));
+        } else {
+            return res.status(400).send(resultado.msg);
         }
     });
 });

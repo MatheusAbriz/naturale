@@ -61,3 +61,38 @@ export async function atualizarPostCurtida(idUsuario, idPost){
         console.log(err)
     }
 }
+
+export async function lerPostPorTitulo(texto){
+  try{
+    const results = await pool`
+      SELECT 
+        p.id_post,
+        p.titulo_post,
+        p.texto_post,
+        p.ingredientes_post,
+        p.img_post,
+        p.tempo_post,
+        p.qtd_curtidas,
+        p.status_post,
+        u.id_usuario,
+        u.nome_usuario,
+        u.apelido_usuario,
+        u.avatar_usuario,
+        u.tipo_usuario
+      FROM post p
+      INNER JOIN usuario u ON p.id_usuario = u.id_usuario
+      where p.titulo_post ilike '%' || ${texto} || '%' 
+      ORDER BY p.id_post DESC
+    `;
+
+    console.warn(results.count)
+    if (results.count >= 1) {
+      return { status: true, msg: results };
+    }
+
+    return { status: false, msg: "Nenhum post encontrado" };
+  }catch(err){
+    console.error("Erro ao selecionar post por título:", err);
+    return { status: false, msg: "Erro ao selecionar post por título" };
+  }
+}

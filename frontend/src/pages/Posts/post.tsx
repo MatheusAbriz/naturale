@@ -3,7 +3,7 @@ import Card from "../../Components/Card/card";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useEffect, useState } from "react";
 import AlertaTemporario from "../../Components/AlertaTemporario/alertaTemporario";
-import { StyledSectionCard } from "./";
+import { StyledSectionCard } from ".";
 import Loading from "../../Components/Loading/loading";
 
 import fetchData  from "../../services/fetchData";
@@ -12,10 +12,12 @@ import updateData from '../../services/updateData';
 import type { Posts, Likes } from "../../types/types";
 import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-hot-toast";
+import { useParams } from "react-router-dom";
 
-export const Home = () =>{
+export const Post = () =>{
     const { user } = useAuth();
     const [ isFavorited, setIsFavorited ] = useState<Array<boolean>>([]);
+    const { texto } = useParams();
 
     const Paginacao = () =>{
         return(
@@ -62,14 +64,15 @@ export const Home = () =>{
     //Criando um onError que irá imprimir o erro no console para debug
     const onError = (error: Error) =>{
         console.error("Erro ao buscar os posts:", error);
+        setPosts([]);
     }
 
     //Posts - Acessando para depois armazenar na zustand(dentro da funcao onSuccess)
     const { isLoading: isLoadingPosts, data: dataPosts, isError: isErrorPosts } =
      fetchData(
         { 
-            queryKey: 'posts', 
-            urlParams: 'post/lerTodosPosts', 
+            queryKey: ['postsPorTitulo', texto], 
+            urlParams: `post/lerPostsPorTitulo/${texto}`, 
             onSuccess: onSuccessPosts, 
             onError 
         }
@@ -135,13 +138,13 @@ export const Home = () =>{
 
     return(<>
         <Header/>
-
         {isLoadingPosts && <Loading/>}
         <StyledSectionCard
          className="gap-x-20 gap-y-20"
          >
-           {isErrorPosts && <div>Erro! Site fora do ar no momento.</div>}
-           {posts && (
+
+           {isErrorPosts && <div>Nenhum post encontrado! Tente com outro termo.</div>}
+           {(posts && !isLoadingPosts) && (
                 posts.map((item: Posts, index) =>{
                     {/* Filtro que checa os likes (do BD, pelo id_post e id_usuario) com o id_post e id_usuario da entidade post no BD*/}
                     const isLiked = dataLikes?.some((like: Likes) => like.id_post === item?.id_post && like.id_usuario === user?.id);
@@ -166,6 +169,7 @@ export const Home = () =>{
             {isError ? (<AlertaTemporario texto="Opa! Algo deu errado, tente novamente depois."/>) : (<></>)}
         </StyledSectionCard>
         {(!isErrorPosts && !isLoadingPosts) &&<Paginacao/>}
+        
         </>
     )
 }

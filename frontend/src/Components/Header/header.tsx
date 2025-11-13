@@ -40,7 +40,7 @@ const Header = () =>{
  
                 <ul className="flex space-between items-center">
                     <li className="links flex gap-x-8">
-                        <Search texto="Pesquisar..."/>
+                        <Search texto="Pesquisar post..."/>
                         <Avatar img={imgPerfil} options={options}/>
                     </li>
                 </ul>
