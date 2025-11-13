@@ -4,49 +4,84 @@ import Search from '../Search/search'
 import Avatar from '../Avatar/avatar'
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import type { OptionsHeader as Options, User } from '../../types/types'
-import { StyledHeader } from '.'
+import type { OptionsHeader as Options } from '../../types/types'
 import { useAuth } from '../../hooks/useAuth'
+import { StyledHeader, LogoLink, NavLinks, SearchWrapper, DesktopAvatar, MobileMenuButton, MobileMenuOverlay, MobileMenuContent, CloseButton, MobileMenuLogo } from '.'
+import { Menu, X } from 'lucide-react'
 
-const Header = () =>{
-    const { user } = useAuth();    
+const Header = () => {
+  const { user } = useAuth()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-    useEffect(() =>{
-        if(!user) return;
-    }, []);
+  const [options, setOptions] = useState<Options>({
+    label: user?.apelido || "",
+    item: [
+      { id: 1, texto: "Configurações" },
+      { id: 2, texto: "Favoritos" },
+      { id: 3, texto: "Sair" }
+    ]
+  })
 
-    //Opcoes
-    const [ options, setOptions ] = useState<Options>({
-        label: user?.apelido || "",
-        item: [{id: 1, texto: "Configurações"}, {id: 2, texto: "Favoritos"}, {id: 3, texto: "Sair"}]
-    })
+  useEffect(() => {
+    if (user) {
+      setOptions(prev => ({
+        ...prev,
+        label: user.apelido || ""
+      }))
+    }
+  }, [user])
 
-    return(
-        <StyledHeader>
-            <nav className="flex  items-center justify-between">
-                <ul className="flex space-between items-center">
-                    <li>
-                        <Link to="/"><img src={ logo } alt="imagem logo svg"/></Link>
-                    </li>
-                </ul>
- 
-                <ul className="flex space-between items-center">
-                    <li className="links flex gap-x-8">
-                        <Link to="/">Início</Link>
-                        <Link to="/chat">Chatbot</Link>
-                        <Link to="/favorites">Favoritas</Link>
-                    </li>
-                </ul>
- 
-                <ul className="flex space-between items-center">
-                    <li className="links flex gap-x-8">
-                        <Search texto="Pesquisar post..."/>
-                        <Avatar img={imgPerfil} options={options}/>
-                    </li>
-                </ul>
-            </nav>
-        </StyledHeader>
-    )
+  const closeMenu = () => setIsMenuOpen(false)
+
+  return (
+    <>
+      <StyledHeader>
+        <LogoLink to="/">
+          <img src={logo} alt="imagem logo svg" />
+        </LogoLink>
+
+        <NavLinks>
+          <Link to="/">Início</Link>
+          <Link to="/chat">Chatbot</Link>
+          <Link to="/favorites">Favoritas</Link>
+        </NavLinks>
+
+        <SearchWrapper>
+          <Search texto="Pesquisar post..." />
+        </SearchWrapper>
+
+        <DesktopAvatar>
+          <Avatar img={imgPerfil} options={options} />
+        </DesktopAvatar>
+
+        <MobileMenuButton onClick={() => setIsMenuOpen(true)}>
+          <Menu size={28} />
+        </MobileMenuButton>
+      </StyledHeader>
+
+      <MobileMenuOverlay $isOpen={isMenuOpen} onClick={closeMenu}>
+        <MobileMenuContent $isOpen={isMenuOpen} onClick={(e) => e.stopPropagation()}>
+          <CloseButton onClick={closeMenu}>
+            <X size={28} />
+          </CloseButton>
+
+          <MobileMenuLogo>
+            <img src={logo} alt="imagem logo svg" />
+          </MobileMenuLogo>
+
+          <nav>
+            <Link to="/" onClick={closeMenu}>Início</Link>
+            <Link to="/chat" onClick={closeMenu}>Chatbot</Link>
+            <Link to="/favorites" onClick={closeMenu}>Favoritas</Link>
+          </nav>
+
+          <div className="mobile-avatar">
+            <Avatar img={imgPerfil} options={options} />
+          </div>
+        </MobileMenuContent>
+      </MobileMenuOverlay>
+    </>
+  )
 }
- 
-export default Header;
+
+export default Header

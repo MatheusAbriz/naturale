@@ -5,6 +5,7 @@ import { StyledContainerPesquisar } from './';
 import searchLogo from '../../assets/img/pesquisar.svg';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const Search = ({ texto } : SearchProps) =>{
     const [ pesquisa, setPesquisa ] = useState<string>('')
@@ -12,12 +13,13 @@ const Search = ({ texto } : SearchProps) =>{
     const navigate = useNavigate()
 
     const pesquisar = async() =>{
+        if(pesquisa.trim() === '') return toast.error('Por favor, insira um termo de pesquisa válido.');
         await navigate(`/posts/${pesquisa}`);
     }
 
     return(
         <StyledContainerPesquisar className="relative">
-            <form onSubmit={handleSubmit(pesquisar)}>
+            <form onSubmit={handleSubmit(pesquisar)} className="flex items-center justify-end relative">
                 <StyledInputPesquisar
                     register={register}
                     type="text" 

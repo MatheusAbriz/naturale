@@ -11,4 +11,12 @@ export const StyledContainerPesquisar = styled.div`
             cursor: pointer;
         }
     };
+
+    @media screen and (max-width: 450px) {
+        form{
+            width: fit-content;
+            justify-content: center;
+            margin: 0 auto;
+        }
+    }
 `
