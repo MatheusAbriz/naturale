@@ -6,9 +6,9 @@ export const PostBadge = styled.div`
     height: fit-content;
     padding: 8px;
     background-color: ${theme.corFundo};
-    position: absolute;
+    position: fixed;
+    bottom: .5rem;
     right: 2rem;
-    bottom: 0;
     z-index: 1;
     border-radius: 50%;
     display: flex;
