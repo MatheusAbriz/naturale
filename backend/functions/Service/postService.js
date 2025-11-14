@@ -96,3 +96,25 @@ export async function lerPostPorTitulo(texto){
     return { status: false, msg: "Erro ao selecionar post por título" };
   }
 }
+
+export async function adicionarPost(postData){
+    const {
+    idUsuario,
+    tituloPost,
+    textoPost,
+    ingredientesPost,
+    imgPost,
+    tempoPost,
+    statusPost = true
+  } = postData;
+  try{
+    await pool`
+      INSERT INTO post(id_usuario, titulo_post, texto_post, ingredientes_post, img_post, tempo_post, qtd_curtidas, status_post)
+      VALUES (${idUsuario}, ${tituloPost}, ${textoPost}, ${ingredientesPost}, ${imgPost}, ${tempoPost}, 0, ${statusPost})
+    `;
+    return { status: true, msg: "Post criado com sucesso!" };
+  }catch(err){
+    console.log(err);
+    return { status: false, msg: "Erro ao criar post" };
+  }
+}

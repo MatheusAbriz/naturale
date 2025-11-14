@@ -27,6 +27,16 @@ export type CardProps = {
     handleInsertOrRemoveFavorite: () => void;
 }
 
+export type PostCreateDTO = {
+  idUsuario: number;
+  tituloPost: string;
+  textoPost: string;
+  ingredientesPost: string;
+  imgPost: string;
+  tempoPost: string;
+  statusPost?: boolean;
+};
+
 //Tipagem opcoes
 export type OptionsPost = {
     label: string;
@@ -92,7 +102,7 @@ export type UserCreateDTO = {
     cpf: string,
     email: string,
     senha: string,
-    avatar: string,
+    avatar: string | null,
     tipo: UserEnums
 }
 

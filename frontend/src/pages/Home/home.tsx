@@ -4,7 +4,6 @@ import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, Pagi
 import { useEffect, useState } from "react";
 import AlertaTemporario from "../../Components/AlertaTemporario/alertaTemporario";
 import { StyledSectionCard } from "./";
-import Loading from "../../Components/Loading/loading";
 
 import fetchData  from "../../services/fetchData";
 import updateData from '../../services/updateData';
@@ -12,6 +11,7 @@ import updateData from '../../services/updateData';
 import type { Posts, Likes } from "../../types/types";
 import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-hot-toast";
+import GlobalLoading from "../../Components/Loading/globalLoading";
 
 export const Home = () =>{
     const { user } = useAuth();
@@ -136,7 +136,7 @@ export const Home = () =>{
     return(<>
         <Header/>
 
-        {isLoadingPosts && <Loading/>}
+        {isLoadingPosts && <GlobalLoading/>}
         <StyledSectionCard
          className="gap-x-20 gap-y-20"
          >
@@ -165,7 +165,8 @@ export const Home = () =>{
 
             {isError ? (<AlertaTemporario texto="Opa! Algo deu errado, tente novamente depois."/>) : (<></>)}
         </StyledSectionCard>
-        {(!isErrorPosts && !isLoadingPosts) &&<Paginacao/>}
+        {(!isErrorPosts && !isLoadingPosts) && <Paginacao/>}
+
         </>
     )
 }

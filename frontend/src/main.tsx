@@ -13,6 +13,8 @@ import Register from './pages/Cadastro/register';
 import { GlobalStyles } from './assets/css/variaveis';
 import Favorites from './pages/Favoritos/favorites';
 import { Post } from './pages/Posts/post';
+import { RegisterPost } from './pages/CadastroPost/registerPost';
+import { BadgePost } from './Components/BadgePost/badgePost';
 
 //Criando um cliente para o React Query
 const queryClient = new QueryClient()
@@ -28,10 +30,12 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/" element={<PrivateRoute><Home/></PrivateRoute>}></Route>
           <Route path="/posts/:texto" element={<PrivateRoute><Post/></PrivateRoute>}/>
           <Route path="/register" element={<Register/>}/>
+          <Route path="/registerPost" element={<PrivateRoute><RegisterPost/></PrivateRoute>}/>
           <Route path="/login" element={ <Login/> }/>
           <Route path="/favorites" element={<PrivateRoute><Favorites/></PrivateRoute> }/>
           <Route path="/chat" element={<PrivateRoute><ChatBot/></PrivateRoute>}/>
         </Routes>
+        <BadgePost/>
       </AuthContextProvider>
     </BrowserRouter>
   </QueryClientProvider>
