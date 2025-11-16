@@ -54,6 +54,7 @@ export type OptionsHeader = {
     item: {
         id: number;
         texto: string;
+        onClick?: () => void
     }[]
 }
 
@@ -130,6 +131,7 @@ export type AuthContextType = {
     user: User | undefined;
     loading: boolean;
     signInWithEmailAndPassword: (user: User) => Promise<void>;
+    logout: () => void;
 }
 
 //Tipando o provider do contexto

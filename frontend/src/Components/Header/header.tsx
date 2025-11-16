@@ -10,7 +10,7 @@ import { StyledHeader, LogoLink, NavLinks, SearchWrapper, DesktopAvatar, MobileM
 import { Menu, X } from 'lucide-react'
 
 const Header = () => {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const [options, setOptions] = useState<Options>({
@@ -18,7 +18,7 @@ const Header = () => {
     item: [
       { id: 1, texto: "Configurações" },
       { id: 2, texto: "Favoritos" },
-      { id: 3, texto: "Sair" }
+      { id: 3, texto: "Sair", onClick: () => logout() }
     ]
   })
 
@@ -51,7 +51,7 @@ const Header = () => {
         </SearchWrapper>
 
         <DesktopAvatar>
-          <Avatar img={imgPerfil} options={options} />
+          <Avatar img={user?.avatar ?? imgPerfil} options={options} />
         </DesktopAvatar>
 
         <MobileMenuButton onClick={() => setIsMenuOpen(true)}>

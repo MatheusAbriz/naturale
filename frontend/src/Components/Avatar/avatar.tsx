@@ -13,7 +13,13 @@ const Avatar = ({ img, options } : AvatarProps) =>{
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                 {options.item.map((item:any) =>(
-                    <DropdownMenuItem className="avatar-item cursor-pointer" key={item.id}>{item.texto}</DropdownMenuItem>
+                    <DropdownMenuItem 
+                        key={item.id}
+                        className="avatar-item cursor-pointer" 
+                        onClick={item.onClick}
+                        >
+                            {item.texto}
+                        </DropdownMenuItem>
                 ))}
                 </DropdownMenuGroup>
             </DropdownMenuContent>

@@ -26,8 +26,14 @@ export const AuthContextProvider = (props: AuthContextProviderProps) =>{
         return setUser(user);
     }
 
+    const logout = () => {
+        localStorage.removeItem('user');
+        setUser(undefined);
+        return;
+    }
+
    return(
-        <AuthContext.Provider value={{ user, loading, signInWithEmailAndPassword }} >
+        <AuthContext.Provider value={{ user, loading, signInWithEmailAndPassword, logout }} >
             {props.children}
         </AuthContext.Provider>
    );

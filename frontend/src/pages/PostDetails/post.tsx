@@ -51,14 +51,11 @@ export const PostDetails = () => {
       enabled: !!id
   });
 
-  useEffect(() => {
-    console.log(comments)
-  }, [comments])
-
 
   if (!post) return <div>Post não encontrado</div>;
 
   const renderComments = (commentList: Comment[], isReply = false) => {
+    if(!comments) return;
     return commentList.map((comment) => (
       <StyledComment key={comment.id_comentario} isReply={isReply}>
         <StyledCommentAvatar src={comment.avatar_usuario} alt={comment.apelido_usuario} />
@@ -123,7 +120,7 @@ export const PostDetails = () => {
                 <StyledCommentsSection>
                 <h3>Comentários ({comments?.length})</h3>
                 <StyledCommentList>
-                    {comments.length > 0 ? renderComments(comments) : <p>Nenhum comentário ainda</p>}
+                    {comments?.length > 0 ? renderComments(comments) : <p>Nenhum comentário ainda</p>}
                 </StyledCommentList>
                 </StyledCommentsSection>
             </StyledPostContainer>
