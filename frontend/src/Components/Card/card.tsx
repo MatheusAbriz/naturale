@@ -11,9 +11,11 @@ import { ImagePreview, StyledContainerCard } from './'
 import { TextNormal, TextSmall } from '../../globals/texts'
 import updateData from '../../services/updateData'
 import { ModalPost } from '../Modals/modal-post'
+import { useNavigate } from 'react-router-dom'
 
 const Card = ({ titulo, autor, avatar, post, img, isLiked, isFavorited, qtdLikes, handleClick, handleInsertOrRemoveFavorite } : CardProps) =>{
     const [ loaded, setLoaded ] = useState(false);
+    const navigate = useNavigate();
     const onImageLoaded = () => {
         setLoaded(true)
     };
@@ -38,6 +40,7 @@ const Card = ({ titulo, autor, avatar, post, img, isLiked, isFavorited, qtdLikes
                      alt="imagem comida"
                      onLoad={onImageLoaded}
                      className={`flex ${!loaded ? 'hidden' : ''}`}
+                     onClick={() => navigate(`/post/${post}`)}
                     />
 
                 {!loaded && <LoadingImages />}

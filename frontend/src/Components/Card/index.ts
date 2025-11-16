@@ -19,4 +19,6 @@ export const ImagePreview = styled.img`
     max-height: 284px;
     object-fit: cover;
     border-radius: 4px;
+
+    cursor: pointer;
 `;

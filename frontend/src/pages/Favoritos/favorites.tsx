@@ -113,6 +113,7 @@ const Favoritos = () => {
                             titulo={item.titulo_post}
                             autor={item.apelido_usuario}
                             post={item.id_post}
+                            img={item.img_post}
                             avatar={item.avatar_usuario}
                             isLiked={isLiked}
                             isFavorited={isFavorited[index]}

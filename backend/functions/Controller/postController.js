@@ -1,5 +1,5 @@
 import express from 'express';
-import { lerTodosPosts, atualizarPostCurtida, lerPostPorTitulo, adicionarPost } from '../Service/postService.js';
+import { lerTodosPosts, atualizarPostCurtida, lerPostPorTitulo, adicionarPost, lerPostPorId } from '../Service/postService.js';
 import { verifyToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
@@ -29,6 +29,16 @@ router.post('/post/adicionarPost', verifyToken, (req, res) => {
 
 router.get('/post/lerPostsPorTitulo/:texto', verifyToken, (req, res) => {
     lerPostPorTitulo(req.params.texto).then(resultado => {
+        if (resultado.status){
+            return  res.status(200).send(JSON.stringify(resultado.msg));
+        } else {
+            return res.status(400).send(resultado.msg);
+        }
+    });
+});
+
+router.get('/post/lerPostPorId/:id', verifyToken, (req, res) => {
+    lerPostPorId(req.params.id).then(resultado => {
         if (resultado.status){
             return  res.status(200).send(JSON.stringify(resultado.msg));
         } else {
