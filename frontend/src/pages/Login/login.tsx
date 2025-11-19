@@ -2,7 +2,7 @@ import Header from "../../Components/Header/header";
 import toast from "react-hot-toast";
 
 import logo from '../../assets/img/logo-preto.svg';
-import login from '../../assets/img/formulario_login.png';
+import login from '../../assets/img/naturale-form.jpg';
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import loginImg from '../../assets/img/login.svg';

@@ -3,11 +3,11 @@ import { theme } from "../../assets/css/variaveis"
 
 export const StyledSectionCard = styled.section`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(352px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(352px, max-content));
   gap: ${theme.espacamentoPadrao};
   padding: ${theme.espacamentoPadrao};
   justify-content: center;
-  justify-items: center;
+  justify-items: flex-start;
 
   & > * {
     max-width: 352px;

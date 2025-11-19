@@ -72,7 +72,7 @@ export type InputProps = {
     minLength: number;
     maxLength?: number;
     isRequired?: boolean;
-    maskType?: 'email' | 'password';
+    maskType?: 'email' | 'password' | 'phone' | 'cpf';
 } & InputHTMLAttributes<HTMLInputElement>;
 
 export type InputPropsSearch = InputHTMLAttributes<HTMLInputElement> & {

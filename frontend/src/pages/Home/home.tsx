@@ -1,6 +1,6 @@
 import Header from "../../Components/Header/header";
 import Card from "../../Components/Card/card";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useEffect, useState } from "react";
 import AlertaTemporario from "../../Components/AlertaTemporario/alertaTemporario";
 import { StyledSectionCard } from "./";
@@ -16,30 +16,29 @@ import GlobalLoading from "../../Components/Loading/globalLoading";
 export const Home = () =>{
     const { user } = useAuth();
     const [ isFavorited, setIsFavorited ] = useState<Array<boolean>>([]);
+    const [ currentPage, setCurrentPage ] = useState(1);
+    const postsPerPage = 10;
 
     const Paginacao = () =>{
+        const totalPages = Math.ceil(posts.length / postsPerPage);
         return(
             <Pagination>
                 <PaginationContent>
                     <PaginationItem>
-                    <PaginationPrevious/>
+                    <PaginationPrevious onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}/>
                     </PaginationItem>
-                    <PaginationItem>
-                    <PaginationLink>1</PaginationLink>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(num => (
+                    <PaginationItem key={num}>
+                        <PaginationLink
+                            isActive={currentPage === num}
+                            onClick={() => setCurrentPage(num)}
+                        >
+                            {num}
+                        </PaginationLink>
                     </PaginationItem>
+                ))}
                     <PaginationItem>
-                    <PaginationLink>
-                        2
-                    </PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                    <PaginationLink>3</PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                    <PaginationEllipsis />
-                    </PaginationItem>
-                    <PaginationItem>
-                    <PaginationNext/>
+                    <PaginationNext onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}/>
                     </PaginationItem>
                 </PaginationContent>
             </Pagination>
@@ -98,6 +97,9 @@ export const Home = () =>{
 
     //Posts - variavel final
     const [ posts, setPosts ] = useState<Array<Posts>>([])
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
 
 
     //Função que irá adicionar um like à postagem
@@ -142,7 +144,7 @@ export const Home = () =>{
          >
            {isErrorPosts && <div>Erro! Site fora do ar no momento.</div>}
            {posts && (
-                posts.map((item: Posts, index) =>{
+                currentPosts.map((item: Posts, index) =>{
                     {/* Filtro que checa os likes (do BD, pelo id_post e id_usuario) com o id_post e id_usuario da entidade post no BD*/}
                     const isLiked = dataLikes?.some((like: Likes) => like.id_post === item?.id_post && like.id_usuario === user?.id);
                     return (

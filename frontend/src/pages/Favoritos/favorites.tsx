@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import Header from "../../Components/Header/header";
 import Card from "../../Components/Card/card";
-import Loading from "../../Components/Loading/loading";
+import Loading from "../../components/Loading/loading";
 import AlertaTemporario from "../../Components/AlertaTemporario/alertaTemporario";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import fetchData from "../../services/fetchData";
 import updateData from "../../services/updateData";
 import { useAuth } from "../../hooks/useAuth";
@@ -14,6 +14,8 @@ const Favoritos = () => {
     const { user } = useAuth();
     const [postsFavoritados, setPostsFavoritados] = useState<Posts[]>([]);
     const [isFavorited, setIsFavorited] = useState<boolean[]>([]);
+    const [ currentPage, setCurrentPage ] = useState(1);
+    const postsPerPage = 10;
 
     const { data: dataLikes } = fetchData({
         queryKey: "likes",
@@ -26,6 +28,9 @@ const Favoritos = () => {
         enabled: !!user?.id
     });
 
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    const currentPosts = favorites ? favorites.slice(indexOfFirstPost, indexOfLastPost) : [];
     const { mutate: updateLikes, isError: isErrorLikes } = updateData();
     const { mutate: insertFavorite } = updateData();
 
@@ -65,30 +70,31 @@ const Favoritos = () => {
         }
     }, [favorites]);
 
-    const Paginacao = () => (
-        <Pagination>
-            <PaginationContent>
-                <PaginationItem>
-                    <PaginationPrevious/>
-                </PaginationItem>
-                <PaginationItem>
-                    <PaginationLink>1</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                    <PaginationLink>2</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                    <PaginationLink>3</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                    <PaginationEllipsis />
-                </PaginationItem>
-                <PaginationItem>
-                    <PaginationNext size={undefined} />
-                </PaginationItem>
-            </PaginationContent>
-        </Pagination>
-    );
+    const Paginacao = () =>{
+        const totalPages = Math.ceil(favorites.length / postsPerPage);
+        return(
+            <Pagination>
+                <PaginationContent>
+                    <PaginationItem>
+                    <PaginationPrevious onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}/>
+                    </PaginationItem>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(num => (
+                    <PaginationItem key={num}>
+                        <PaginationLink
+                            isActive={currentPage === num}
+                            onClick={() => setCurrentPage(num)}
+                        >
+                            {num}
+                        </PaginationLink>
+                    </PaginationItem>
+                ))}
+                    <PaginationItem>
+                    <PaginationNext onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}/>
+                    </PaginationItem>
+                </PaginationContent>
+            </Pagination>
+        )
+    }
 
     return (
         <>
@@ -101,7 +107,7 @@ const Favoritos = () => {
                     <p className="text-center text-gray-500">Você ainda não favoritou nenhuma receita.</p>
                 )}
 
-                {postsFavoritados.map((item, index) => {
+                {currentPosts.map((item, index) => {
                     const isLiked = dataLikes?.some(
                         (like: Likes) =>
                             like.id_post === item.id_post && like.id_usuario === user?.id

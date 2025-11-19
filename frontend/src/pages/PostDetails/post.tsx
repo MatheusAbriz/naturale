@@ -51,9 +51,6 @@ export const PostDetails = () => {
       enabled: !!id
   });
 
-
-  if (!post) return <div>Post não encontrado</div>;
-
   const renderComments = (commentList: Comment[], isReply = false) => {
     if(!comments) return;
     return commentList.map((comment) => (
@@ -81,35 +78,35 @@ export const PostDetails = () => {
     <>
       <Header />
       {(isLoading && isLoadingComments) ? <GlobalLoading /> : 
-          (<>
+          (post && post.length > 0 &&
             <StyledPostContainer>
                 <StyledPostCard>
                 <StyledPostHeader>
                     <StyledUserInfo>
-                    <StyledUserAvatar src={post[0].avatar_usuario} alt={post[0].apelido_usuario} />
+                    <StyledUserAvatar src={post[0]?.avatar_usuario} alt={post[0]?.apelido_usuario} />
                     <StyledUserDetails>
-                        <h3>{post[0].nome_usuario}</h3>
-                        <span>@{post[0].apelido_usuario}</span>
+                        <h3>{post[0]?.nome_usuario}</h3>
+                        <span>@{post[0]?.apelido_usuario}</span>
                     </StyledUserDetails>
                     </StyledUserInfo>
                 </StyledPostHeader>
         
-                <StyledPostImage src={post[0].img_post} alt={post[0].titulo_post} />
+                <StyledPostImage src={post[0]?.img_post} alt={post[0]?.titulo_post} />
         
                 <StyledPostBody>
-                    <h2>{post[0].titulo_post}</h2>
-                    <p>{post[0].texto_post}</p>
+                    <h2>{post[0]?.titulo_post}</h2>
+                    <p>{post[0]?.texto_post}</p>
         
-                    {post[0].ingredientes_post && (
+                    {post[0]?.ingredientes_post && (
                     <div className="ingredientes">
                         <h4>Ingredientes:</h4>
-                        <p>{post[0].ingredientes_post}</p>
+                        <p>{post[0]?.ingredientes_post}</p>
                     </div>
                     )}
         
-                    {post[0].tempo_post && (
+                    {post[0]?.tempo_post && (
                     <StyledPostMeta>
-                        <span>⏱️ {post[0].tempo_post}</span>
+                        <span>⏱️ {post[0]?.tempo_post}</span>
                     </StyledPostMeta>
                     )}
                     
@@ -124,7 +121,7 @@ export const PostDetails = () => {
                 </StyledCommentList>
                 </StyledCommentsSection>
             </StyledPostContainer>
-        </>)
+        )
       }
     </>
   );

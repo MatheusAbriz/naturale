@@ -38,6 +38,13 @@ export const EditadoTag = styled.span`
   margin-left: 8px;
 `;
 
+export const LongTimeTag = styled.span`
+  font-size: 10px;
+  color: #555;
+  margin-left: 8px;
+  font-style: italic;
+`;
+
 export const RespostasContainer = styled.div`
   margin-left: 42px;
   padding-left: 10px;

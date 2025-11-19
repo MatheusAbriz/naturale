@@ -1,5 +1,5 @@
 import logo from '../../assets/img/logo-branco.svg'
-import imgPerfil from '../../assets/img/usuario-demo.jpg'
+import imgPerfil from '../../assets/img/img-perfil.svg'
 import Search from '../Search/search'
 import Avatar from '../Avatar/avatar'
 import { Link } from 'react-router-dom'
@@ -51,7 +51,7 @@ const Header = () => {
         </SearchWrapper>
 
         <DesktopAvatar>
-          <Avatar img={user?.avatar ?? imgPerfil} options={options} />
+          <Avatar img={user?.avatar || imgPerfil} options={options} />
         </DesktopAvatar>
 
         <MobileMenuButton onClick={() => setIsMenuOpen(true)}>

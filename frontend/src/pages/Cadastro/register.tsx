@@ -13,31 +13,29 @@ import GlobalLoading from "../../Components/Loading/globalLoading";
 import { useState } from "react";
 import createUser from "../../services/createUser";
 import { useAuth } from "../../hooks/useAuth";
+import { FileInput, ImagePreview, ImagePreviewContainer, StyledUploadIcon, UploadPlaceholder, UploadPlaceholderText } from "../CadastroPost";
+import { isValidCPF } from "../../utils/regexMasks";
 
 const Register = () => {
   const { signInWithEmailAndPassword } = useAuth();
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [loading, setLoading] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState<string>("");
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const navigate = useNavigate();
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => setAvatarPreview(reader.result as string);
-    reader.readAsDataURL(file);
-  };
 
   const onSubmit = async (data: FieldValues) => {
     if (data.password !== data.confirmarSenha) {
       toast.error("As senhas não coincidem");
       return;
     }
+    
+    if(!isValidCPF(data.cpf)){
+      toast.error("CPF inválido");
+      return;
+    };
 
     const avatarFile = data.avatar?.[0] ?? null;
-
     const user: UserCreateDTO = {
       nome: data.nome,
       apelido: data.apelido,
@@ -59,7 +57,7 @@ const Register = () => {
         email: res[0].email_usuario,
         apelido: res[0].apelido_usuario,
         tipo_usuario: res[0].tipo_usuario,
-        avatar: res[0].avatar,
+        avatar: res[0].avatar_usuario,
         token: res.token
       };
 
@@ -73,6 +71,21 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setImageFile(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -122,8 +135,10 @@ const Register = () => {
               <StyledInputForm
                 placeholder="(xx) xxxxx-xxxx"
                 name="telefone"
+                maskType="phone"
                 className="input-form h-10 w-full"
-                minLength={11}
+                minLength={15}
+                maxLength={15}
                 register={register}
                 isRequired
               />
@@ -136,7 +151,9 @@ const Register = () => {
               <StyledInputForm
                 placeholder="xxx.xxx.xxx-xx"
                 name="cpf"
-                minLength={11}
+                maskType="cpf"
+                minLength={14}
+                maxLength={14}
                 className="input-form h-10 w-full"
                 register={register}
                 isRequired
@@ -190,17 +207,27 @@ const Register = () => {
             {/* Avatar */}
             <div>
               <label className="flex flex-col">Avatar</label>
-              <input
-                type="file"
+              <FileInput
+                id="imagem"
                 accept="image/*"
                 {...register("avatar")}
-                onChange={handleAvatarChange}
+                onChange={handleImageChange}
               />
-
-              {avatarPreview && (
-                <img src={avatarPreview} alt="preview" className="mt-2 w-24 h-24 rounded-full object-cover" />
-              )}
-            </div>
+              {imagePreview ? (
+                <ImagePreviewContainer>
+                  <ImagePreview src={imagePreview} alt="Preview" />
+                  </ImagePreviewContainer>
+                  ) : (
+                  <UploadPlaceholder>
+                    <div>
+                      <StyledUploadIcon />
+                      <UploadPlaceholderText>
+                        Clique acima para adicionar uma foto
+                      </UploadPlaceholderText>
+                        </div>
+                        </UploadPlaceholder>
+                      )}
+                      </div>
 
             <StyledButton type="submit" className="mt-2">
               Cadastrar

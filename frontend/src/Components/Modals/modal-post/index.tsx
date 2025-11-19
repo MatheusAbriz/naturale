@@ -19,14 +19,15 @@ import {
   AcoesComentario,
   BotaoAcao,
   FormResposta,
-  TextoComentario
+  TextoComentario,
+  LongTimeTag
 } from './styles'
 import type { Comentario, CommentaryCreateDTO } from "../../../types/types";
 import { useForm, type FieldValues } from "react-hook-form";
 import { Button } from "../../ui/button";
 import { StyledInputForm } from "../../../globals/inputs";
 import toast from "react-hot-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GlobalLoading from "../../Loading/globalLoading";
 import { StyledMensagemErro } from "../../../globals/utils";
 import { useAuth } from "../../../hooks/useAuth";
@@ -34,6 +35,7 @@ import createCommentary from "../../../services/createCommentary";
 import { TrashIcon } from "lucide-react";
 import deleteCommentary from "../../../services/deleteCommentary";
 import createReply from "../../../services/createReply";
+import { formatTimeAgo } from "../../../utils/regexMasks";
 
 type ReplyCreateDTO = CommentaryCreateDTO & {
   id_comentario_pai: number;
@@ -138,6 +140,7 @@ export const ModalPost = ({ modalTrigger, children, idPost }: ModalPostProps) =>
           <ComentarioConteudo>
             <ApelidoUsuario>{comentario.apelido_usuario}</ApelidoUsuario>
             {comentario.editado && <EditadoTag>(editado)</EditadoTag>}
+            {<LongTimeTag>{formatTimeAgo(comentario.data_comentario)}</LongTimeTag>}
             <TextoComentario>{comentario.texto_comentario}</TextoComentario>
 
             <AcoesComentario>
