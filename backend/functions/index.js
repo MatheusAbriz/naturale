@@ -4,12 +4,12 @@ import { onRequest } from 'firebase-functions/https';
 import admin from 'firebase-admin';
 import cors from 'cors';
 import express from 'express';
-import usuario from './Controller/usuarioController.js';
-import likes from './Controller/likesController.js';
-import post from './Controller/postController.js';
-import favoritos from './Controller/favoritosController.js';
-import comentarios from './Controller/comentariosController.js';
-import imagens from './Controller/imagemController.js';
+import usuario from './Controller/users.js';
+import likes from './Controller/likes.js';
+import post from './Controller/posts.js';
+import favoritos from './Controller/favorites.js';
+import comentarios from './Controller/comments.js';
+import imagens from './Controller/images.js';
 
 admin.initializeApp();
 const app = express();
