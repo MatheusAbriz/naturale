@@ -156,3 +156,16 @@ values(
     0,
     true
 );
+
+INSERT INTO comments (
+    user_id,
+    post_id,
+    parent_comment_id,
+    text
+)
+VALUES (
+    1,          -- user_id
+    1,          -- post_id
+    NULL,       -- comentário raiz
+    'Esse strogonoff ficou incrível!'
+);

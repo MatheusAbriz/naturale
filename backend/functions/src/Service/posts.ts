@@ -1,10 +1,15 @@
 import pool from "../Model/pool.js";
 import { CreatePostDTO } from '../types/posts/index.js';
+import { Filters } from '../types/shared/index.js';
 
 //CRUD DA ENTIDADE POST
 
 //Ler todos os posts
-export async function getAll() {
+// page=1, limit=10
+export async function getAll(filters: Filters) {
+  const { page, limit } = filters;
+  const offSet = (page - 1) * limit;
+
   try {
     const results = await pool`
       SELECT 
@@ -22,12 +27,26 @@ export async function getAll() {
         u.avatar,
         u.type
       FROM post p
-      INNER JOIN users u ON p.id = u.id
+      INNER JOIN users u ON u.id = p.user_id
       ORDER BY p.id DESC
+      LIMIT ${limit} OFFSET ${offSet}
     `;
 
+    const totalResult = await pool`
+      SELECT COUNT(*) FROM post
+    `;
+    const total = Number(totalResult[0].count);
+
     if (results.count >= 1) {
-      return results;
+      return {
+        data: results,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit)
+        }
+      }
     }
 
     return false;
@@ -83,7 +102,10 @@ export async function toggleLike(userId: string | number, postId: string | numbe
   }
 }
 
-export async function getByTitle(text: string){
+export async function getByTitle(text: string, filters: Filters){
+  const { page, limit } = filters;
+  const offset = (page - 1) * limit;
+
   try{
     const results = await pool`
       SELECT 
@@ -101,13 +123,29 @@ export async function getByTitle(text: string){
         u.avatar,
         u.type
       FROM post p
-      INNER JOIN usuario u ON p.id = u.id
+      INNER JOIN users u ON p.id = u.id
       WHERE p.title ILIKE '%' || ${text} || '%' 
       ORDER BY p.id_post DESC
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
+    const totalResult = await pool`
+      SELECT COUNT (*) FROM post p
+      WHERE p.title ILIKE '%' || ${text} || '%' 
+    `;
+    const total = Number(totalResult[0].count);
+
     if (results.count >= 1) {
-      return { status: true, msg: results };
+      return { 
+        status: true, 
+        data: results,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit)
+        } 
+      };
     }
 
     return { status: false, msg: "Nenhum post encontrado" };
@@ -135,7 +173,7 @@ export async function getById(id: number | string){
         u.avatar,
         u.type
       FROM post p
-      INNER JOIN usuario u ON p.id = u.id
+      INNER JOIN users u ON p.id = u.id
       WHERE p.id_post = ${id}
       ORDER BY p.id_post DESC
     `;
@@ -165,7 +203,7 @@ export async function add(postData: CreatePostDTO){
   try{
     await pool`
       INSERT INTO post(
-        id,
+        user_id,
         title,
         text,
         ingredients,

@@ -1,9 +1,13 @@
 import postgres from "postgres";
 import pool from "../Model/pool.js";
 import { Comments } from '../types/comments/index.js';
+import { Filters } from "../types/shared/index.js";
 
 // Ler todos os comentários de um post
-export async function getByPost(postId: string | number) {
+export async function getByPost(postId: string | number, filters: Filters) {
+  const { page, limit } = filters;
+  const offset = (page - 1) * limit;
+  
   try {
     const results = await pool`
       SELECT 
@@ -19,10 +23,29 @@ export async function getByPost(postId: string | number) {
       FROM comments c
       INNER JOIN users u ON c.user_id = u.id
       WHERE c.post_id = ${postId} AND c.status = TRUE
+      ORDER BY c.created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
+    const totalResult = await pool`
+      SELECT COUNT(*) 
+      FROM comments c
+      WHERE c.post_id = ${postId} AND c.status = TRUE
+    `;
+
+    const total = Number(totalResult[0].count);
+
     if (!results.length) {
-      return { status: true, msg: [] };
+      return { 
+        status: true,  
+        msg: [],
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit)
+        }
+      };
     }
 
     const map = new Map();
@@ -64,7 +87,16 @@ export async function getByPost(postId: string | number) {
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
 
-    return { status: true, msg: roots };
+    return { 
+      status: true, 
+      msg: roots,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      } 
+    };
 
   } catch (err) {
     console.log("Erro ao buscar comentários:", err);

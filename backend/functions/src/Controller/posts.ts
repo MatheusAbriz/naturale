@@ -15,7 +15,11 @@ router.use(express.json());
 
 // Ler todos os posts
 router.get('/posts', verifyToken, (req, res) => {
-    getAll().then(result => {
+    const page = Number(req.query.page) || 1;
+    const limit = Math.min(Number(req.query.limit) || 10, 20);
+    const filters = { page, limit };
+
+    getAll(filters).then(result => {
         if (result) {
             return res.status(200).json(result);
         }
@@ -35,9 +39,13 @@ router.post('/posts', verifyToken, (req, res) => {
 
 // Ler posts por título
 router.get('/posts/search/:text', verifyToken, (req, res) => {
-    getByTitle(req.params.text).then(result => {
+    const page = Number(req.query.page) || 1;
+    const limit = Math.min(Number(req.query.limit) || 10, 20);
+    const filters = { page, limit };
+
+    getByTitle(req.params.text, filters).then(result => {
         if (result.status) {
-            return res.status(200).json(result.msg);
+            return res.status(200).json(result);
         }
         return res.status(400).send(result.msg);
     });
