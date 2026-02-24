@@ -70,10 +70,10 @@ export async function login(email: string, password: string) {
             msg: "Login realizado com sucesso",
             usuario: {
                 id: user.id,
-                nome: user.name,
-                apelido: user.username,
+                name: user.name,
+                username: user.username,
                 email: user.email,
-                tipo: user.type,
+                type: user.type,
                 avatar: user.avatar,
                 token
             }
