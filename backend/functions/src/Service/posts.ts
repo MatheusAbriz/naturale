@@ -13,7 +13,7 @@ export async function getAll(filters: Filters) {
   try {
     const results = await pool`
       SELECT 
-        p.id,
+        p.id AS post_id,
         p.title,
         p.text,
         p.ingredients,
@@ -21,11 +21,13 @@ export async function getAll(filters: Filters) {
         p.time,
         p.likes_count,
         p.status,
-        u.id,
-        u.name,
-        u.username,
-        u.avatar,
-        u.type
+        json_build_object(
+          'id', u.id,
+          'name', u.name,
+          'username', u.username,
+          'avatar', u.avatar,
+          'type', u.type
+        ) AS user
       FROM post p
       INNER JOIN users u ON u.id = p.user_id
       ORDER BY p.id DESC
