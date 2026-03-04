@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, ReactNode } from "react";
+import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
 import type { UseFormRegister } from "react-hook-form";
 import { UserEnums } from '../enums/userEnums';
 
@@ -43,6 +43,14 @@ export type OptionsHeader = {
     }[]
 }
 
+export type TextAreaProps = {
+    name: string;
+    register: UseFormRegister<any>;
+    minLength: number;
+    maxLength: number;
+    isRequired: boolean;
+} & TextareaHTMLAttributes<HTMLTextAreaElement>;
+
 export type InputProps = {
     name: string;
     register: UseFormRegister<any>;
@@ -53,7 +61,6 @@ export type InputProps = {
 } & InputHTMLAttributes<HTMLInputElement>;
 
 export type InputPropsSearch = InputHTMLAttributes<HTMLInputElement>;
-
 
 export type SearchProps = {
     texto: string;
@@ -71,11 +78,26 @@ export type User = {
     avatar: string | null; //Caso haja algum erro no banco, vai trazer null
 }
 
+export type UserCreateDTO = {
+    nome: string,
+    apelido: string,
+    telefone: string,
+    cpf: string,
+    email: string,
+    senha: string,
+    avatar: string,
+    tipo: UserEnums 
+}
+
+export type UserLoginDTO = {
+    email: string,
+    senha: string
+}
+
 //Tipando o contexto de autenticacao
 export type AuthContextType = {
     user: User | undefined;
     loading: boolean;
-    signInWithGoogle: () => Promise<void>;
     signInWithEmailAndPassword: (user: User) => Promise<void>;
 }
 
@@ -122,4 +144,9 @@ export type SkeletonImageProps = {
     width?: number;
     height?: number;
     className?: string;
+}
+
+//Tipagem de Props
+export type TitleProps = {
+    $color?: string
 }

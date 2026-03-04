@@ -15,7 +15,6 @@ const fetchData = ({ queryKey, urlParams, onSuccess, onError }: FetchProps) => {
         // Dando fetch e retornando os dados
         //A tipagem aqui tem que ser feita a partir do BD, e como é um hook reutilizável, é dificil tipar. Mesma coisa com o item lá embaixo
         select: (data: any) => {
-            
             // 0 = sem likes
             if(data.data === 0){
                 return null;
