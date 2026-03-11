@@ -2,18 +2,17 @@ import pool from "../Model/pool.js";
 import { CreatePostDTO } from '../types/posts/index.js';
 import { Filters } from '../types/shared/index.js';
 
-//CRUD DA ENTIDADE POST
+// CRUD DA ENTIDADE POST
 
-//Ler todos os posts
-// page=1, limit=10
-export async function getAll(filters: Filters) {
+// Ler todos os posts
+export async function getAll(filters: Filters, userId: string | number) {
   const { page, limit } = filters;
   const offSet = (page - 1) * limit;
 
   try {
     const results = await pool`
       SELECT 
-        p.id AS post_id,
+        p.id AS "postId",
         p.title,
         p.text,
         p.ingredients,
@@ -21,6 +20,9 @@ export async function getAll(filters: Filters) {
         p.time,
         p.likes_count,
         p.status,
+        (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id AND c.status = TRUE) AS "commentCount",
+        EXISTS(SELECT 1 FROM likes l WHERE l.user_id = ${userId} AND l.post_id = p.id) AS "isLiked",
+        EXISTS(SELECT 1 FROM favorites f WHERE f.user_id = ${userId} AND f.post_id = p.id) AS "iFavorited",
         json_build_object(
           'id', u.id,
           'name', u.name,
@@ -34,12 +36,10 @@ export async function getAll(filters: Filters) {
       LIMIT ${limit} OFFSET ${offSet}
     `;
 
-    const totalResult = await pool`
-      SELECT COUNT(*) FROM post
-    `;
+    const totalResult = await pool`SELECT COUNT(*) FROM post`;
     const total = Number(totalResult[0].count);
 
-    if (results.count >= 1) {
+    if (results.length > 0) {
       return {
         data: results,
         pagination: {
@@ -58,7 +58,7 @@ export async function getAll(filters: Filters) {
   }
 }
 
-//Atualizar Post por Curtida
+// Atualizar Post por Curtida
 export async function toggleLike(userId: string | number, postId: string | number){
   try{
     const checkLike = await pool`
@@ -66,14 +66,12 @@ export async function toggleLike(userId: string | number, postId: string | numbe
       WHERE user_id = ${userId} AND post_id = ${postId}
     `;
 
-    //Se já tiver likes...
-    if(checkLike.count > 0){
+    if(checkLike.length > 0){
       await pool`
         DELETE FROM likes 
         WHERE user_id = ${userId} AND post_id = ${postId}
       `;
       
-      //Decrementando o like
       await pool`
         UPDATE post 
         SET likes_count = likes_count - 1 
@@ -83,27 +81,25 @@ export async function toggleLike(userId: string | number, postId: string | numbe
       return true;
     }
 
-    //Se não tiver likes, vai adicionar
     await pool`
       INSERT INTO likes(user_id, post_id) 
       VALUES (${userId}, ${postId})
     `;
 
-    //Incrementando a quantidade de likes
     const results = await pool`
       UPDATE post 
       SET likes_count = likes_count + 1 
       WHERE id = ${postId}
     `;
 
-    if(results.count >= 1) return true;
-    return false;
-
+    return results.length > 0;
   }catch(err){
-    return console.log(err);
+    console.log(err);
+    return false;
   }
 }
 
+// Buscar posts por título
 export async function getByTitle(text: string, filters: Filters){
   const { page, limit } = filters;
   const offset = (page - 1) * limit;
@@ -111,7 +107,7 @@ export async function getByTitle(text: string, filters: Filters){
   try{
     const results = await pool`
       SELECT 
-        p.id,
+        p.id AS "postId",
         p.title,
         p.text,
         p.ingredients,
@@ -125,19 +121,19 @@ export async function getByTitle(text: string, filters: Filters){
         u.avatar,
         u.type
       FROM post p
-      INNER JOIN users u ON p.id = u.id
+      INNER JOIN users u ON p.user_id = u.id
       WHERE p.title ILIKE '%' || ${text} || '%' 
-      ORDER BY p.id_post DESC
+      ORDER BY p.id DESC
       LIMIT ${limit} OFFSET ${offset}
     `;
 
     const totalResult = await pool`
-      SELECT COUNT (*) FROM post p
+      SELECT COUNT(*) FROM post p
       WHERE p.title ILIKE '%' || ${text} || '%' 
     `;
     const total = Number(totalResult[0].count);
 
-    if (results.count >= 1) {
+    if (results.length > 0) {
       return { 
         status: true, 
         data: results,
@@ -157,11 +153,12 @@ export async function getByTitle(text: string, filters: Filters){
   }
 }
 
+// Buscar post por ID
 export async function getById(id: number | string){
   try{
     const results = await pool`
       SELECT 
-        p.id_post,
+        p.id AS "postId",
         p.title,
         p.text,
         p.ingredients,
@@ -175,22 +172,23 @@ export async function getById(id: number | string){
         u.avatar,
         u.type
       FROM post p
-      INNER JOIN users u ON p.id = u.id
-      WHERE p.id_post = ${id}
-      ORDER BY p.id_post DESC
+      INNER JOIN users u ON p.user_id = u.id
+      WHERE p.id = ${id}
+      ORDER BY p.id DESC
     `;
 
-    if (results.count >= 1) {
-      return { status: true, msg: results };
+    if (results.length > 0) {
+      return { status: true, data: results };
     }
 
     return { status: false, msg: "Nenhum post encontrado!" };
   }catch(err){
-    console.error("Erro ao selecionar post por título:", err);
-    return { status: false, msg: "Erro ao selecionar post por título" };
+    console.error("Erro ao selecionar post por ID:", err);
+    return { status: false, msg: "Erro ao selecionar post por ID" };
   }
 }
 
+// Criar novo post
 export async function add(postData: CreatePostDTO){
   const {
     userId,

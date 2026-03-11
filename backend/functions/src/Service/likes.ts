@@ -23,8 +23,8 @@ export async function get(userId: string | number, postId: string | number) {
         const results = await pool`
             SELECT * 
             FROM likes 
-            WHERE id_usuario = ${userId} 
-              AND id_post = ${postId}
+            WHERE user_id = ${userId} 
+              AND post_id = ${postId}
         `;
 
         if (results.count > 0) {
