@@ -13,27 +13,35 @@ export async function get(userId: number | string) {
         p.time,
         p.likes_count,
         p.status,
-        u.id AS "userId",
-        u.name,
-        u.username,
-        u.avatar,
-        u.type
+        (SELECT COUNT(*) FROM comments c 
+          WHERE c.post_id = p.id AND c.status = TRUE
+        ) AS "commentCount",
+        TRUE AS "isFavorited",
+        EXISTS(
+          SELECT 1 FROM likes l 
+          WHERE l.user_id = ${userId} AND l.post_id = p.id
+        ) AS "isLiked",
+        json_build_object(
+          'id', u.id,
+          'name', u.name,
+          'username', u.username,
+          'avatar', u.avatar,
+          'type', u.type
+        ) AS user
       FROM favorites f
       INNER JOIN post p ON f.post_id = p.id
       INNER JOIN users u ON p.user_id = u.id
       WHERE f.user_id = ${userId}
       ORDER BY p.id DESC
     `;
-        
-    if (results.count >= 1) {
-      return { status: true, msg: results };
-    }
 
-    return { status: false, msg: "No favorites available" };
+    return {
+      data: results,
+    };
 
   } catch (err) {
     console.error("Erro ao ler favoritos:", err);
-    return { status: false, msg: `${err}` };
+    return false;
   }
 }
 

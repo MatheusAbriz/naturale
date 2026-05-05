@@ -7,10 +7,10 @@ router.use(express.json());
 // Get user favorites
 router.get('/favorites/:userId', (req, res) => {
     get(req.params.userId).then(result => {
-        if (result.status) {
-            return res.status(200).json(result.msg);
+        if (result) {
+            return res.status(200).json(result);
         }
-        return res.status(400).json(result.msg);
+        return res.status(400).json(result);
     });
 });
 
