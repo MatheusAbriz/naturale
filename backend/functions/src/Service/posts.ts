@@ -22,7 +22,7 @@ export async function getAll(filters: Filters, userId: string | number) {
         p.status,
         (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id AND c.status = TRUE) AS "commentCount",
         EXISTS(SELECT 1 FROM likes l WHERE l.user_id = ${userId} AND l.post_id = p.id) AS "isLiked",
-        EXISTS(SELECT 1 FROM favorites f WHERE f.user_id = ${userId} AND f.post_id = p.id) AS "iFavorited",
+        EXISTS(SELECT 1 FROM favorites f WHERE f.user_id = ${userId} AND f.post_id = p.id) AS "isFavorited",
         json_build_object(
           'id', u.id,
           'name', u.name,
