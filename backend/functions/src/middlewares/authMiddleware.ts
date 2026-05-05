@@ -6,11 +6,11 @@ dotenv.config();
 const SECRET = process.env.SECRET || "minha_chave_super_secreta";
 
 // Extende a interface Request do Express para incluir o user
-interface AuthRequest extends Request {
-  user?: string | JwtPayload;
+interface CustomJwtPayload extends JwtPayload {
+  id: number;
 }
 
-export function verifyToken(req: AuthRequest, res: Response, next: NextFunction) {
+export function verifyToken(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1]; // pega só o token do "Bearer TOKEN"
 
@@ -23,7 +23,10 @@ export function verifyToken(req: AuthRequest, res: Response, next: NextFunction)
       return res.status(403).json({ message: "Token inválido ou expirado" });
     }
 
-    req.user = decoded;
+    const payload = decoded as CustomJwtPayload;
+    req.user = {
+      id: payload.id
+    }
     next();
   });
 }
