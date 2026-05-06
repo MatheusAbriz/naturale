@@ -90,6 +90,7 @@ export async function toggleLike(userId: string | number, postId: string | numbe
       UPDATE post 
       SET likes_count = likes_count + 1 
       WHERE id = ${postId}
+      RETURNING id
     `;
 
     return results.length > 0;
