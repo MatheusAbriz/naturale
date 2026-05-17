@@ -155,6 +155,7 @@ export async function getByTitle(text: string, filters: Filters){
 }
 
 // Buscar post por ID
+// Buscar post por ID
 export async function getById(id: number | string) {
   try {
     const results = await pool`
@@ -167,11 +168,13 @@ export async function getById(id: number | string) {
         p.time,
         p.likes_count,
         p.status,
-        u.id,
-        u.name,
-        u.username,
-        u.avatar,
-        u.type
+
+        u.id AS "userId",
+        u.name AS "userName",
+        u.username AS "userUsername",
+        u.avatar AS "userAvatar",
+        u.type AS "userType"
+
       FROM post p
       INNER JOIN users u ON p.user_id = u.id
       WHERE p.id = ${id}
@@ -185,9 +188,28 @@ export async function getById(id: number | string) {
       };
     }
 
+    const post = results[0];
+
     return {
       status: true,
-      data: results[0]
+      data: {
+        postId: post.postId,
+        title: post.title,
+        text: post.text,
+        ingredients: post.ingredients,
+        image: post.image,
+        time: post.time,
+        likes_count: post.likes_count,
+        status: post.status,
+
+        user: {
+          id: post.userId,
+          name: post.userName,
+          username: post.userUsername,
+          avatar: post.userAvatar,
+          type: post.userType
+        }
+      }
     };
 
   } catch (err) {
