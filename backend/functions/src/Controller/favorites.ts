@@ -6,7 +6,11 @@ router.use(express.json());
 
 // Get user favorites
 router.get('/favorites/:userId', (req, res) => {
-    get(req.params.userId).then(result => {
+    const page = Number(req.query.page) || 1;
+    const limit = Math.min(Number(req.query.limit) || 10, 20);
+    const filters = { page, limit };
+
+    get(filters, req.params.userId).then(result => {
         if (result) {
             return res.status(200).json(result);
         }

@@ -1,7 +1,11 @@
 import pool from "../Model/pool.js";
+import { Filters } from "../types/shared/index.js";
 
 // Ler favoritos do usuário
-export async function get(userId: number | string) {
+export async function get(filters: Filters, userId: number | string) {
+  const { page, limit } = filters;
+  const offSet = (page - 1) * limit;
+
   try {
     const results = await pool`
       SELECT 
@@ -33,10 +37,20 @@ export async function get(userId: number | string) {
       INNER JOIN users u ON p.user_id = u.id
       WHERE f.user_id = ${userId}
       ORDER BY p.id DESC
+      LIMIT ${limit} OFFSET ${offSet}
     `;
+
+    const totalResult = await pool`SELECT COUNT(*) FROM post`;
+    const total = Number(totalResult[0].count);
 
     return {
       data: results,
+      pagination: {
+        page,
+        limit,
+        total, 
+        totalPages: Math.ceil(total / limit)
+      }
     };
 
   } catch (err) {
