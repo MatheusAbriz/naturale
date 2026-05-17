@@ -155,8 +155,8 @@ export async function getByTitle(text: string, filters: Filters){
 }
 
 // Buscar post por ID
-export async function getById(id: number | string){
-  try{
+export async function getById(id: number | string) {
+  try {
     const results = await pool`
       SELECT 
         p.id AS "postId",
@@ -175,17 +175,28 @@ export async function getById(id: number | string){
       FROM post p
       INNER JOIN users u ON p.user_id = u.id
       WHERE p.id = ${id}
-      ORDER BY p.id DESC
+      LIMIT 1
     `;
 
-    if (results.length > 0) {
-      return { status: true, data: results };
+    if (results.length === 0) {
+      return {
+        status: false,
+        msg: "Nenhum post encontrado!"
+      };
     }
 
-    return { status: false, msg: "Nenhum post encontrado!" };
-  }catch(err){
+    return {
+      status: true,
+      data: results[0]
+    };
+
+  } catch (err) {
     console.error("Erro ao selecionar post por ID:", err);
-    return { status: false, msg: "Erro ao selecionar post por ID" };
+
+    return {
+      status: false,
+      msg: "Erro ao selecionar post por ID"
+    };
   }
 }
 

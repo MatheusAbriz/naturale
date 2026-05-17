@@ -53,13 +53,14 @@ router.get('/posts/search/:text', verifyToken, (req, res) => {
 });
 
 // Ler post por ID
-router.get('/posts/:id', verifyToken, (req, res) => {
-    getById(req.params.id).then(result => {
-        if (result.status) {
-            return res.status(200).json(result.msg);
-        }
-        return res.status(400).send(result.msg);
-    });
+router.get('/posts/:id', verifyToken, async (req, res) => {
+  const result = await getById(req.params.id);
+  if (result.status) {
+    return res.status(200).json(result.data);
+  }
+  return res.status(400).json({
+    message: result.msg
+  });
 });
 
 // CRUD - Posts - Atualizar Likes por Curtida
