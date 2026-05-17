@@ -53,8 +53,9 @@ router.get('/posts/search/:text', verifyToken, (req, res) => {
 });
 
 // Ler post por ID
-router.get('/posts/:id', verifyToken, async (req, res) => {
-  const result = await getById(req.params.id);
+router.get('/posts/:postId/:userId', verifyToken, async (req, res) => {
+
+  const result = await getById(req.params.postId, req.params.userId);
   if (result.status) {
     return res.status(200).json(result.data);
   }
