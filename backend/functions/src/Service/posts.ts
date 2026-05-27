@@ -5,12 +5,38 @@ import { Filters } from '../types/shared/index.js';
 // CRUD DA ENTIDADE POST
 
 // Ler todos os posts
-export async function getAll(filters: Filters, userId: string | number) {
+export async function getAll(filters: Filters, userId: string | number, search?: string) {
   const { page, limit } = filters;
   const offSet = (page - 1) * limit;
 
   try {
-    const results = await pool`
+    const hasSearch = search && search.trim().length > 0;
+
+    const results = hasSearch ? await pool`
+      SELECT 
+        p.id AS "postId",
+        p.title,
+        p.text,
+        p.ingredients,
+        p.image,
+        p.time,
+        p.likes_count,
+        p.status,
+        (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id AND c.status = TRUE) AS "commentCount",
+        EXISTS(SELECT 1 FROM likes l WHERE l.user_id = ${userId} AND l.post_id = p.id) AS "isLiked",
+        EXISTS(SELECT 1 FROM favorites f WHERE f.user_id = ${userId} AND f.post_id = p.id) AS "isFavorited",
+        json_build_object(
+          'id', u.id,
+          'name', u.name,
+          'username', u.username,
+          'avatar', u.avatar,
+          'type', u.type
+        ) AS user
+      FROM post p
+      INNER JOIN users u ON u.id = p.user_id
+      ORDER BY p.id DESC
+      LIMIT ${limit} OFFSET ${offSet}
+    ` : await pool`
       SELECT 
         p.id AS "postId",
         p.title,
@@ -36,7 +62,15 @@ export async function getAll(filters: Filters, userId: string | number) {
       LIMIT ${limit} OFFSET ${offSet}
     `;
 
-    const totalResult = await pool`SELECT COUNT(*) FROM post`;
+    const totalResult = hasSearch
+      ? await pool`
+          SELECT COUNT(*) 
+          FROM post p
+          WHERE p.title ILIKE ${'%' + search + '%'}
+        `
+      : await pool`
+          SELECT COUNT(*) FROM post
+        `;
     const total = Number(totalResult[0].count);
 
     if (results.length > 0) {
