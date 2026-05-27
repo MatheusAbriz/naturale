@@ -34,6 +34,7 @@ export async function getAll(filters: Filters, userId: string | number, search?:
         ) AS user
       FROM post p
       INNER JOIN users u ON u.id = p.user_id
+      WHERE p.title ILIKE ${'%' + search + '%'}
       ORDER BY p.id DESC
       LIMIT ${limit} OFFSET ${offSet}
     ` : await pool`
