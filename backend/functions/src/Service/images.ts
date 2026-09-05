@@ -16,7 +16,9 @@ export async function add(bucket: string, filePath: string, fileBuffer: FileBody
         return { status: false, msg: `Erro ao inserir imagem ${error.message}` };
     }
 
-    return { status: true, msg: data };
+    const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
+
+    return { status: true, msg: { path: data.path, publicUrl: publicUrlData.publicUrl } };
 }
 
 export async function update(bucket: string, filePath: string, file: FileBody) {
