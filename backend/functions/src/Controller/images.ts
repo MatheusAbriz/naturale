@@ -1,7 +1,7 @@
 import express from 'express';
 import crypto from 'crypto';
+import Busboy from 'busboy';
 import { add } from '../Service/images.js';
-import multer from 'multer';
 import { verifyToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
@@ -14,48 +14,54 @@ const EXTENSION_BY_MIME_TYPE: Record<string, string> = {
 };
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
-const storage = multer.memoryStorage();
-const upload = multer({
-    storage,
-    limits: { fileSize: MAX_FILE_SIZE_BYTES },
-    fileFilter: (_req, file, cb) => {
-        if (!EXTENSION_BY_MIME_TYPE[file.mimetype]) {
-            return cb(new Error('Tipo de arquivo não permitido'));
-        }
-        cb(null, true);
-    },
-});
-
 // Upload image
-router.post('/images', verifyToken, (req, res, next) => {
-    upload.single('file')(req, res, (err) => {
-        if (err) {
-            return res.status(400).json({ message: err.message ?? 'Erro ao processar arquivo' });
-        }
-        next();
+router.post('/images', verifyToken, (req, res) => {
+    const busboy = Busboy({
+        headers: req.headers,
+        limits: { fileSize: MAX_FILE_SIZE_BYTES },
     });
-}, (req, res) => {
-    const { bucket } = req.body;
 
-    if (!ALLOWED_BUCKETS.includes(bucket)) {
-        return res.status(400).json({ message: 'Bucket inválido' });
-    }
+    let bucket: string | undefined;
+    let mimeType: string | undefined;
+    let fileTooLarge = false;
+    const chunks: Buffer[] = [];
 
-    if (!req.file) {
-        return res.status(400).json({ message: 'Nenhum arquivo enviado' });
-    }
+    busboy.on('field', (name, value) => {
+        if (name === 'bucket') bucket = value;
+    });
 
-    const fileBuffer = req.file.buffer;
-    const contentType = req.file.mimetype;
-    const extension = EXTENSION_BY_MIME_TYPE[contentType];
-    const filePath = `${crypto.randomUUID()}.${extension}`;
+    busboy.on('file', (_name, stream, info) => {
+        mimeType = info.mimeType;
+        stream.on('data', (chunk) => chunks.push(chunk));
+        stream.on('limit', () => { fileTooLarge = true; });
+    });
 
-    add(bucket, filePath, fileBuffer, contentType).then(result => {
+    busboy.on('finish', async () => {
+        if (!bucket || !ALLOWED_BUCKETS.includes(bucket)) {
+            return res.status(400).json({ message: 'Bucket inválido' });
+        }
+
+        if (fileTooLarge) {
+            return res.status(400).json({ message: 'Arquivo muito grande (máx. 5MB)' });
+        }
+
+        if (!mimeType || !EXTENSION_BY_MIME_TYPE[mimeType] || chunks.length === 0) {
+            return res.status(400).json({ message: chunks.length === 0 ? 'Nenhum arquivo enviado' : 'Tipo de arquivo não permitido' });
+        }
+
+        const extension = EXTENSION_BY_MIME_TYPE[mimeType];
+        const filePath = `${crypto.randomUUID()}.${extension}`;
+        const fileBuffer = Buffer.concat(chunks);
+
+        const result = await add(bucket, filePath, fileBuffer, mimeType);
+
         if (result.status) {
             return res.status(200).json(result.msg);
         }
         return res.status(400).json(result.msg);
     });
+
+    busboy.end(req.rawBody);
 });
 
 export default router;
