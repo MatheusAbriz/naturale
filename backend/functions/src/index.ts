@@ -10,6 +10,7 @@ import post from './Controller/posts.js';
 import favoritos from './Controller/favorites.js';
 import comentarios from './Controller/comments.js';
 import imagens from './Controller/images.js';
+import chatbot from './Controller/chatbot.js';
 
 admin.initializeApp();
 const app = express();
@@ -21,6 +22,7 @@ app.use(post);
 app.use(favoritos);
 app.use(comentarios);
 app.use(imagens);
+app.use(chatbot);
 
 setGlobalOptions({maxInstances: 10});
 
