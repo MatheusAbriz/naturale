@@ -12,22 +12,28 @@ export const AuthContextProvider = (props: AuthContextProviderProps) =>{
         const userLocalStorage : User = JSON.parse(localStorage.getItem('user') || '{}');
 
         //Verificando se é undefined ou nao
-        if(userLocalStorage.id !== undefined && userLocalStorage.nome !== undefined && userLocalStorage.email !== undefined){
+        if(userLocalStorage.id !== undefined && userLocalStorage.email !== undefined){
             setUser(userLocalStorage);
         }
         setLoading(false);
-    })
+    }, [])
 
     const signInWithEmailAndPassword = async(user: User) =>{
-        if(user.id === undefined || user.nome === undefined || user.email === undefined) {
+        if(user.id === undefined || user.email === undefined || user.token === undefined) {
             throw new Error("Erro ao logar o usuário")
         }
         localStorage.setItem('user', JSON.stringify(user));
         return setUser(user);
     }
 
+    const logout = () => {
+        localStorage.removeItem('user');
+        setUser(undefined);
+        return;
+    }
+
    return(
-        <AuthContext.Provider value={{ user, loading, signInWithEmailAndPassword }} >
+        <AuthContext.Provider value={{ user, loading, signInWithEmailAndPassword, logout }} >
             {props.children}
         </AuthContext.Provider>
    );

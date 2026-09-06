@@ -35,4 +35,18 @@ export const StyledSectionLogin = styled.section`
         }
     }
 
+    @media screen and (max-width: 1100px){
+        aside{
+            img{
+                display: none;
+                height: 0;
+            }
+            width: 0;
+        }
+        main{
+            width: 100%;
+            margin-top: 3rem;
+        }
+    }
+
 `

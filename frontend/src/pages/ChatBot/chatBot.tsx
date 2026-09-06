@@ -1,99 +1,125 @@
-import { useState } from 'react';
-import { callGroq } from '../../services/callGroq';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { ArrowUpIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
-import Loading from '../../Components/Loading/loading';
 import Header from '../../Components/Header/header';
 import botIcon from '../../assets/img/bot.svg';
+import { callGroq } from '../../services/callGroq';
 import { StyledTextArea } from '../../globals/inputs';
 import { StyledButton } from '../../globals/buttons';
-import { StyledSectionChat } from './';
-const ChatBot = () => {
-  const [ perguntas, setPerguntas ] = useState<string[]>([]);
-  const [ loading, setLoading ] = useState(false);
-  const [ response, setResponse ] = useState('');
-  const { register, handleSubmit, reset, watch, formState:  { errors } } = useForm();
-  const caracteres = watch('textarea');
+import { ChatBotContainer, ChatHistory, InputArea, FormularioChat, UserMessage, BotMessage, WelcomeMessage, BotIcon, TypingIndicator, CharCount } from './';
 
-  //Remover o any tipando corretamente dps
-  const handleSend = async () => {
-    try{
-      setLoading(true);
-      const reply = await callGroq(caracteres);
-      setResponse(reply);
-      setPerguntas([
-        ...perguntas, caracteres
-      ]);
-      reset();
-    }catch(e){
+interface ChatMessage {
+  role: 'user' | 'bot';
+  content: string;
+}
+
+const ChatBot = () => {
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { register, handleSubmit, reset, watch } = useForm();
+  const caracteres = watch('textarea');
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatHistory, loading]);
+
+  const handleSend = async (data: { textarea: string }) => {
+    const userMessageContent = data.textarea;
+    const userMessage: ChatMessage = { 
+      role: 'user', 
+      content: userMessageContent 
+    };
+    setChatHistory(prev => [...prev, userMessage]);
+    reset();
+    setLoading(true);
+
+    try {
+      const reply = await callGroq(userMessageContent);
+      const botMessage: ChatMessage = { 
+        role: 'bot', 
+        content: reply 
+      };
+      setChatHistory(prev => [...prev, botMessage]);
+    } catch (e) {
       toast.error("Erro interno com o servidor. Tente novamente mais tarde");
-    }
-    finally{
+      const errorMessage: ChatMessage = {
+        role: 'bot',
+        content: 'Desculpe, não consegui processar sua solicitação. Tente novamente.'
+      };
+      setChatHistory(prev => [...prev, errorMessage]);
+    } finally {
       setLoading(false);
     }
   };
 
-  return (<>
-    <Header/>
-    <StyledSectionChat 
-     className="section-chat py-4 pt-24 px-16 flex items-center flex-col-reverse"
-    >
-      
-      <form 
-        className="flex gap-x-8 w-full justify-center items-center absolute bottom-0" 
-        onSubmit={handleSubmit(handleSend)}
-       >
-        <span 
-          className={`${caracteres?.length >= 255 ? '!text-red-500' : ''}`}
-        >
-          {caracteres?.length}/255
-        </span>
-        <StyledTextArea
-         name="textarea"
-         placeholder="Digite sua pergunta..."
-         register={register}
-         minLength={10}
-         maxLength={255}
-         isRequired
-         className="rounded-lg w-80 p-2"
-        />
-        <StyledButton 
-         variant="outline" 
-         type="submit" 
-         className={`h-10 cursor-pointer ${loading || errors.textarea ? 'disabled' : ''} rounded-full`}
-        >
-            <ArrowUpIcon className="size-4"/>
-        </StyledButton>
-      </form>
+  const charLength = caracteres?.length || 0;
+  const isCharLimitReached = charLength >= 255;
+  const isSubmitDisabled = loading || charLength < 10 || isCharLimitReached;
 
-      <div className="container-chat">
-        {perguntas.length <= 0 && (
-            <aside className="container-bot flex flex-col justify-center items-center">
-              <img src={botIcon}/>
+  return (
+    <>
+      <Header />
+      <ChatBotContainer>
+        <ChatHistory>
+          {chatHistory.length === 0 ? (
+            <WelcomeMessage>
+              <img src={botIcon} alt="Bot" />
               <p>Posso ajudar hoje?</p>
-            </aside>
-          )
-        }
-        {loading ? (
-          <Loading/>
-        ) : (<>
+            </WelcomeMessage>
+          ) : (
+            chatHistory.map((msg, index) =>
+              msg.role === 'user' ? (
+                <UserMessage key={index}>{msg.content}</UserMessage>
+              ) : (
+                <BotMessage key={index}>
+                  <BotIcon src={botIcon} alt="bot" />
+                  {msg.content}
+                </BotMessage>
+              )
+            )
+          )}
 
-            { perguntas?.map(pergunta => (
-              <div key={pergunta}>
-                <div className="container-resposta">
-                  <p>{response}</p>
-                </div>
+          {loading && (
+            <BotMessage $isTyping>
+              <BotIcon src={botIcon} alt="bot" />
+              <TypingIndicator>
+                <span></span><span></span><span></span>
+              </TypingIndicator>
+            </BotMessage>
+          )}
 
-                <div className="container-pergunta">
-                  <p>{pergunta}</p>
-                </div>
-              </div>
-            )) }
-        </>)}
-      </div>
-    </StyledSectionChat>
-  </>);
+          <div ref={chatEndRef} />
+        </ChatHistory>
+
+        <InputArea>
+          {/*@ts-ignore*/}
+          <FormularioChat onSubmit={handleSubmit(handleSend)}>
+            <StyledTextArea
+              name="textarea"
+              placeholder="Digite sua pergunta..."
+              register={register}
+              minLength={10}
+              maxLength={255}
+              isRequired
+            />
+            <StyledButton
+              variant="outline"
+              type="submit"
+              disabled={isSubmitDisabled}
+            >
+              <ArrowUpIcon />
+            </StyledButton>
+          </FormularioChat>
+          
+          <CharCount $error={isCharLimitReached}>
+            {charLength}/255
+          </CharCount>
+        </InputArea>
+      </ChatBotContainer>
+    </>
+  );
 };
 
 export default ChatBot;

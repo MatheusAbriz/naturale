@@ -1,11 +1,15 @@
 import {setGlobalOptions} from 'firebase-functions';
 import { onRequest } from 'firebase-functions/https';
+
 import admin from 'firebase-admin';
 import cors from 'cors';
 import express from 'express';
-import usuario from './Controller/usuarioController.js';
-import likes from './Controller/likesController.js';
-import post from './Controller/postController.js';
+import usuario from './Controller/users.js';
+import likes from './Controller/likes.js';
+import post from './Controller/posts.js';
+import favoritos from './Controller/favorites.js';
+import comentarios from './Controller/comments.js';
+import imagens from './Controller/images.js';
 
 admin.initializeApp();
 const app = express();
@@ -14,6 +18,9 @@ app.use(cors({ origin: "*" }));
 app.use(usuario);
 app.use(likes);
 app.use(post);
+app.use(favoritos);
+app.use(comentarios);
+app.use(imagens);
 
 setGlobalOptions({maxInstances: 10});
 

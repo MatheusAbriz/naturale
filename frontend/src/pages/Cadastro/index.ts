@@ -23,4 +23,5 @@ export const StyledSectionRegister = styled.section`
             }
         }
     }
+    }
 `

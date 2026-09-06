@@ -2,23 +2,23 @@ import Header from "../../Components/Header/header";
 import toast from "react-hot-toast";
 
 import logo from '../../assets/img/logo-preto.svg';
-import login from '../../assets/img/formulario_login.png';
+import login from '../../assets/img/naturale-form.jpg';
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import loginImg from '../../assets/img/login.svg';
 import { useForm, type FieldValues } from 'react-hook-form';
 import useLogin from "../../hooks/useLogin";
-import type { UserLoginDTO } from "../../types/types";
+import type { User, UserLoginDTO } from "../../types/types";
 import type { UserEnums } from "../../enums/userEnums";
 import { StyledInputForm } from "../../globals/inputs";
 import { StyledButton } from "../../globals/buttons";
 import { StyledSectionLogin } from "@/pages/Login/index";
-import Loading from "../../Components/Loading/loading";
 import { useState } from "react";
 import GlobalLoading from "../../Components/Loading/globalLoading";
+import { StyledMensagemErro } from "../../globals/utils";
 
 export const Login = () =>{
-    const { user, signInWithEmailAndPassword } = useAuth();
+    const { signInWithEmailAndPassword } = useAuth();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate();
     const { mutateAsync: loginUser, isLoading } = useLogin();
@@ -36,12 +36,14 @@ export const Login = () =>{
             const res = await loginUser(userLogin);
             
             //Formatando o res
-            const user = {
-                id: res[0].id_usuario as number,
-                nome: res[0].nome_usuario as string,
-                email: res[0].email_usuario as string,
-                tipo_usuario: res[0].tipo_usuario as UserEnums,
-                avatar: res[0].avatar as string || null
+            const user: User = {
+                id: res.id as number,
+                nome: res.nome as string,
+                apelido: res.apelido as string,
+                email: res.email as string,
+                tipo_usuario: res.tipo as UserEnums,
+                avatar: res.avatar as string || null,
+                token: res.token as string
             }
 
             await signInWithEmailAndPassword(user);
@@ -49,6 +51,7 @@ export const Login = () =>{
             navigate('/');
         }catch(e){
             toast.error("Erro ao logar");
+            console.log(e)
         }finally{
             setLoading(false);
         }
@@ -88,7 +91,7 @@ export const Login = () =>{
                          name="email"
                          isRequired
                         />
-                        {errors.email && <span className="mensagem-erro">{errors.email.message?.toString()}</span>}
+                        {errors.email && <StyledMensagemErro>{errors.email.message?.toString()}</StyledMensagemErro>}
                     </div>
                     
                     <div className="flex flex-col">
@@ -102,7 +105,7 @@ export const Login = () =>{
                          maskType="password"
                          isRequired
                         />
-                        {errors.password && <span className="mensagem-erro">{errors.password.message?.toString()}</span>}
+                        {errors.password && <StyledMensagemErro>{errors.password.message?.toString()}</StyledMensagemErro>}
                     </div>
                    
 

@@ -1,6 +1,6 @@
 import type { InputPropsSearch as InputProps } from "../../types/types";
 
-const InputSearch = ({...props }: InputProps) =>{
+const InputSearch = ({register, ...props }: InputProps) =>{
     return(
         <input 
          {...props}

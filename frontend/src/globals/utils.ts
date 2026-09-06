@@ -1,6 +1,6 @@
 import { styled } from "styled-components";
 
-export const StyledMensagemErro = styled.p`
+export const StyledMensagemErro = styled.span`
     color: #FF0000;
     font-size: .7rem;
     font-weight: 600;

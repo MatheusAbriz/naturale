@@ -1,8 +1,5 @@
 {
   "projects": {
-    "default": "naturale-ab59d",
-    "staging": "naturale-ab59d"
-  },
-  "targets": {},
-  "etags": {}
+    "default": "naturale-ab59d"
+  }
 }

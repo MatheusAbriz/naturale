@@ -10,3 +10,15 @@ export const StyledContainerCard = styled.div`
         transition: ${theme.animacaoBotao};
     }
 `
+
+export const ImagePreview = styled.img`
+    width: 100%;
+    max-width: 352px;
+    
+    height: 224px;
+    max-height: 284px;
+    object-fit: cover;
+    border-radius: 4px;
+
+    cursor: pointer;
+`;
