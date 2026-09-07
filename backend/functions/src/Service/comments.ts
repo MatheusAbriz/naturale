@@ -3,7 +3,7 @@ import pool from "../Model/pool.js";
 import { Comments } from '../types/comments/index.js';
 import { Filters } from "../types/shared/index.js";
 
-// Ler todos os comentários de um post
+// Ler todos os comentários de um post (Não precisa de alteração)
 export async function getByPost(postId: string | number, filters: Filters) {
   const { page, limit } = filters;
   const offset = (page - 1) * limit;
@@ -104,7 +104,7 @@ export async function getByPost(postId: string | number, filters: Filters) {
   }
 }
 
-// Adicionar um comentário
+// Adicionar um comentário (Não precisa de alteração)
 export async function add(userId: number | string, postId: number | string, text: string) {
   try {
     const result = await pool`
@@ -120,13 +120,13 @@ export async function add(userId: number | string, postId: number | string, text
   }
 }
 
-// Editar um comentário
-export async function edit(commentId: number | string, newText: string) {
+// Editar um comentário (HARDENING: Adicionado userId para validar o dono do recurso)
+export async function edit(commentId: number | string, newText: string, userId: number | string) {
   try {
     const result = await pool`
       UPDATE comments
       SET text = ${newText}, edited = TRUE
-      WHERE id = ${commentId}
+      WHERE id = ${commentId} AND user_id = ${userId}
       RETURNING *
     `;
 
@@ -134,32 +134,38 @@ export async function edit(commentId: number | string, newText: string) {
       return { status: true, msg: result[0] };
     }
 
-    return { status: false, msg: "Comentário não encontrado" };
+    return { status: false, msg: "Comentário não encontrado ou não autorizado" };
   } catch (err) {
     console.log("Erro ao editar comentário:", err);
     return { status: false, msg: "Erro ao editar comentário" };
   }
 }
 
-// Excluir um comentário
-export async function remove(commentId: number | string) {
+// Excluir um comentário (HARDENING: Verifica se quem está a apagar o comentário pai é realmente o dono dele)
+export async function remove(commentId: number | string, userId: number | string) {
   try {
+    // Primeiro valida se o comentário de origem pertence ao utilizador
+    const checkOwner = await pool`
+      SELECT id FROM comments WHERE id = ${commentId} AND user_id = ${userId}
+    `;
+
+    if (checkOwner.length === 0) {
+      return { status: false, msg: "Comentário não encontrado ou não autorizado" };
+    }
+
     await pool`
       WITH RECURSIVE comments_to_delete AS (
-        -- 1. Começa com o comentário que queremos excluir
         SELECT id
         FROM comments
         WHERE id = ${commentId}
 
         UNION ALL
 
-        -- 2. Encontra recursivamente todos os filhos
         SELECT c.id
         FROM comments c
         INNER JOIN comments_to_delete cte
           ON c.parent_comment_id = cte.id
       )
-      -- 3. Deleta todos os IDs encontrados
       DELETE FROM comments
       WHERE id IN (SELECT id FROM comments_to_delete)
     `;
@@ -172,7 +178,7 @@ export async function remove(commentId: number | string) {
   }
 }
 
-// Adicionar resposta
+// Adicionar resposta (Não precisa de alteração)
 export async function addReply(postId: number | string, userId: number | string, text: string, parentCommentId: number | string) {
   try {
     const parent = await pool`
@@ -200,7 +206,7 @@ export async function addReply(postId: number | string, userId: number | string,
   }
 }
 
-// Listar respostas
+// Listar respostas (Não precisa de alteração)
 export async function getReplies(parentCommentId: number | string) {
   try {
     const results = await pool`
@@ -230,13 +236,14 @@ export async function getReplies(parentCommentId: number | string) {
   }
 }
 
-// Editar resposta
-export async function editReply(commentId: number | string, newText: number | string) {
+// Editar resposta (HARDENING: Adicionado userId para validar dono da resposta)
+export async function editReply(commentId: number | string, newText: number | string, userId: number | string) {
   try {
     const result = await pool`
       UPDATE comments
       SET text = ${newText}, edited = TRUE
       WHERE id = ${commentId}
+        AND user_id = ${userId}
         AND parent_comment_id IS NOT NULL
       RETURNING *
     `;
@@ -247,7 +254,7 @@ export async function editReply(commentId: number | string, newText: number | st
 
     return {
       status: false,
-      msg: "Resposta não encontrada ou não é uma resposta"
+      msg: "Resposta não encontrada ou não autorizada"
     };
   } catch (err) {
     console.log("Erro ao editar resposta:", err);
@@ -255,16 +262,21 @@ export async function editReply(commentId: number | string, newText: number | st
   }
 }
 
-// Excluir resposta
-export async function deleteReply(commentId: number | string) {
+// Excluir resposta (HARDENING: Adicionado userId para validar dono da resposta)
+export async function deleteReply(commentId: number | string, userId: number | string) {
   try {
-    await pool`
+    const result = await pool`
       DELETE FROM comments
       WHERE id = ${commentId}
+        AND user_id = ${userId}
         AND parent_comment_id IS NOT NULL
     `;
 
-    return { status: true, msg: "Resposta excluída com sucesso" };
+    if (result.count >= 1) {
+      return { status: true, msg: "Resposta excluída com sucesso" };
+    }
+
+    return { status: false, msg: "Resposta não encontrada ou não autorizada" };
   } catch (err) {
     console.log("Erro ao excluir resposta:", err);
     return { status: false, msg: "Erro ao excluir resposta" };

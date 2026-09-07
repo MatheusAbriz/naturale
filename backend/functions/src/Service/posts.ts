@@ -1,8 +1,5 @@
 import pool from "../Model/pool.js";
-import { CreatePostDTO } from '../types/posts/index.js';
 import { Filters } from '../types/shared/index.js';
-
-// CRUD DA ENTIDADE POST
 
 // Ler todos os posts
 export async function getAll(filters: Filters, userId: string | number, search?: string) {
@@ -12,7 +9,7 @@ export async function getAll(filters: Filters, userId: string | number, search?:
   try {
     const hasSearch = search && search.trim().length > 0;
 
-    const results = hasSearch ? await pool`
+    const results = hasSearch ? await pool` 
       SELECT 
         p.id AS "postId",
         p.title,
@@ -263,9 +260,9 @@ export async function getById(
 }
 
 // Criar novo post
-export async function add(postData: CreatePostDTO){
+export async function add(postData: Record<string, unknown>){
   const {
-    userId,
+    user_id,
     title,
     text,
     ingredients,
@@ -287,14 +284,14 @@ export async function add(postData: CreatePostDTO){
         status
       )
       VALUES (
-        ${userId},
-        ${title},
-        ${text},
-        ${ingredients},
-        ${image},
-        ${time},
+        ${user_id as string | number},
+        ${title as string},
+        ${text as string},
+        ${ingredients as string},
+        ${image as string},
+        ${time as string},
         0,
-        ${status}
+        ${status as boolean}
       )
     `;
 

@@ -3,22 +3,26 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { UserDTO } from '../types/users/index.js';
 
+// HARDENING: Garante que usa o nome unificado da variável de ambiente definida no Sprint 0
 const SECRET = process.env.JWT_SECRET;
 
 // Criando minhas funções de CRUD para exportar
 export async function getById(id: string | number) {
     try {
+        // HARDENING: Remove o campo 'password' e 'cpf' do SELECT para evitar exposição desnecessária
         const results = await pool`
-            SELECT * FROM users WHERE id = ${id}
+            SELECT id, name, username, phone, email, type, avatar 
+            FROM users 
+            WHERE id = ${id}
         `;
 
-        // Retornando o resultado
         if (results.count >= 1) {
             return results;
         }
         return false;
     } catch (err) {
-        return console.log(err);
+        console.log(err);
+        return false;
     }
 }
 
@@ -29,11 +33,11 @@ export async function getNameById(id: number | string) {
             SELECT name FROM users WHERE id = ${id}
         `;
 
-        // Retornando os resultados
         if (results.count >= 1) return results;
         else return false;
     } catch (err) {
-        return console.log(err);
+        console.log(err);
+        return false;
     }
 }
 
@@ -58,7 +62,7 @@ export async function login(email: string, password: string) {
             return { status: false, msg: "Senha incorreta" };
         }
 
-        // Criar token JWT
+        // Criar token JWT usando a chave secreta forte unificada
         const token = jwt.sign(
             { id: user.id, tipo: user.type },
             SECRET!,

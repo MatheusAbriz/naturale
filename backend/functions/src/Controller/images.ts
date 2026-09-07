@@ -12,10 +12,15 @@ const EXTENSION_BY_MIME_TYPE: Record<string, string> = {
     'image/png': 'png',
     'image/webp': 'webp',
 };
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB do roadmap
 
-// Upload image
-router.post('/images', verifyToken, (req, res) => {
+// Upload image (Rota protegida com verifyToken)
+router.post('/images', verifyToken, (req: express.Request & { rawBody?: Buffer }, res: express.Response) => { // CORREÇÃO: Removido o : any daqui
+    // Validação simples de segurança: evita crash se a requisição vier vazia
+    if (!req.headers['content-type']) {
+        return res.status(400).json({ message: 'Content-Type em falta.' });
+    }
+
     const busboy = Busboy({
         headers: req.headers,
         limits: { fileSize: MAX_FILE_SIZE_BYTES },
@@ -61,7 +66,13 @@ router.post('/images', verifyToken, (req, res) => {
         return res.status(400).json(result.msg);
     });
 
-    busboy.end(req.rawBody);
+    // Correção essencial para o Firebase Functions não travar o upload
+    if (req.rawBody) {
+        busboy.write(req.rawBody);
+        busboy.end();
+    } else {
+        req.pipe(busboy);
+    }
 });
 
 export default router;
