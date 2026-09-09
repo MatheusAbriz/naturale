@@ -20,9 +20,8 @@ router.get('/posts', verifyToken, (req, res) => {
   const search = req.query.search?.toString();
 
   const filters = { page, limit };
-  
-  // HARDENING: Usamos unknown + cast de propriedade para calar o ESLint e o TypeScript
-  const userId = (req as unknown as { user: { id: string } }).user?.id;
+
+  const userId = req.user?.id;
 
   getAll(filters, userId!, search).then(result => {
     if (result) return res.status(200).json(result);
@@ -32,10 +31,9 @@ router.get('/posts', verifyToken, (req, res) => {
 
 // Adicionar post
 router.post('/posts', verifyToken, (req, res) => {
-    // HARDENING: Usamos unknown + cast de propriedade para calar o ESLint e o TypeScript
-    const userIdFromToken = (req as unknown as { user: { id: string } }).user.id;
-    
-    const postData = { ...req.body, user_id: userIdFromToken };
+    const userIdFromToken = req.user?.id;
+
+    const postData = { ...req.body, user_id: userIdFromToken! };
 
     add(postData).then(result => {
         if (result) {
@@ -60,10 +58,9 @@ router.get('/posts/search/:text', verifyToken, (req, res) => {
 });
 
 router.get('/posts/:postId', verifyToken, async (req, res) => {
-  // HARDENING: Usamos unknown + cast de propriedade para calar o ESLint e o TypeScript
-  const userIdFromToken = (req as unknown as { user: { id: string } }).user.id;
+  const userIdFromToken = req.user?.id;
 
-  const result = await getById(req.params.postId, userIdFromToken);
+  const result = await getById(req.params.postId, userIdFromToken!);
   if (result.status) {
     return res.status(200).json(result.data);
   }
@@ -74,10 +71,9 @@ router.get('/posts/:postId', verifyToken, async (req, res) => {
 
 // CRUD - Posts - Atualizar Likes por Curtida (HARDENING: userId sai da URL e entra o ID do token)
 router.patch('/posts/:postId/like', verifyToken, (req, res) => {
-    // HARDENING: Usamos unknown + cast de propriedade para calar o ESLint e o TypeScript
-    const userIdFromToken = (req as unknown as { user: { id: string } }).user.id;
+    const userIdFromToken = req.user?.id;
 
-    toggleLike(userIdFromToken, req.params.postId).then(result => {
+    toggleLike(userIdFromToken!, req.params.postId).then(result => {
         if (result) {
             return res.status(200).send("Sucesso! post updated com sucesso");
         }

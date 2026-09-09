@@ -17,12 +17,10 @@ router.get('/likes', verifyToken, (req, res) => {
 
 // Check if user liked a post (HARDENING: userId extraído direto do token seguro)
 router.get('/likes/:postId', verifyToken, (req, res) => {
-    // HARDENING: Resolvido erro do any
-    const userIdFromToken = (req as unknown as { user: { id: string } }).user.id; 
+    const userIdFromToken = req.user?.id;
     const { postId } = req.params;
 
-    // HARDENING: Removidos casts proibidos com any
-    get(userIdFromToken, postId).then((result) => {
+    get(userIdFromToken!, postId).then((result) => {
         if (result.status) {
             return res.status(200).json(result.msg);
         }

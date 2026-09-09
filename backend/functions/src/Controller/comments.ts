@@ -31,14 +31,13 @@ router.get('/comments/post/:postId', verifyToken, (req, res) => {
 // Adicionar comentário (HARDENING: usa o userId do token seguro)
 router.post('/comments', verifyToken, (req, res) => {
     const { post_id, comment_text } = req.body;
-    // HARDENING: Usamos unknown + cast de objeto para calar o ESLint e o TypeScript
-    const userIdFromToken = (req as unknown as { user: { id: string } }).user.id;
+    const userIdFromToken = req.user?.id;
 
     if (!post_id || !comment_text) {
         return res.status(400).send("Campos obrigatórios não preenchidos");
     }
 
-    add(userIdFromToken, post_id, comment_text).then(result => {
+    add(userIdFromToken!, post_id, comment_text).then(result => {
         if (result.status) {
             return res.status(201).json(result.msg);
         }
@@ -50,14 +49,13 @@ router.post('/comments', verifyToken, (req, res) => {
 // Editar comentário (HARDENING: passa o ID do token para bater com o Service)
 router.patch('/comments/:commentId', verifyToken, (req, res) => {
     const { comment_text } = req.body;
-    // HARDENING: Usamos unknown + cast de objeto para calar o ESLint e o TypeScript
-    const userIdFromToken = (req as unknown as { user: { id: string } }).user.id;
+    const userIdFromToken = req.user?.id;
 
     if (!comment_text) {
         return res.status(400).send("Texto do comentário é obrigatório");
     }
 
-    edit(req.params.commentId, comment_text, userIdFromToken).then(result => {
+    edit(req.params.commentId, comment_text, userIdFromToken!).then(result => {
         if (result.status) {
             return res.status(200).json(result.msg);
         }
@@ -68,10 +66,9 @@ router.patch('/comments/:commentId', verifyToken, (req, res) => {
 
 // Excluir comentário (HARDENING: passa o ID do token para bater com o Service)
 router.delete('/comments/:commentId', verifyToken, (req, res) => {
-    // HARDENING: Usamos unknown + cast de objeto para calar o ESLint e o TypeScript
-    const userIdFromToken = (req as unknown as { user: { id: string } }).user.id;
+    const userIdFromToken = req.user?.id;
 
-    remove(req.params.commentId, userIdFromToken).then(result => {
+    remove(req.params.commentId, userIdFromToken!).then(result => {
         if (result.status) {
             return res.status(200).send(result.msg);
         }
@@ -82,14 +79,13 @@ router.delete('/comments/:commentId', verifyToken, (req, res) => {
 // Adicionar resposta (HARDENING: usa o userId do token seguro)
 router.post('/comments/reply', verifyToken, (req, res) => {
     const { post_id, comment_text, parent_comment_id } = req.body;
-    // HARDENING: Usamos unknown + cast de objeto para calar o ESLint e o TypeScript
-    const userIdFromToken = (req as unknown as { user: { id: string } }).user.id;
+    const userIdFromToken = req.user?.id;
 
     if (!post_id || !comment_text || !parent_comment_id) {
         return res.status(400).send("Campos obrigatórios não preenchidos");
     }
 
-    addReply(post_id, userIdFromToken, comment_text, parent_comment_id)
+    addReply(post_id, userIdFromToken!, comment_text, parent_comment_id)
         .then(result => {
             if (result.status) {
                 return res.status(201).json(result.msg);
@@ -112,14 +108,13 @@ router.get('/comments/:commentId/replies', verifyToken, (req, res) => {
 // Editar resposta (HARDENING: passa o ID do token para bater com o Service)
 router.patch('/comments/reply/:commentId', verifyToken, (req, res) => {
     const { comment_text } = req.body;
-    // HARDENING: Usamos unknown + cast de objeto para calar o ESLint e o TypeScript
-    const userIdFromToken = (req as unknown as { user: { id: string } }).user.id;
+    const userIdFromToken = req.user?.id;
 
     if (!comment_text) {
         return res.status(400).send("Texto da resposta é obrigatório");
     }
 
-    editReply(req.params.commentId, comment_text, userIdFromToken).then(result => {
+    editReply(req.params.commentId, comment_text, userIdFromToken!).then(result => {
         if (result.status) {
             return res.status(200).json(result.msg);
         }
@@ -130,10 +125,9 @@ router.patch('/comments/reply/:commentId', verifyToken, (req, res) => {
 
 // Excluir resposta (HARDENING: passa o ID do token para bater com o Service)
 router.delete('/comments/reply/:commentId', verifyToken, (req, res) => {
-    // HARDENING: Usamos unknown + cast de objeto para calar o ESLint e o TypeScript
-    const userIdFromToken = (req as unknown as { user: { id: string } }).user.id;
+    const userIdFromToken = req.user?.id;
 
-    deleteReply(req.params.commentId, userIdFromToken).then(result => {
+    deleteReply(req.params.commentId, userIdFromToken!).then(result => {
         if (result.status) {
             return res.status(200).send(result.msg);
         }
