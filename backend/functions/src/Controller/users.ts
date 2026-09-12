@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { verifyToken } from "../middlewares/authMiddleware.js";
-import { 
+import {
   create,
   getById,
   getNameById,
@@ -10,6 +10,9 @@ import {
   updatePhone,
   updateEmail,
   updatePassword,
+  updateAvatar,
+  forgotPassword,
+  resetPassword,
   deleteUser
 } from '../Service/users.js';
 
@@ -64,6 +67,37 @@ router.post('/user/login', async (req: Request, res: Response, next: NextFunctio
         const user = await login(email, password);
         if (user.status) return res.status(200).json(user.usuario);
         return res.status(401).json({ msg: user.msg });
+    } catch (error) {
+        return next(error);
+    }
+});
+
+// Solicitar código de redefinição de senha por e-mail
+router.post('/user/forgot-password', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: "E-mail é obrigatório" });
+        }
+
+        const result = await forgotPassword(email);
+        return res.status(200).json({ message: result.msg });
+    } catch (error) {
+        return next(error);
+    }
+});
+
+// Confirmar código e definir nova senha
+router.post('/user/reset-password', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email, code, newPassword } = req.body;
+        if (!email || !code || !newPassword) {
+            return res.status(400).json({ message: "Campos obrigatórios não preenchidos" });
+        }
+
+        const result = await resetPassword(email, code, newPassword);
+        if (result.status) return res.status(200).json({ message: result.msg });
+        return res.status(400).json({ message: result.msg });
     } catch (error) {
         return next(error);
     }
@@ -156,6 +190,26 @@ router.put('/user/:id/password', verifyToken, async (req: Request, res: Response
         }
 
         const result = await updatePassword(req.params.id, req.body);
+        if (result.status) return res.status(200).send("Usuário atualizado com sucesso!");
+        return res.status(400).send("Erro! Não foi possível atualizar o usuário");
+    } catch (error) {
+        return next(error);
+    }
+});
+
+// CRUD - Atualizar avatar (Hardening contra IDOR/BOLA)
+router.put('/user/:id/avatar', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        if (req.user?.id !== Number(req.params.id)) {
+            return res.status(403).send("Acesso negado: Operação não autorizada para este usuário");
+        }
+
+        const { avatar } = req.body;
+        if (!avatar) {
+            return res.status(400).send("Campo 'avatar' é obrigatório");
+        }
+
+        const result = await updateAvatar(req.params.id, avatar);
         if (result.status) return res.status(200).send("Usuário atualizado com sucesso!");
         return res.status(400).send("Erro! Não foi possível atualizar o usuário");
     } catch (error) {

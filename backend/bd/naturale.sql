@@ -87,6 +87,9 @@ ALTER TABLE comments
 DROP CONSTRAINT comments_post_id_fkey,
 ADD CONSTRAINT comments_post_id_fkey FOREIGN KEY (post_id) REFERENCES post(id) ON DELETE CASCADE;
 
+ALTER TABLE users ADD COLUMN reset_token varchar(200) null;
+ALTER TABLE users ADD COLUMN reset_token_expires timestamp null;
+
 insert into users(name, phone, cpf, email, password, avatar, type)
 values(
     'Matheus',

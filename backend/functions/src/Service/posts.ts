@@ -301,3 +301,59 @@ export async function add(postData: Record<string, unknown>){
     return { status: false, msg: "Erro ao criar post" };
   }
 }
+
+// Editar post (somente o dono)
+export async function update(postId: string | number, userId: string | number, postData: Record<string, unknown>) {
+  const { title, text, ingredients, image, time } = postData;
+
+  try {
+    const result = await pool`
+      UPDATE post
+      SET
+        title = ${title as string},
+        text = ${text as string},
+        ingredients = ${ingredients as string},
+        image = ${image as string},
+        time = ${time as string}
+      WHERE id = ${postId} AND user_id = ${userId}
+      RETURNING id
+    `;
+
+    if (result.count === 0) {
+      return { status: false, msg: "Post não encontrado ou não autorizado" };
+    }
+
+    return { status: true, msg: "Post atualizado com sucesso!" };
+  } catch (err) {
+    console.log(err);
+    return { status: false, msg: "Erro ao atualizar post" };
+  }
+}
+
+// Excluir post (somente o dono)
+export async function remove(postId: string | number, userId: string | number) {
+  try {
+    const owned = await pool`
+      SELECT id FROM post WHERE id = ${postId} AND user_id = ${userId}
+    `;
+
+    if (owned.count === 0) {
+      return { status: false, msg: "Post não encontrado ou não autorizado" };
+    }
+
+    // A FK de favorites.post_id não tem ON DELETE CASCADE (diferente de likes/comments),
+    // então precisa apagar manualmente antes de excluir o post.
+    await pool`
+      DELETE FROM favorites WHERE post_id = ${postId}
+    `;
+
+    await pool`
+      DELETE FROM post WHERE id = ${postId} AND user_id = ${userId}
+    `;
+
+    return { status: true, msg: "Post excluído com sucesso!" };
+  } catch (err) {
+    console.log(err);
+    return { status: false, msg: "Erro ao excluir post" };
+  }
+}

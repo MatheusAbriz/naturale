@@ -4,7 +4,9 @@ import {
     add,
     getByTitle,
     getById,
-    toggleLike
+    toggleLike,
+    update,
+    remove
 } from '../Service/posts.js';
 import { verifyToken } from '../middlewares/authMiddleware.js';
 
@@ -67,6 +69,28 @@ router.get('/posts/:postId', verifyToken, async (req, res) => {
   return res.status(400).json({
     message: result.msg
   });
+});
+
+// Editar post (somente o dono)
+router.put('/posts/:postId', verifyToken, async (req, res) => {
+    const userIdFromToken = req.user?.id;
+
+    const result = await update(req.params.postId, userIdFromToken!, req.body);
+    if (result.status) {
+        return res.status(200).json({ message: result.msg });
+    }
+    return res.status(403).json({ message: result.msg });
+});
+
+// Excluir post (somente o dono)
+router.delete('/posts/:postId', verifyToken, async (req, res) => {
+    const userIdFromToken = req.user?.id;
+
+    const result = await remove(req.params.postId, userIdFromToken!);
+    if (result.status) {
+        return res.status(200).json({ message: result.msg });
+    }
+    return res.status(403).json({ message: result.msg });
 });
 
 // CRUD - Posts - Atualizar Likes por Curtida (HARDENING: userId sai da URL e entra o ID do token)
