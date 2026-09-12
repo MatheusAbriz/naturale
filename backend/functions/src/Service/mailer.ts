@@ -1,9 +1,16 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend: Resend | null = null;
+
+function getResendClient(): Resend {
+    if (!resend) {
+        resend = new Resend(process.env.RESEND_API_KEY);
+    }
+    return resend;
+}
 
 export async function sendPasswordResetEmail(to: string, code: string) {
-    await resend.emails.send({
+    await getResendClient().emails.send({
         from: "Naturale <onboarding@resend.dev>",
         to,
         subject: "Redefinição de senha - Naturale",
