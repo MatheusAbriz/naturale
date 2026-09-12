@@ -2,6 +2,8 @@
 lib/**/*.js
 lib/**/*.js.map
 
+.env.naturale-ab59d
+
 # TypeScript v1 declaration files
 typings/
 
