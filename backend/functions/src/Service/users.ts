@@ -20,7 +20,7 @@ export async function getById(id: string | number) {
         `;
 
         if (results.count >= 1) {
-            return results;
+            return results[0];
         }
         return false;
     } catch (err) {
@@ -36,7 +36,7 @@ export async function getNameById(id: number | string) {
             SELECT name FROM users WHERE id = ${id}
         `;
 
-        if (results.count >= 1) return results;
+        if (results.count >= 1) return results[0];
         else return false;
     } catch (err) {
         console.log(err);
