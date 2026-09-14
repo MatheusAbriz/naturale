@@ -4,6 +4,7 @@ import {
   create,
   getById,
   getNameById,
+  getStats,
   login,
   updateName,
   updateUsername,
@@ -43,6 +44,17 @@ router.get('/user/:id', async (req: Request, res: Response, next: NextFunction) 
     try {
         const user = await getById(req.params.id);
         if (user) return res.status(200).json(user);
+        return res.status(404).send("Erro! Não foi possível achar o usuário");
+    } catch (error) {
+        return next(error);
+    }
+});
+
+// Estatísticas públicas do perfil (posts, curtidas e comentários recebidos)
+router.get('/user/:id/stats', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const stats = await getStats(req.params.id);
+        if (stats) return res.status(200).json(stats);
         return res.status(404).send("Erro! Não foi possível achar o usuário");
     } catch (error) {
         return next(error);

@@ -4,6 +4,7 @@ import {
     add,
     getByTitle,
     getById,
+    getByUserId,
     toggleLike,
     update,
     remove
@@ -57,6 +58,18 @@ router.get('/posts/search/:text', verifyToken, (req, res) => {
         }
         return res.status(400).send(result.msg);
     });
+});
+
+// Ler posts de um autor específico (usado na tela de perfil)
+router.get('/posts/user/:userId', verifyToken, async (req, res) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Math.min(Number(req.query.limit) || 10, 20);
+    const filters = { page, limit };
+    const viewerId = req.user?.id;
+
+    const result = await getByUserId(req.params.userId, viewerId!, filters);
+    if (result) return res.status(200).json(result);
+    return res.status(400).send("Erro!");
 });
 
 router.get('/posts/:postId', verifyToken, async (req, res) => {

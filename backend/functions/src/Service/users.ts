@@ -29,6 +29,26 @@ export async function getById(id: string | number) {
     }
 }
 
+// Estatísticas públicas do perfil (posts, curtidas e comentários recebidos)
+export async function getStats(id: string | number) {
+    try {
+        const results = await pool`
+            SELECT
+                (SELECT COUNT(*) FROM post WHERE user_id = ${id})::int AS "postCount",
+                COALESCE((SELECT SUM(likes_count) FROM post WHERE user_id = ${id}), 0)::int AS "likesReceived",
+                (SELECT COUNT(*) FROM comments c
+                    INNER JOIN post p ON p.id = c.post_id
+                    WHERE p.user_id = ${id} AND c.status = TRUE
+                )::int AS "commentsReceived"
+        `;
+
+        return results[0];
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+}
+
 // Selecionar nome do usuário pelo ID
 export async function getNameById(id: number | string) {
     try {
