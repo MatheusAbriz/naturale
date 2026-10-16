@@ -1,7 +1,13 @@
-//Mascaras REGEX 
+// Máscaras e validações usadas nos formulários de conta.
+export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export const maskEmail = () => {
-    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|edu|gov|co|io|br|us|ca|uk|de|fr)$/;
+    return EMAIL_REGEX;
 }
+
+export const isValidEmail = (email: string) => EMAIL_REGEX.test(email.trim());
+
+export const isValidPhone = (phone: string) => phone.replace(/\D/g, "").length === 11;
 
 export const maskPassword = () =>{
     return /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
