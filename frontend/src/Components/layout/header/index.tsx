@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { Leaf, Search as SearchIcon, X } from "lucide-react";
+import { Leaf, ListChecks, Search as SearchIcon, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import { useAuth } from "@/stores/auth-store";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
@@ -90,6 +90,9 @@ export function Header() {
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => navigate(`/profile/${user?.id}`)}>Meu perfil</DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate("/settings")}>Configurações</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate("/plans")}><Sparkles className="h-4 w-4" /> Planos Naturale</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate("/advanced-search")}><SlidersHorizontal className="h-4 w-4" /> Busca avançada</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate("/shopping-list")}><ListChecks className="h-4 w-4" /> Lista de compras</DropdownMenuItem>
           <DropdownMenuItem onClick={handleLogout}>Sair</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

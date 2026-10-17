@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Bookmark, Clock } from "lucide-react";
 import type { Posts } from "@/types/posts";
@@ -11,9 +11,10 @@ const FALLBACK_AVATAR =
 type PostCardProps = {
   post: Posts;
   onOpenComments: (postId: number) => void;
+  footer?: ReactNode;
 };
 
-export function PostCard({ post, onOpenComments }: PostCardProps) {
+export function PostCard({ post, onOpenComments, footer }: PostCardProps) {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const { mutate: toggleLike, isPending: isLiking } = useToggleLike();
@@ -95,6 +96,7 @@ export function PostCard({ post, onOpenComments }: PostCardProps) {
           <Clock className="h-3.5 w-3.5" />
           {post.time}
         </div>
+        {footer && <div className="mt-3 border-t border-border pt-2">{footer}</div>}
       </div>
     </Card>
   );

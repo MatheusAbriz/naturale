@@ -11,6 +11,8 @@ import { EmptyState } from "@/Components/common/empty-state";
 import { Loader } from "@/Components/common/loader";
 import { Button } from "@/Components/ui/button";
 import { useInfiniteScrollSentinel } from "@/lib/useInfiniteScrollSentinel";
+import { PlanBadge } from "@/Components/subscription/plan-badge";
+import { hasPlan, useSubscription } from "@/stores/subscription-store";
 
 const FALLBACK_AVATAR =
   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&q=80";
@@ -22,6 +24,7 @@ export default function Profile() {
   const isOwnProfile = id === "me" || Number(id) === user?.id;
   const userId = isOwnProfile ? user?.id : Number(id);
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+  const plan = useSubscription((state) => state.plan);
 
   const { data: profile, isLoading: isLoadingProfile, isError } = useQuery({
     queryKey: ["public-profile", userId],
@@ -61,7 +64,7 @@ export default function Profile() {
   return (
     <div>
       <section className="overflow-hidden rounded-2xl border border-border/80 bg-white shadow-[0_8px_28px_rgba(39,73,58,0.06)]">
-        <div className="h-24 bg-[linear-gradient(120deg,#2f6b54,#72a187_58%,#d9b77c)] sm:h-32" />
+        <div className="h-24 bg-primary sm:h-32" />
         <div className="px-5 pb-5 sm:px-7">
           <div className="-mt-12 flex flex-col gap-4 sm:-mt-14 sm:flex-row sm:items-end sm:justify-between">
             <img
@@ -76,7 +79,7 @@ export default function Profile() {
             )}
           </div>
           <div className="mt-4">
-            <h1 className="text-2xl font-extrabold tracking-tight">{profile.name}</h1>
+            <div className="flex flex-wrap items-center gap-2"><h1 className="text-2xl font-extrabold tracking-tight">{profile.name}</h1>{isOwnProfile && <PlanBadge plan={plan} />}</div>
             <p className="mt-0.5 text-sm text-muted-foreground">@{profile.username}</p>
           </div>
           <div className="mt-5 grid grid-cols-3 divide-x divide-border rounded-xl bg-muted/70 py-3">
@@ -89,6 +92,13 @@ export default function Profile() {
           </div>
         </div>
       </section>
+
+      {isOwnProfile && hasPlan(plan, "deluxe") && (
+        <div className="mt-4 flex items-center gap-3 rounded-2xl border border-accent-foreground/15 bg-accent/50 p-4 text-sm">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-accent-foreground">★</span>
+          <div><p className="font-extrabold">Destaque Deluxe ativo</p><p className="mt-0.5 text-muted-foreground">Suas novas receitas recebem mais visibilidade no feed.</p></div>
+        </div>
+      )}
 
       <div className="mb-4 mt-8 flex items-center justify-between">
         <div>
