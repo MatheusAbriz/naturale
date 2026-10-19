@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { API } from "@/services/api";
 
 export type PlanId = "essential" | "extra" | "deluxe";
 
@@ -45,6 +46,7 @@ type SubscriptionStore = {
   chatbotQuestionsUsed: number;
   setPlan: (plan: PlanId) => void;
   consumeChatbotQuestion: () => void;
+  syncPlan: () => Promise<boolean>;
 };
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -56,6 +58,18 @@ export const useSubscription = create<SubscriptionStore>()(
       usageDay: today(),
       chatbotQuestionsUsed: 0,
       setPlan: (plan) => set({ plan }),
+    syncPlan: async () => {
+      try {
+        const { data } = await API.get<{ effectivePlan: PlanId }>("/subscription/me");
+        if (data?.effectivePlan) {
+          set({ plan: data.effectivePlan });
+          return true;
+        }
+        return false;
+      } catch {
+        return false;
+      }
+    },
       consumeChatbotQuestion: () => {
         const currentDay = today();
         const isNewDay = get().usageDay !== currentDay;

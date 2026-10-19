@@ -1,15 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Check, Crown, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/Components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/Components/ui/dialog";
+import { API } from "@/services/api";
 import { PLANS, type PlanId, useSubscription } from "@/stores/subscription-store";
 
 const planOrder: PlanId[] = ["essential", "extra", "deluxe"];
 
 export default function Plans() {
-  const { plan: currentPlan, setPlan } = useSubscription();
+  const navigate = useNavigate();
+  const { plan: currentPlan, setPlan, syncPlan } = useSubscription();
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null);
+  const [creating, setCreating] = useState<PlanId | null>(null);
+
+  // Retorno do Mercado Pago (back_urls): sincroniza o plano real do backend
+  useEffect(() => {
+    const status = new URLSearchParams(window.location.search).get("status");
+    if (!status) return;
+
+    const messages: Record<string, string> = {
+      approved: "Pagamento aprovado! Bem-vindo ao plano assinado 🎉",
+      pending: "Pagamento pendente (ex.: PIX aguardando). Assim que aprovar, seu plano é liberado.",
+      failure: "O pagamento não foi concluído. Nenhuma cobrança foi efetuada.",
+    };
+
+    syncPlan().then((ok) => {
+      if (ok) toast.success(messages[status] ?? "Assinatura atualizada!");
+      else toast.info(messages[status] ?? "Assinatura atualizada!");
+    });
+
+    navigate("/plans", { replace: true });
+  }, []);
 
   function selectPlan(plan: PlanId) {
     if (plan === currentPlan) return;
@@ -21,11 +44,19 @@ export default function Plans() {
     setSelectedPlan(plan);
   }
 
-  function confirmMockSubscription() {
+  async function startCheckout() {
     if (!selectedPlan) return;
-    setPlan(selectedPlan);
-    toast.success(`Plano ${PLANS[selectedPlan].name} ativado em modo demonstração.`);
-    setSelectedPlan(null);
+    const plan = selectedPlan;
+    setCreating(plan);
+    try {
+      const response = await API.post("/subscription/checkout", { plan });
+      const { initPoint } = response.data;
+      if (!initPoint) throw new Error("Sem URL de pagamento");
+      window.location.href = initPoint;
+    } catch {
+      toast.error("Não foi possível iniciar o pagamento. Faça login e tente novamente.");
+      setCreating(null);
+    }
   }
 
   return (
@@ -57,18 +88,18 @@ export default function Plans() {
         })}
       </div>
 
-      <p className="mt-5 text-center text-xs text-muted-foreground">Fluxo de assinatura em demonstração. A cobrança via Mercado Pago será conectada posteriormente.</p>
+      <p className="mt-5 text-center text-xs text-muted-foreground">Pagamento processado com segurança pelo Mercado Pago. Cartão de débito, crédito e boleto aceitos.</p>
 
-      <Dialog open={Boolean(selectedPlan)} onOpenChange={(open) => !open && setSelectedPlan(null)}>
+      <Dialog open={Boolean(selectedPlan)} onOpenChange={(open) => !open && !creating && setSelectedPlan(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirmar plano {selectedPlan ? PLANS[selectedPlan].name : ""}</DialogTitle>
-            <DialogDescription>Este é um fluxo demonstrativo. Nenhuma cobrança será realizada agora.</DialogDescription>
+            <DialogDescription>Você será redirecionado para o checkout seguro do Mercado Pago para concluir a assinatura.</DialogDescription>
           </DialogHeader>
-          <div className="rounded-xl bg-muted p-4 text-sm"><p className="font-bold">{selectedPlan && PLANS[selectedPlan].price}</p><p className="mt-1 text-muted-foreground">Quando a integração estiver pronta, você seguirá daqui para o checkout seguro do Mercado Pago.</p></div>
+          <div className="rounded-xl bg-muted p-4 text-sm"><p className="font-bold">{selectedPlan && PLANS[selectedPlan].price}</p><p className="mt-1 text-muted-foreground">Nenhum dado do seu cartão passa pelo Naturale — o Mercado Pago processa tudo por nós.</p></div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedPlan(null)}>Cancelar</Button>
-            <Button onClick={confirmMockSubscription}>Ativar em demonstração</Button>
+            <Button variant="outline" disabled={Boolean(creating)} onClick={() => setSelectedPlan(null)}>Cancelar</Button>
+            <Button disabled={Boolean(creating)} onClick={startCheckout}>{creating ? "Redirecionando..." : "Ir para o pagamento"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

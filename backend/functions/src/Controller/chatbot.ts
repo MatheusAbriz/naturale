@@ -12,8 +12,21 @@ router.post('/chatbot', verifyToken, async (req, res) => {
     }
 
     try {
-        const reply = await askChatbot(message);
-        return res.status(200).json({ reply });
+        const result = await askChatbot(req.user!.id, message.trim());
+
+        if (!result.status) {
+            return res.status(429).json({
+                message: 'Limite diário do assistente atingido. Faça upgrade do seu plano para continuar!',
+                limit: result.limit,
+                used: result.used
+            });
+        }
+
+        return res.status(200).json({
+            reply: result.reply,
+            limit: result.limit,
+            used: result.used
+        });
     } catch (error) {
         console.error(error);
         return res.status(502).json({ message: 'Erro ao consultar o assistente' });

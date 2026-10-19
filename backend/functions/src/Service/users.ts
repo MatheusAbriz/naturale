@@ -29,6 +29,23 @@ export async function getById(id: string | number) {
     }
 }
 
+// Perfil exibido para a comunidade: nunca expõe dados de contato do usuário.
+export async function getPublicById(id: string | number) {
+    try {
+        const results = await pool`
+            SELECT id, name, username, type, avatar
+            FROM users
+            WHERE id = ${id}
+        `;
+
+        if (results.count >= 1) return results[0];
+        return false;
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+}
+
 // Estatísticas públicas do perfil (posts, curtidas e comentários recebidos)
 export async function getStats(id: string | number) {
     try {

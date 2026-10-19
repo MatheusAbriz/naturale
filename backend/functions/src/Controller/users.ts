@@ -3,6 +3,7 @@ import { verifyToken } from "../middlewares/authMiddleware.js";
 import {
   create,
   getById,
+    getPublicById,
   getNameById,
   getStats,
   login,
@@ -39,10 +40,10 @@ router.post('/user', async (req: Request, res: Response, next: NextFunction) => 
     }
 });
 
-// CRUD - Ler usuário público (Apenas dados não sensíveis devem ser retornados pelo Service)
+// CRUD - Ler usuário público (somente dados seguros para a comunidade)
 router.get('/user/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = await getById(req.params.id);
+        const user = await getPublicById(req.params.id);
         if (user) return res.status(200).json(user);
         return res.status(404).send("Erro! Não foi possível achar o usuário");
     } catch (error) {
