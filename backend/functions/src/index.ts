@@ -3,7 +3,7 @@ import { onRequest } from 'firebase-functions/https';
 
 import admin from 'firebase-admin';
 import cors from 'cors';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import helmet from 'helmet'; // 1. Importar as bibliotecas de proteção
 import rateLimit from 'express-rate-limit';
 
@@ -45,6 +45,20 @@ app.use(favoritos);
 app.use(comentarios);
 app.use(imagens);
 app.use(chatbot);
+
+app.use(
+  (
+    err: Error,
+    _req: Request,
+    res: Response
+  ) => {
+    console.error('Erro capturado:', err);
+
+    return res.status(500).json({
+      message: 'Erro interno do servidor'
+    });
+  }
+);
 
 setGlobalOptions({maxInstances: 10});
 

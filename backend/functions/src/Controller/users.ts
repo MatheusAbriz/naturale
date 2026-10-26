@@ -13,6 +13,11 @@ import {
   deleteUser
 } from '../Service/users.js';
 
+import {
+  LoginSchema,
+  RegisterSchema
+} from "../validations/userSchemas.js";
+
 const router = express.Router();
 
 router.use(express.json());
@@ -25,15 +30,29 @@ router.get('/user/', (req: Request, res: Response) => {
 // CRUD - Criar usuário (Hardening: Removido console.warn de senhas)
 router.post('/user', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const result = await create(req.body);
-        if (result.status) { 
+
+        const validation = RegisterSchema.safeParse(req.body);
+
+        if (!validation.success) {
+            return res.status(400).json({
+                message: "Dados inválidos",
+                errors: validation.error.flatten()
+            });
+        }
+
+        const result = await create(validation.data);
+
+        if (result.status) {
             return res.status(201).json(result.msg);
         }
+
         return res.status(400).send(result.msg);
+
     } catch (error) {
         return next(error);
     }
 });
+
 
 // CRUD - Ler usuário público (Apenas dados não sensíveis devem ser retornados pelo Service)
 router.get('/user/:id', async (req: Request, res: Response, next: NextFunction) => {
@@ -58,12 +77,30 @@ router.get('/user/:id/name', async (req: Request, res: Response, next: NextFunct
 });
 
 // CRUD - Login usuário (POST seguro)
-router.post('/user/login', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/user/login', async (req, res, next) => {
     try {
-        const { email, password } = req.body;
+
+        const validation = LoginSchema.safeParse(req.body);
+
+        if (!validation.success) {
+            return res.status(400).json({
+                message: "Dados inválidos",
+                errors: validation.error.flatten()
+            });
+        }
+
+        const { email, password } = validation.data;
+
         const user = await login(email, password);
-        if (user.status) return res.status(200).json(user.usuario);
-        return res.status(401).json({ msg: user.msg });
+
+        if (user.status) {
+            return res.status(200).json(user.usuario);
+        }
+
+        return res.status(401).json({
+            msg: user.msg
+        });
+
     } catch (error) {
         return next(error);
     }
