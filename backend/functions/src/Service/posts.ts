@@ -1,5 +1,6 @@
 import pool from "../Model/pool.js";
 import { Filters } from '../types/shared/index.js';
+import logger from '../logger.js';
 
 // Ler todos os posts
 export async function getAll(filters: Filters, userId: string | number, search?: string) {
@@ -90,7 +91,7 @@ export async function getAll(filters: Filters, userId: string | number, search?:
 
     return false;
   } catch (err) {
-    console.error("Erro ao ler posts:", err);
+    logger.error({ err }, "Erro ao ler posts");
     return false;
   }
 }
@@ -132,7 +133,7 @@ export async function toggleLike(userId: string | number, postId: string | numbe
 
     return results.length > 0;
   }catch(err){
-    console.log(err);
+    logger.error({ err }, "Erro ao atualizar like");
     return false;
   }
 }
@@ -188,7 +189,7 @@ export async function getByTitle(text: string, filters: Filters){
 
     return { status: false, msg: "Nenhum post encontrado" };
   }catch(err){
-    console.error("Erro ao selecionar post por título:", err);
+    logger.error({ err }, "Erro ao selecionar post por título");
     return { status: false, msg: "Erro ao selecionar post por título" };
   }
 }
@@ -258,7 +259,7 @@ export async function getById(
     };
 
   } catch (err) {
-    console.error("Erro ao selecionar post por ID:", err);
+    logger.error({ err }, "Erro ao selecionar post por ID");
 
     return {
       status: false,
@@ -305,7 +306,7 @@ export async function add(postData: Record<string, unknown>){
 
     return { status: true, msg: "Post criado com sucesso!" };
   }catch(err){
-    console.log(err);
+    logger.error({ err }, "Erro ao criar post");
     return { status: false, msg: "Erro ao criar post" };
   }
 }
@@ -339,7 +340,7 @@ export async function removePost(
     };
 
   } catch (err) {
-    console.error("Erro ao remover post:", err);
+    logger.error({ err }, "Erro ao remover post");
 
     return {
       status: false,
@@ -390,7 +391,7 @@ export async function updatePost(
     };
 
   } catch (err) {
-    console.error("Erro ao atualizar post:", err);
+    logger.error({ err }, "Erro ao atualizar post");
 
     return {
       status: false,
