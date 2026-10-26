@@ -31,7 +31,8 @@ export async function getAll(filters: Filters, userId: string | number, search?:
         ) AS user
       FROM post p
       INNER JOIN users u ON u.id = p.user_id
-      WHERE p.title ILIKE ${'%' + search + '%'}
+      WHERE p.status = TRUE
+      AND p.title ILIKE ${'%' + search + '%'}
       ORDER BY p.id DESC
       LIMIT ${limit} OFFSET ${offSet}
     ` : await pool`
@@ -56,6 +57,7 @@ export async function getAll(filters: Filters, userId: string | number, search?:
         ) AS user
       FROM post p
       INNER JOIN users u ON u.id = p.user_id
+      WHERE p.status = TRUE
       ORDER BY p.id DESC
       LIMIT ${limit} OFFSET ${offSet}
     `;
@@ -64,10 +66,13 @@ export async function getAll(filters: Filters, userId: string | number, search?:
       ? await pool`
           SELECT COUNT(*) 
           FROM post p
-          WHERE p.title ILIKE ${'%' + search + '%'}
+          WHERE p.status = TRUE
+          AND p.title ILIKE ${'%' + search + '%'}
         `
       : await pool`
-          SELECT COUNT(*) FROM post
+          SELECT COUNT(*)
+          FROM post
+          WHERE status = TRUE
         `;
     const total = Number(totalResult[0].count);
 
@@ -155,14 +160,16 @@ export async function getByTitle(text: string, filters: Filters){
         u.type
       FROM post p
       INNER JOIN users u ON p.user_id = u.id
-      WHERE p.title ILIKE '%' || ${text} || '%' 
+      WHERE p.status = TRUE
+      AND p.title ILIKE '%' || ${text} || '%'
       ORDER BY p.id DESC
       LIMIT ${limit} OFFSET ${offset}
     `;
 
     const totalResult = await pool`
       SELECT COUNT(*) FROM post p
-      WHERE p.title ILIKE '%' || ${text} || '%' 
+      WHERE p.status = TRUE
+      AND p.title ILIKE '%' || ${text} || '%'
     `;
     const total = Number(totalResult[0].count);
 
@@ -234,6 +241,7 @@ export async function getById(
       FROM post p
       INNER JOIN users u ON p.user_id = u.id
       WHERE p.id = ${id}
+      AND p.status = TRUE
       LIMIT 1
     `;
 
@@ -299,5 +307,94 @@ export async function add(postData: Record<string, unknown>){
   }catch(err){
     console.log(err);
     return { status: false, msg: "Erro ao criar post" };
+  }
+}
+
+
+//essa opção remove o  post porem mantem no banco, deixei assim por ser mais segura para historico do admin
+export async function removePost(
+  postId: number | string,
+  userId: number | string
+) {
+  try {
+
+    const result = await pool`
+      UPDATE post
+      SET status = FALSE
+      WHERE id = ${postId}
+        AND user_id = ${userId}
+      RETURNING id
+    `;
+
+    if (result.length === 0) {
+      return {
+        status: false,
+        msg: "Post não encontrado ou não autorizado"
+      };
+    }
+
+    return {
+      status: true,
+      msg: "Post removido com sucesso"
+    };
+
+  } catch (err) {
+    console.error("Erro ao remover post:", err);
+
+    return {
+      status: false,
+      msg: "Erro ao remover post"
+    };
+  }
+}
+
+export async function updatePost(
+  postId: number | string,
+  userId: number | string,
+  postData: Record<string, unknown>
+) {
+  const {
+    title,
+    text,
+    ingredients,
+    image,
+    time
+  } = postData;
+
+  try {
+
+    const result = await pool`
+      UPDATE post
+      SET
+        title = ${title as string},
+        text = ${text as string},
+        ingredients = ${ingredients as string},
+        image = ${image as string},
+        time = ${time as string}
+      WHERE
+        id = ${postId}
+        AND user_id = ${userId}
+      RETURNING id
+    `;
+
+    if (result.length === 0) {
+      return {
+        status: false,
+        msg: "Post não encontrado ou não autorizado"
+      };
+    }
+
+    return {
+      status: true,
+      msg: "Post atualizado com sucesso"
+    };
+
+  } catch (err) {
+    console.error("Erro ao atualizar post:", err);
+
+    return {
+      status: false,
+      msg: "Erro ao atualizar post"
+    };
   }
 }

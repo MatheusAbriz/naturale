@@ -4,7 +4,9 @@ import {
     add,
     getByTitle,
     getById,
-    toggleLike
+    toggleLike,
+    removePost,
+    updatePost
 } from '../Service/posts.js';
 import { verifyToken } from '../middlewares/authMiddleware.js';
 
@@ -78,6 +80,47 @@ router.patch('/posts/:postId/like', verifyToken, (req, res) => {
             return res.status(200).send("Sucesso! post updated com sucesso");
         }
         return res.status(400).send("Erro! post não encontrado");
+    });
+});
+
+router.delete('/posts/:postId', verifyToken, async (req, res) => {
+
+    const userIdFromToken = req.user?.id;
+
+    const result = await removePost(
+        req.params.postId,
+        userIdFromToken!
+    );
+
+    if (result.status) {
+        return res.status(200).json({
+            message: result.msg
+        });
+    }
+
+    return res.status(403).json({
+        message: result.msg
+    });
+});
+
+router.patch('/posts/:postId', verifyToken, async (req, res) => {
+
+    const userIdFromToken = req.user?.id;
+
+    const result = await updatePost(
+        req.params.postId,
+        userIdFromToken!,
+        req.body
+    );
+
+    if (result.status) {
+        return res.status(200).json({
+            message: result.msg
+        });
+    }
+
+    return res.status(403).json({
+        message: result.msg
     });
 });
 
