@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, Camera, LockKeyhole, Save, UserRound } from "lucide-react";
+import { ArrowLeft, Camera, CreditCard, LockKeyhole, Save, UserRound } from "lucide-react";
 import { getMyProfile, updateAvatar, updateEmail, updateName, updatePassword, updatePhone, updateUsername } from "@/services/AuthService";
 import { uploadImage } from "@/services/ImageService";
+import { getMySubscription, cancelMySubscription } from "@/services/SubscriptionService";
 import { useAuth } from "@/stores/auth-store";
+import { PLANS, useSubscription } from "@/stores/subscription-store";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Loader } from "@/Components/common/loader";
@@ -16,15 +18,39 @@ type SettingsForm = { name: string; username: string; phone: string; email: stri
 export default function Settings() {
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [form, setForm] = useState<SettingsForm>({ name: "", username: "", phone: "", email: "", avatar: "", password: "" });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["my-profile", user?.id],
     queryFn: async () => (await getMyProfile(user!.id)).data,
     enabled: Boolean(user?.id),
   });
+
+  const { data: subscription, isLoading: isLoadingSubscription } = useQuery({
+    queryKey: ["my-subscription"],
+    queryFn: async () => (await getMySubscription()).data,
+    enabled: Boolean(user?.id),
+  });
+
+  async function handleCancelSubscription() {
+    if (!window.confirm("Tem certeza que deseja cancelar sua assinatura? Você mantém o acesso até o fim do período já pago.")) return;
+    setIsCanceling(true);
+    try {
+      const { data } = await cancelMySubscription();
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: ["my-subscription"] });
+      await useSubscription.getState().syncPlan();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error?.response?.data?.message ?? "Não foi possível cancelar agora. Tente novamente.");
+    } finally {
+      setIsCanceling(false);
+    }
+  }
 
   useEffect(() => {
     if (!profile) return;
@@ -97,6 +123,39 @@ export default function Settings() {
         <h1 className="mt-1 text-2xl font-extrabold tracking-tight">Configurações do perfil</h1>
         <p className="mt-1 text-sm text-muted-foreground">Mantenha suas informações atualizadas e escolha como você aparece na comunidade.</p>
       </div>
+
+      <section className="mb-5 rounded-2xl border border-border/80 bg-white p-5 shadow-[0_8px_28px_rgba(39,73,58,0.06)] sm:p-6">
+        <div className="mb-4 flex items-center gap-2"><CreditCard className="h-5 w-5 text-primary" /><h2 className="font-extrabold">Sua assinatura</h2></div>
+        {isLoadingSubscription ? (
+          <Loader size="sm" />
+        ) : (
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-bold">{PLANS[subscription?.effectivePlan ?? "essential"].name}</p>
+              {subscription?.status === "active" && subscription.currentPeriodEnd && (
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  Renova em {new Date(subscription.currentPeriodEnd).toLocaleDateString("pt-BR")}
+                </p>
+              )}
+              {subscription?.status === "canceled" && subscription.currentPeriodEnd && (
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  Cancelada — acesso até {new Date(subscription.currentPeriodEnd).toLocaleDateString("pt-BR")}
+                </p>
+              )}
+              {(!subscription || subscription.effectivePlan === "essential") && (
+                <p className="mt-0.5 text-sm text-muted-foreground">Você está no plano gratuito.</p>
+              )}
+            </div>
+            {subscription?.status === "active" ? (
+              <Button variant="outline" onClick={handleCancelSubscription} disabled={isCanceling}>
+                {isCanceling ? "Cancelando..." : "Cancelar assinatura"}
+              </Button>
+            ) : (
+              <Button variant="outline" onClick={() => navigate("/plans")}>Ver planos</Button>
+            )}
+          </div>
+        )}
+      </section>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <section className="rounded-2xl border border-border/80 bg-white p-5 shadow-[0_8px_28px_rgba(39,73,58,0.06)] sm:p-6">

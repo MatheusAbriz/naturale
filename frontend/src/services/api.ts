@@ -30,6 +30,9 @@ API.interceptors.response.use(
       await useAuth.getState().logout();
       toast.error("Sessão expirada, faça login novamente!");
     }
+    if (error.response?.status === 402) {
+      toast.error(error.response?.data?.message ?? "Esse recurso exige um plano pago.");
+    }
     return Promise.reject(error);
   }
 );
