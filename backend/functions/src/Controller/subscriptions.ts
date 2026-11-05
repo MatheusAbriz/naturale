@@ -4,8 +4,10 @@ import {
     createCheckout,
     cancelMySubscription,
     getMySubscription,
+    getEffectivePlan,
     getPaidPlan,
-    handleWebhook
+    handleWebhook,
+    PLAN_RANK
 } from '../Service/subscription.js';
 
 const router = express.Router();
@@ -18,6 +20,11 @@ router.post('/subscription/checkout', verifyToken, async (req: Request, res: Res
 
         if (!paidPlan) {
             return res.status(400).json({ message: 'Plano inválido ou gratuito (Essencial não precisa de pagamento)' });
+        }
+
+        const currentPlan = await getEffectivePlan(req.user!.id);
+        if (PLAN_RANK[paidPlan] < PLAN_RANK[currentPlan]) {
+            return res.status(400).json({ message: 'Para trocar para um plano inferior, cancele sua assinatura atual primeiro.' });
         }
 
         const result = await createCheckout(req.user!.id, paidPlan);

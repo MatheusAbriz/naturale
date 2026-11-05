@@ -1,12 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { getEffectivePlan } from "../Service/subscription.js";
+import { getEffectivePlan, PLAN_RANK } from "../Service/subscription.js";
 import { PlanId } from "../types/subscription/index.js";
-
-const PLAN_RANK: Record<PlanId, number> = {
-    essential: 0,
-    extra: 1,
-    deluxe: 2,
-};
 
 export function requirePlan(required: Extract<PlanId, 'extra' | 'deluxe'>) {
     return async (req: Request, res: Response, next: NextFunction) => {

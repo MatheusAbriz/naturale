@@ -10,6 +10,12 @@ const PLAN_PRICES: Record<Exclude<PlanId, 'essential'>, { title: string; price: 
     deluxe: { title: 'Plano Deluxe — Naturale', price: 19.9 },
 };
 
+export const PLAN_RANK: Record<PlanId, number> = {
+    essential: 0,
+    extra: 1,
+    deluxe: 2,
+};
+
 function getRequiredUrl(name: string): string {
     const value = process.env[name];
     if (!value) {
