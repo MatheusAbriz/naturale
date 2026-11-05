@@ -34,7 +34,9 @@ router.post('/subscription/webhook', async (req: Request, res: Response) => {
     try {
         const rawSignature = req.headers['x-signature'];
         const signature = Array.isArray(rawSignature) ? rawSignature[0] : rawSignature;
-        const result = await handleWebhook(req.body, req.query as Record<string, unknown>, signature, req.originalUrl);
+        const rawRequestId = req.headers['x-request-id'];
+        const requestId = Array.isArray(rawRequestId) ? rawRequestId[0] : rawRequestId;
+        const result = await handleWebhook(req.body, req.query as Record<string, unknown>, signature, requestId);
 
         if (result !== 'rejected') {
             return res.status(200).send();

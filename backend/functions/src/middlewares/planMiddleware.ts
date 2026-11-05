@@ -14,7 +14,7 @@ export function requirePlan(required: Extract<PlanId, 'extra' | 'deluxe'>) {
             const plan = await getEffectivePlan(req.user!.id);
 
             if (PLAN_RANK[plan] < PLAN_RANK[required]) {
-                return res.status(403).json({
+                return res.status(402).json({
                     message: `Recurso exclusivo do plano ${required === 'deluxe' ? 'Deluxe' : 'Extra'}. Assine para liberar!`
                 });
             }

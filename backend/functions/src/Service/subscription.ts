@@ -58,6 +58,19 @@ export async function createCheckout(userId: number, plan: Exclude<PlanId, 'esse
         ...(autoReturn ? { auto_return: autoReturn } : {}),
         notification_url: getRequiredUrl('MP_NOTIFICATION_URL'),
         statement_descriptor: 'NATURALE',
+        // Assinatura paga só com cartão de crédito: PIX e boleto não têm renovação
+        // automática e o fluxo da Naturale hoje depende de o usuário renovar manualmente.
+        payment_methods: {
+            excluded_payment_types: [
+                { id: 'ticket' },
+                { id: 'bank_transfer' },
+                { id: 'atm' },
+                { id: 'debit_card' },
+                { id: 'prepaid_card' },
+                { id: 'digital_wallet' },
+            ],
+            installments: 1,
+        },
     };
 
     const response = await mercadoPago.post('/checkout/preferences', preference).catch((err: unknown) => {
@@ -77,10 +90,12 @@ export async function createCheckout(userId: number, plan: Exclude<PlanId, 'esse
     return { preferenceId: data.id, initPoint: data.init_point };
 }
 
+// Formato oficial do Mercado Pago para o header x-signature:
+// manifest = "id:{data.id};request-id:{x-request-id};ts:{ts};" assinado em HMAC-SHA256.
+// https://www.mercadopago.com.br/developers/pt/docs/checkout-api/webhooks#editor_6
 function validateNotificationSignature(
     signatureHeader: string | undefined,
-    query: Record<string, unknown>,
-    originalUrl: string,
+    requestId: string | undefined,
     dataId: string
 ): boolean {
     const secret = process.env.MP_WEBHOOK_SECRET;
@@ -89,12 +104,7 @@ function validateNotificationSignature(
         throw new Error('ERRO CRÍTICO DE CONFIGURAÇÃO: A variável de ambiente MP_WEBHOOK_SECRET não foi definida!');
     }
 
-    const macParam = query?.['mac'];
-    if (!signatureHeader && typeof macParam === 'string') {
-        return macParam === secret;
-    }
-
-    if (!signatureHeader) return false;
+    if (!signatureHeader || !requestId) return false;
 
     const parts = signatureHeader.split(',').map(part => part.trim());
     const ts = parts.map(part => part.split('=')).find(kv => kv.length === 2 && kv[0] === 'ts')?.[1];
@@ -102,27 +112,23 @@ function validateNotificationSignature(
 
     if (!ts || !v1) return false;
 
-    const [path, search] = originalUrl.split('?');
-    const base = `${ts}:${path}${search ?? ''}`;
-    const alternatives = [base, `${ts}:id:${dataId}`];
+    const manifest = `id:${dataId.toLowerCase()};request-id:${requestId};ts:${ts};`;
+    const signature = crypto.createHmac('sha256', secret).update(manifest).digest('hex');
 
-    for (const alternative of alternatives) {
-        const signature = crypto.createHmac('sha256', secret).update(alternative).digest('hex');
-        if (signature === v1) return true;
-    }
+    if (signature === v1) return true;
 
-    console.warn('Webhook MP: assinatura inválida', { alternatives: alternatives.length });
+    console.warn('Webhook MP: assinatura inválida');
     return false;
 }
 
-export async function handleWebhook(body: MercadoPagoWebhookBodyDTO, query: Record<string, unknown>, headerSignature: string | undefined, originalUrl: string): Promise<WebhookResult> {
-    const dataId = String(body?.data?.id ?? query?.['data.id'] ?? query?.['data_id'] ?? '');
+export async function handleWebhook(body: MercadoPagoWebhookBodyDTO, query: Record<string, unknown>, headerSignature: string | undefined, requestId: string | undefined): Promise<WebhookResult> {
+    const dataId = String(query?.['data.id'] ?? body?.data?.id ?? query?.['data_id'] ?? '');
 
     if (!dataId || Number.isNaN(Number(dataId))) {
         return 'ignored';
     }
 
-    if (!validateNotificationSignature(headerSignature, query, originalUrl, dataId)) {
+    if (!validateNotificationSignature(headerSignature, requestId, dataId)) {
         return 'rejected';
     }
 
