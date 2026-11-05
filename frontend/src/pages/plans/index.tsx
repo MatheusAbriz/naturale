@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/styles/buttons";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/styles/overlays";
 import { API } from "@/services/api";
-import { PLANS, type PlanId, useSubscription } from "@/stores/subscription-store";
+import { PLANS, isDowngrade, type PlanId, useSubscription } from "@/stores/subscription-store";
 import {
   Page,
   Hero,
@@ -115,6 +115,10 @@ export default function Plans() {
 
   function selectPlan(plan: PlanId) {
     if (plan === currentPlan) return;
+    if (isDowngrade(currentPlan, plan)) {
+      toast.error("Para trocar para um plano inferior, cancele sua assinatura atual em Configurações primeiro.");
+      return;
+    }
     if (plan === "essential") {
       setPlan(plan);
       toast.success("Você está no plano Essencial.");
@@ -183,6 +187,7 @@ export default function Plans() {
           const plan = PLANS[planId];
           const isCurrent = currentPlan === planId;
           const isDeluxe = planId === "deluxe";
+          const isDowngradeTarget = isDowngrade(currentPlan, planId);
           return (
             <PlanArticle key={plan.id} $deluxe={isDeluxe}>
               {isDeluxe && <DeluxeBadge><Crown size={14} /> Mais completo</DeluxeBadge>}
@@ -206,10 +211,16 @@ export default function Plans() {
                 $variant={isCurrent ? "outline" : isDeluxe ? "default" : "secondary"}
                 $fullWidth
                 style={{ marginTop: 28 }}
-                disabled={isCurrent}
+                disabled={isCurrent || isDowngradeTarget}
                 onClick={() => selectPlan(planId)}
               >
-                {isCurrent ? "Plano atual" : planId === "essential" ? "Usar plano Essencial" : `Escolher ${plan.name}`}
+                {isCurrent
+                  ? "Plano atual"
+                  : isDowngradeTarget
+                    ? "Cancele o plano atual para trocar"
+                    : planId === "essential"
+                      ? "Usar plano Essencial"
+                      : `Escolher ${plan.name}`}
               </Button>
             </PlanArticle>
           );

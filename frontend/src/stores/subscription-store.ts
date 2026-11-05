@@ -40,6 +40,16 @@ export function hasPlan(plan: PlanId, required: "extra" | "deluxe") {
   return required === "extra" ? plan === "extra" || plan === "deluxe" : plan === "deluxe";
 }
 
+export const PLAN_RANK: Record<PlanId, number> = {
+  essential: 0,
+  extra: 1,
+  deluxe: 2,
+};
+
+export function isDowngrade(from: PlanId, to: PlanId) {
+  return PLAN_RANK[to] < PLAN_RANK[from];
+}
+
 type SubscriptionStore = {
   plan: PlanId;
   usageDay: string;
