@@ -2,11 +2,27 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Crown, Sparkles } from "lucide-react";
 import { askChatbot } from "@/services/ChatbotService";
-import { Input } from "@/Components/ui/input";
-import { Button } from "@/Components/ui/button";
+import { Input } from "@/styles/inputs";
+import { Button } from "@/styles/buttons";
 import { Loader } from "@/Components/common/loader";
 import { PlanBadge } from "@/Components/subscription/plan-badge";
 import { hasPlan, useSubscription } from "@/stores/subscription-store";
+import {
+  Page,
+  HeaderRow,
+  TitleRow,
+  Title,
+  Subtitle,
+  ExpandedBadge,
+  LimitBadge,
+  MessageList,
+  Welcome,
+  WelcomeTitle,
+  WelcomeText,
+  MessageRow,
+  Bubble,
+  ComposerForm,
+} from "./styles";
 
 type ChatMessage = {
   id: string;
@@ -54,41 +70,42 @@ export default function Chatbot() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div><div className="flex items-center gap-2"><h1 className="text-xl font-extrabold tracking-tight">Assistente Naturale</h1><PlanBadge plan={plan} /></div><p className="mt-1 text-sm text-muted-foreground">Ideias, substituições e orientações para a sua cozinha.</p></div>
-        {hasExpandedChat ? <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs font-bold text-primary"><Crown className="h-3.5 w-3.5" /> Uso ampliado</span> : <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs font-bold text-muted-foreground">{remaining}/5 hoje</span>}
-      </div>
+    <Page>
+      <HeaderRow>
+        <div>
+          <TitleRow>
+            <Title>Assistente Naturale</Title>
+            <PlanBadge plan={plan} />
+          </TitleRow>
+          <Subtitle>Ideias, substituições e orientações para a sua cozinha.</Subtitle>
+        </div>
+        {hasExpandedChat ? (
+          <ExpandedBadge><Crown size={14} /> Uso ampliado</ExpandedBadge>
+        ) : (
+          <LimitBadge>{remaining}/5 hoje</LimitBadge>
+        )}
+      </HeaderRow>
 
-      <div className="flex-1 overflow-y-auto">
+      <MessageList>
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-muted-foreground">
-            <Sparkles className="h-8 w-8 text-primary" />
-            <p className="font-semibold text-foreground">Olá! Sou seu assistente culinário</p>
-            <p className="text-sm">Pergunte sobre receitas, ingredientes, técnicas de preparo ou substituições.</p>
-          </div>
+          <Welcome>
+            <Sparkles size={32} color="#2f6b54" />
+            <WelcomeTitle>Olá! Sou seu assistente culinário</WelcomeTitle>
+            <WelcomeText>Pergunte sobre receitas, ingredientes, técnicas de preparo ou substituições.</WelcomeText>
+          </Welcome>
         )}
 
         {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`mb-3 flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div
-              className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${
-                message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
-              }`}
-            >
-              {message.content}
-            </div>
-          </div>
+          <MessageRow key={message.id} $own={message.role === "user"}>
+            <Bubble $own={message.role === "user"}>{message.content}</Bubble>
+          </MessageRow>
         ))}
 
         {isSending && <Loader size="sm" />}
         <div ref={bottomRef} />
-      </div>
+      </MessageList>
 
-      <form onSubmit={handleSubmit} className="flex gap-2 border-t pt-3">
+      <ComposerForm onSubmit={handleSubmit}>
         <Input
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -98,7 +115,7 @@ export default function Chatbot() {
         <Button type="submit" disabled={isSending || (!hasExpandedChat && remaining === 0)}>
           {isSending ? "Enviando..." : "Enviar"}
         </Button>
-      </form>
-    </div>
+      </ComposerForm>
+    </Page>
   );
 }

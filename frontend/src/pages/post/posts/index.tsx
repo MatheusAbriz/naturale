@@ -7,6 +7,7 @@ import { EmptyState } from "@/Components/common/empty-state";
 import { Loader } from "@/Components/common/loader";
 import { useInfiniteScrollSentinel } from "@/lib/useInfiniteScrollSentinel";
 import { CommentsDialog } from "@/Components/comments/comments-dialog";
+import { Header, Eyebrow, Title } from "./styles";
 
 export default function Home() {
   const [searchParams] = useSearchParams();
@@ -32,19 +33,19 @@ export default function Home() {
 
   return (
     <div>
-      <div className="mb-5">
+      <Header>
         {search ? (
           <>
-            <p className="text-sm font-semibold text-primary">Busca</p>
-            <h1 className="mt-1 text-xl font-extrabold tracking-tight">Resultados para “{search}”</h1>
+            <Eyebrow>Busca</Eyebrow>
+            <Title>Resultados para “{search}”</Title>
           </>
         ) : (
           <>
-            <p className="text-sm font-semibold text-primary">Comunidade Naturale</p>
-            <h1 className="mt-1 text-xl font-extrabold tracking-tight">Receitas que cuidam de você</h1>
+            <Eyebrow>Comunidade Naturale</Eyebrow>
+            <Title>Receitas que cuidam de você</Title>
           </>
         )}
-      </div>
+      </Header>
 
       {posts.length === 0 ? (
         <EmptyState description="Nenhuma receita encontrada." />
@@ -55,7 +56,7 @@ export default function Home() {
       )}
 
       <div ref={sentinelRef} />
-      {isFetchingNextPage && <Loader size="sm" className="py-4" />}
+      {isFetchingNextPage && <Loader size="sm" padY={16} />}
 
       <CommentsDialog
         postId={selectedPostId}

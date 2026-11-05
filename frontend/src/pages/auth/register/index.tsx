@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { register as registerUser } from "@/services/AuthService";
 import { uploadImage } from "@/services/ImageService";
 import { useAuth } from "@/stores/auth-store";
 import type { User, UserDTO } from "@/types/auth";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
+import { Button } from "@/styles/buttons";
+import { Input, Label, FieldGroup } from "@/styles/inputs";
 import { AuthLayout } from "@/Components/auth/auth-layout";
 import { formatMaskCPF, formatMaskCellphone, isValidCPF, isValidEmail, isValidPhone } from "@/utils/regexMasks";
 import registerHero from "@/assets/img/auth-register-hero.jpg";
+import { Muted, StyledLink } from "@/styles/texts";
+import { Form, Column, AvatarPicker, AvatarCircle, AvatarImg, AvatarPlaceholder, HiddenFileInput } from "./styles";
 
 type FormValues = {
   name: string;
@@ -84,69 +85,66 @@ export default function Register() {
       title="Crie a sua conta."
       description="Registre receitas, salve inspirações e compartilhe uma rotina mais saudável."
     >
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <div className="flex flex-col items-center gap-2">
-              <label htmlFor="avatar" className="cursor-pointer">
-                <div className="h-20 w-20 overflow-hidden rounded-full border bg-muted">
-                  {avatarPreview ? <img src={avatarPreview} alt="Avatar" className="h-full w-full object-cover" /> : <span className="flex h-full items-center justify-center text-xs text-muted-foreground">Foto</span>}
-                </div>
-              </label>
-              <input id="avatar" type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-            </div>
+      <Form $gap={16} onSubmit={handleSubmit(onSubmit)}>
+        <Column $gap={8} style={{ alignItems: "center" }}>
+          <AvatarPicker htmlFor="avatar">
+            <AvatarCircle>
+              {avatarPreview ? <AvatarImg src={avatarPreview} alt="Avatar" /> : <AvatarPlaceholder>Foto</AvatarPlaceholder>}
+            </AvatarCircle>
+          </AvatarPicker>
+          <HiddenFileInput id="avatar" type="file" accept="image/*" onChange={handleAvatarChange} />
+        </Column>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Nome completo *</Label>
-              <Input id="name" placeholder="Como quer ser chamado(a)?" {...register("name")} />
-            </div>
+        <FieldGroup>
+          <Label htmlFor="name">Nome completo *</Label>
+          <Input id="name" placeholder="Como quer ser chamado(a)?" {...register("name")} />
+        </FieldGroup>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="username">Nome de usuário</Label>
-              <Input id="username" placeholder="Ex.: receita.da.ana" {...register("username")} />
-            </div>
+        <FieldGroup>
+          <Label htmlFor="username">Nome de usuário</Label>
+          <Input id="username" placeholder="Ex.: receita.da.ana" {...register("username")} />
+        </FieldGroup>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="email">E-mail *</Label>
-              <Input id="email" type="email" inputMode="email" placeholder="voce@email.com" {...register("email")} />
-            </div>
+        <FieldGroup>
+          <Label htmlFor="email">E-mail *</Label>
+          <Input id="email" type="email" inputMode="email" placeholder="voce@email.com" {...register("email")} />
+        </FieldGroup>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Senha *</Label>
-              <Input id="password" type="password" placeholder="Crie uma senha segura" {...register("password")} />
-            </div>
+        <FieldGroup>
+          <Label htmlFor="password">Senha *</Label>
+          <Input id="password" type="password" placeholder="Crie uma senha segura" {...register("password")} />
+        </FieldGroup>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="phone">Telefone *</Label>
-              <Input
-                id="phone"
-                inputMode="numeric"
-                placeholder="(11) 99999-9999"
-                {...register("phone")}
-                onChange={(event) => setValue("phone", formatMaskCellphone(event.target.value))}
-              />
-            </div>
+        <FieldGroup>
+          <Label htmlFor="phone">Telefone *</Label>
+          <Input
+            id="phone"
+            inputMode="numeric"
+            placeholder="(11) 99999-9999"
+            {...register("phone")}
+            onChange={(event) => setValue("phone", formatMaskCellphone(event.target.value))}
+          />
+        </FieldGroup>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="cpf">CPF *</Label>
-              <Input
-                id="cpf"
-                inputMode="numeric"
-                placeholder="000.000.000-00"
-                {...register("cpf")}
-                onChange={(event) => setValue("cpf", formatMaskCPF(event.target.value))}
-              />
-            </div>
+        <FieldGroup>
+          <Label htmlFor="cpf">CPF *</Label>
+          <Input
+            id="cpf"
+            inputMode="numeric"
+            placeholder="000.000.000-00"
+            {...register("cpf")}
+            onChange={(event) => setValue("cpf", formatMaskCPF(event.target.value))}
+          />
+        </FieldGroup>
 
-            <Button type="submit" disabled={loading} className="w-full">
-              {loading ? "Cadastrando..." : "Criar conta"}
-            </Button>
+        <Button type="submit" disabled={loading} $fullWidth>
+          {loading ? "Cadastrando..." : "Criar conta"}
+        </Button>
 
-            <p className="text-center text-sm text-muted-foreground">
-              Já tem uma conta?{" "}
-              <Link to="/login" className="font-semibold text-primary hover:underline">
-                Fazer login
-              </Link>
-            </p>
-          </form>
+        <Muted style={{ textAlign: "center" }}>
+          Já tem uma conta? <StyledLink to="/login">Fazer login</StyledLink>
+        </Muted>
+      </Form>
     </AuthLayout>
   );
 }

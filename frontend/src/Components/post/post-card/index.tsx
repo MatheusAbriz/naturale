@@ -3,7 +3,25 @@ import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Bookmark, Clock } from "lucide-react";
 import type { Posts } from "@/types/posts";
 import { useToggleLike, useToggleFavorite } from "@/hooks/usePostMutations";
-import { Card } from "@/Components/ui/card";
+import {
+  Card,
+  AuthorRow,
+  Avatar,
+  Username,
+  AuthorSubtitle,
+  CoverImage,
+  ActionsRow,
+  ActionGroup,
+  ActionButton,
+  FavoriteButton,
+  Count,
+  Body,
+  Title,
+  PostText,
+  ExpandButton,
+  TimeRow,
+  Footer,
+} from "./styles";
 
 const FALLBACK_AVATAR =
   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80";
@@ -21,83 +39,79 @@ export function PostCard({ post, onOpenComments, footer }: PostCardProps) {
   const { mutate: toggleFavorite, isPending: isFavoriting } = useToggleFavorite();
 
   return (
-    <Card
-      data-testid={`post-card-${post.postId}`}
-      className="mb-5 gap-0 cursor-pointer overflow-hidden p-0 transition-shadow hover:shadow-[0_12px_32px_rgba(39,73,58,0.12)]"
-      onClick={() => navigate(`/post/${post.postId}`)}
-    >
-      <div className="flex items-center gap-3 px-3.5 py-2.5">
-        <img
-          src={post.user?.avatar || FALLBACK_AVATAR}
-          alt={post.user?.username}
-          className="h-9 w-9 rounded-full border border-secondary object-cover"
-        />
+    <Card data-testid={`post-card-${post.postId}`} onClick={() => navigate(`/post/${post.postId}`)}>
+      <AuthorRow>
+        <Avatar src={post.user?.avatar || FALLBACK_AVATAR} alt={post.user?.username} />
         <div>
-          <span className="text-sm font-bold">{post.user?.username ?? post.user?.name}</span>
-          <p className="text-xs text-muted-foreground">Receita saudável</p>
+          <Username>{post.user?.username ?? post.user?.name}</Username>
+          <AuthorSubtitle>Receita saudável</AuthorSubtitle>
         </div>
-      </div>
+      </AuthorRow>
 
-      <img src={post.image} alt={post.title} className="aspect-[4/3] w-full bg-muted object-cover" />
+      <CoverImage src={post.image} alt={post.title} />
 
-      <div className="flex items-center justify-between px-3.5 pt-1">
-        <div className="flex items-center gap-2">
-          <button
+      <ActionsRow>
+        <ActionGroup>
+          <ActionButton
             onClick={(e) => {
               e.stopPropagation();
               toggleLike({ postId: post.postId, isLiked: post.isLiked });
             }}
             disabled={isLiking}
-            className="flex items-center gap-1 rounded-lg px-2 py-1.5 transition-colors hover:bg-secondary"
           >
-            <Heart className={post.isLiked ? "h-5 w-5 fill-primary text-primary" : "h-5 w-5"} />
-            <span className="text-sm text-muted-foreground">{post.likes_count}</span>
-          </button>
+            <Heart
+              size={20}
+              fill={post.isLiked ? "currentColor" : "none"}
+              color={post.isLiked ? "#2f6b54" : "currentColor"}
+            />
+            <Count>{post.likes_count}</Count>
+          </ActionButton>
 
-          <button
+          <ActionButton
             onClick={(e) => {
               e.stopPropagation();
               onOpenComments(post.postId);
             }}
-            className="flex items-center gap-1 rounded-lg px-2 py-1.5 transition-colors hover:bg-secondary"
           >
-            <MessageCircle className="h-5 w-5" />
-            <span className="text-sm text-muted-foreground">{post.commentCount ?? 0}</span>
-          </button>
-        </div>
+            <MessageCircle size={20} />
+            <Count>{post.commentCount ?? 0}</Count>
+          </ActionButton>
+        </ActionGroup>
 
-        <button
+        <FavoriteButton
           onClick={(e) => {
             e.stopPropagation();
             toggleFavorite({ postId: post.postId, isFavorited: post.isFavorited });
           }}
           disabled={isFavoriting}
-          className="rounded-lg p-2 transition-colors hover:bg-secondary"
         >
-          <Bookmark className={post.isFavorited ? "h-5 w-5 fill-primary text-primary" : "h-5 w-5"} />
-        </button>
-      </div>
+          <Bookmark
+            size={20}
+            fill={post.isFavorited ? "currentColor" : "none"}
+            color={post.isFavorited ? "#2f6b54" : "currentColor"}
+          />
+        </FavoriteButton>
+      </ActionsRow>
 
-      <div className="px-3.5 pb-3 pt-1">
-        <p className="mb-1 text-lg font-extrabold tracking-tight">{post.title}</p>
-        <p className={expanded ? "text-sm leading-6" : "line-clamp-2 text-sm leading-6 text-muted-foreground"}>{post.text}</p>
+      <Body>
+        <Title>{post.title}</Title>
+        <PostText $expanded={expanded}>{post.text}</PostText>
         {post.text?.length > 50 && (
-          <button
+          <ExpandButton
             onClick={(e) => {
               e.stopPropagation();
               setExpanded((v) => !v);
             }}
-            className="mt-1 text-sm font-semibold text-primary hover:underline"
           >
             {expanded ? "Ver menos" : "Ver mais..."}
-          </button>
+          </ExpandButton>
         )}
-        <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-          <Clock className="h-3.5 w-3.5" />
+        <TimeRow>
+          <Clock size={14} />
           {post.time}
-        </div>
-        {footer && <div className="mt-3 border-t border-border pt-2">{footer}</div>}
-      </div>
+        </TimeRow>
+        {footer && <Footer>{footer}</Footer>}
+      </Body>
     </Card>
   );
 }

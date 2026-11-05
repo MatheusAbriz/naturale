@@ -6,9 +6,20 @@ import { ArrowLeft, ImagePlus } from "lucide-react";
 import { getPostById, createPost, updatePost } from "@/services/PostService";
 import { uploadImage } from "@/services/ImageService";
 import { useAuth } from "@/stores/auth-store";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
+import { Button } from "@/styles/buttons";
+import { Input, Textarea } from "@/styles/inputs";
 import { Loader } from "@/Components/common/loader";
+import {
+  BackButton,
+  Header,
+  Eyebrow,
+  Title,
+  Form,
+  ImagePicker,
+  PreviewImg,
+  ImageBadge,
+  HiddenFileInput,
+} from "./styles";
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80";
@@ -97,43 +108,43 @@ export default function PostForm() {
 
   return (
     <div>
-      <button onClick={() => navigate(-1)} className="mb-4 flex items-center gap-1 text-sm text-muted-foreground">
-        <ArrowLeft className="h-4 w-4" /> Voltar
-      </button>
+      <BackButton onClick={() => navigate(-1)}>
+        <ArrowLeft size={16} /> Voltar
+      </BackButton>
 
-      <div className="mb-5">
-        <p className="text-sm font-semibold text-primary">Sua cozinha</p>
-        <h1 className="mt-1 text-xl font-extrabold tracking-tight">{isEditMode ? "Editar receita" : "Compartilhe uma receita"}</h1>
-      </div>
+      <Header>
+        <Eyebrow>Sua cozinha</Eyebrow>
+        <Title>{isEditMode ? "Editar receita" : "Compartilhe uma receita"}</Title>
+      </Header>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <label className="relative flex h-56 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-dashed border-primary/35 bg-muted">
-          <img src={imagePreview || FALLBACK_IMAGE} alt="Pré-visualização" className="h-full w-full object-cover" />
-          <div className="absolute bottom-3 right-3 rounded-xl bg-white p-2.5 text-primary shadow">
-            <ImagePlus className="h-5 w-5" />
-          </div>
-          <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-        </label>
+      <Form onSubmit={handleSubmit}>
+        <ImagePicker>
+          <PreviewImg src={imagePreview || FALLBACK_IMAGE} alt="Pré-visualização" />
+          <ImageBadge>
+            <ImagePlus size={20} />
+          </ImageBadge>
+          <HiddenFileInput type="file" accept="image/*" onChange={handleFileChange} />
+        </ImagePicker>
 
         <Input placeholder="Título" value={title} onChange={(e) => setTitle(e.target.value)} />
         <Input placeholder="Tempo de preparo (ex: 30 min)" value={time} onChange={(e) => setTime(e.target.value)} />
-        <textarea
+        <Textarea
+          $minHeight={96}
           placeholder="Ingredientes (separados por vírgula)"
           value={ingredients}
           onChange={(e) => setIngredients(e.target.value)}
-          className="min-h-24 rounded-xl border border-input bg-white px-3 py-2.5 text-sm outline-none focus:border-ring focus:ring-3 focus:ring-ring/50"
         />
-        <textarea
+        <Textarea
+          $minHeight={144}
           placeholder="Modo de preparo"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          className="min-h-36 rounded-xl border border-input bg-white px-3 py-2.5 text-sm outline-none focus:border-ring focus:ring-3 focus:ring-ring/50"
         />
 
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Salvando..." : isEditMode ? "Salvar alterações" : "Publicar"}
         </Button>
-      </form>
+      </Form>
     </div>
   );
 }

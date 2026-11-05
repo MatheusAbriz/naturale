@@ -9,8 +9,23 @@ import {
   deleteComment,
   deleteReply,
 } from "@/services/CommentService";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
+import { Button } from "@/styles/buttons";
+import {
+  SmallInput,
+  Wrap,
+  Row,
+  Avatar,
+  Content,
+  Meta,
+  Name,
+  Username,
+  TimeAgo,
+  CommentText,
+  EditRow,
+  ActionsRow,
+  ActionLink,
+  ReplyRow,
+} from "./styles";
 
 const FALLBACK_AVATAR =
   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80";
@@ -94,61 +109,52 @@ export function CommentItem({ comment, postId, currentUserId, level = 0 }: Comme
   }
 
   return (
-    <div style={{ marginLeft: Math.min(level, 2) * 20 }} className="mt-3">
-      <div className="flex items-start gap-2">
-        <img src={comment.avatar || FALLBACK_AVATAR} alt={comment.username} className="h-8 w-8 rounded-full object-cover" />
-        <div className="flex-1">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-sm font-semibold">{comment.name}</span>
-            <span className="text-xs text-muted-foreground">@{comment.username}</span>
-            {comment.created_at && (
-              <span className="text-xs text-muted-foreground">· {formatRelativeTime(comment.created_at)}</span>
-            )}
-          </div>
+    <Wrap $level={level}>
+      <Row>
+        <Avatar src={comment.avatar || FALLBACK_AVATAR} alt={comment.username} />
+        <Content>
+          <Meta>
+            <Name>{comment.name}</Name>
+            <Username>@{comment.username}</Username>
+            {comment.created_at && <TimeAgo>· {formatRelativeTime(comment.created_at)}</TimeAgo>}
+          </Meta>
 
           {isEditing ? (
-            <div className="mt-1 flex gap-2">
-              <Input value={editText} onChange={(e) => setEditText(e.target.value)} className="h-8" />
-              <Button size="sm" onClick={handleEditSubmit}>Salvar</Button>
-              <Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}>Cancelar</Button>
-            </div>
+            <EditRow>
+              <SmallInput value={editText} onChange={(e) => setEditText(e.target.value)} />
+              <Button $size="sm" onClick={handleEditSubmit}>Salvar</Button>
+              <Button $variant="ghost" $size="sm" onClick={() => setIsEditing(false)}>Cancelar</Button>
+            </EditRow>
           ) : (
-            <p className="text-sm">{comment.text}</p>
+            <CommentText>{comment.text}</CommentText>
           )}
 
-          <div className="mt-1 flex gap-3 text-xs font-medium text-muted-foreground">
-            <button onClick={() => setShowReplyInput((v) => !v)} className="hover:text-emerald-700">
-              Responder
-            </button>
+          <ActionsRow>
+            <ActionLink onClick={() => setShowReplyInput((v) => !v)}>Responder</ActionLink>
             {isOwner && !isEditing && (
               <>
-                <button onClick={() => setIsEditing(true)} className="hover:text-emerald-700">
-                  Editar
-                </button>
-                <button onClick={handleDelete} className="text-red-500 hover:text-red-700">
-                  Excluir
-                </button>
+                <ActionLink onClick={() => setIsEditing(true)}>Editar</ActionLink>
+                <ActionLink $danger onClick={handleDelete}>Excluir</ActionLink>
               </>
             )}
-          </div>
+          </ActionsRow>
 
           {showReplyInput && (
-            <div className="mt-2 flex gap-2">
-              <Input
+            <ReplyRow>
+              <SmallInput
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder={`Respondendo a @${comment.username}...`}
-                className="h-8"
               />
-              <Button size="sm" onClick={handleReplySubmit}>Enviar</Button>
-            </div>
+              <Button $size="sm" onClick={handleReplySubmit}>Enviar</Button>
+            </ReplyRow>
           )}
-        </div>
-      </div>
+        </Content>
+      </Row>
 
       {replies.map((reply) => (
         <CommentItem key={reply.id} comment={reply} postId={postId} currentUserId={currentUserId} level={level + 1} />
       ))}
-    </div>
+    </Wrap>
   );
 }

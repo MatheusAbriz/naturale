@@ -4,10 +4,11 @@ import { toast } from "sonner";
 import { getComments, addComment } from "@/services/CommentService";
 import { useAuth } from "@/stores/auth-store";
 import { CommentItem } from "../comment-item";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/Components/ui/dialog";
-import { Input } from "@/Components/ui/input";
-import { Button } from "@/Components/ui/button";
+import { Dialog, DialogHeader, DialogTitle } from "@/styles/overlays";
+import { Input } from "@/styles/inputs";
+import { Button } from "@/styles/buttons";
 import { Loader } from "@/Components/common/loader";
+import { StyledDialogContent, List, EmptyMessage, LoadMoreButton, ComposerForm } from "./styles";
 
 type CommentsDialogProps = {
   postId: number | null;
@@ -54,43 +55,37 @@ export function CommentsDialog({ postId, onOpenChange }: CommentsDialogProps) {
 
   return (
     <Dialog open={postId !== null} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[85vh] flex-col">
+      <StyledDialogContent>
         <DialogHeader>
           <DialogTitle>Comentários</DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto">
+        <List>
           {isLoading && <Loader size="sm" />}
-          {!isLoading && comments.length === 0 && (
-            <p className="py-6 text-center text-sm text-muted-foreground">Seja o primeiro a comentar.</p>
-          )}
+          {!isLoading && comments.length === 0 && <EmptyMessage>Seja o primeiro a comentar.</EmptyMessage>}
           {user &&
             comments.map((comment) => (
               <CommentItem key={comment.id} comment={comment} postId={postId!} currentUserId={user.id} />
             ))}
           {hasNextPage && (
-            <button
-              onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
-              className="mt-3 text-sm text-emerald-700 hover:underline"
-            >
+            <LoadMoreButton onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
               {isFetchingNextPage ? "Carregando..." : "Carregar mais comentários"}
-            </button>
+            </LoadMoreButton>
           )}
-        </div>
+        </List>
 
-        <form onSubmit={handleSubmit} className="flex gap-2 border-t pt-3">
+        <ComposerForm onSubmit={handleSubmit}>
           <Input
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Escreva um comentário..."
             disabled={isSubmitting}
           />
-          <Button type="submit" disabled={isSubmitting}>
+          <Button disabled={isSubmitting} type="submit">
             {isSubmitting ? "Enviando..." : "Enviar"}
           </Button>
-        </form>
-      </DialogContent>
+        </ComposerForm>
+      </StyledDialogContent>
     </Dialog>
   );
 }

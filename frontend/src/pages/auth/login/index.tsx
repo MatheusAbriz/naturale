@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { login } from "@/services/AuthService";
 import { useAuth } from "@/stores/auth-store";
 import type { User } from "@/types/auth";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
+import { Button } from "@/styles/buttons";
+import { Input, Label, FieldGroup } from "@/styles/inputs";
 import { AuthLayout } from "@/Components/auth/auth-layout";
 import { isValidEmail } from "@/utils/regexMasks";
+import { Muted, StyledLink } from "@/styles/texts";
 import loginHero from "@/assets/img/auth-login-hero.jpg";
+import { Form, ForgotLink } from "./styles";
 
 type FormValues = {
   email: string;
@@ -55,32 +56,27 @@ export default function Login() {
       title="Entre no seu ritmo."
       description="Acesse suas receitas favoritas e acompanhe a comunidade Naturale."
     >
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" placeholder="exemplo@gmail.com" {...register("email")} />
-            </div>
+      <Form $gap={20} onSubmit={handleSubmit(onSubmit)}>
+        <FieldGroup>
+          <Label htmlFor="email">E-mail</Label>
+          <Input id="email" type="email" placeholder="exemplo@gmail.com" {...register("email")} />
+        </FieldGroup>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input id="password" type="password" placeholder="******" {...register("password")} />
-            </div>
+        <FieldGroup>
+          <Label htmlFor="password">Senha</Label>
+          <Input id="password" type="password" placeholder="******" {...register("password")} />
+        </FieldGroup>
 
-            <Link to="/forgot-password" className="text-right text-sm font-semibold text-primary hover:underline">
-              Esqueci minha senha
-            </Link>
+        <ForgotLink to="/forgot-password">Esqueci minha senha</ForgotLink>
 
-            <Button type="submit" disabled={loading} className="w-full">
-              {loading ? "Entrando..." : "Entrar"}
-            </Button>
+        <Button type="submit" disabled={loading} $fullWidth>
+          {loading ? "Entrando..." : "Entrar"}
+        </Button>
 
-            <p className="text-center text-sm text-muted-foreground">
-              Não tem uma conta?{" "}
-              <Link to="/register" className="font-semibold text-primary hover:underline">
-                Cadastre-se
-              </Link>
-            </p>
-          </form>
+        <Muted style={{ textAlign: "center" }}>
+          Não tem uma conta? <StyledLink to="/register">Cadastre-se</StyledLink>
+        </Muted>
+      </Form>
     </AuthLayout>
   );
 }

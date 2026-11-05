@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Heart, MessageCircle, Pencil, Plus, Utensils } from "lucide-react";
 import { getPublicProfile, getUserStats } from "@/services/AuthService";
@@ -9,10 +9,35 @@ import { PostCard } from "@/Components/post/post-card";
 import { CommentsDialog } from "@/Components/comments/comments-dialog";
 import { EmptyState } from "@/Components/common/empty-state";
 import { Loader } from "@/Components/common/loader";
-import { Button } from "@/Components/ui/button";
+import { Button } from "@/styles/buttons";
 import { useInfiniteScrollSentinel } from "@/lib/useInfiniteScrollSentinel";
 import { PlanBadge } from "@/Components/subscription/plan-badge";
 import { hasPlan, useSubscription } from "@/stores/subscription-store";
+import {
+  HeroSection,
+  Banner,
+  HeroContent,
+  AvatarRow,
+  Avatar,
+  NameBlock,
+  NameRow,
+  Name,
+  Username,
+  MetricsGrid,
+  MetricItem,
+  MetricValue,
+  MetricIcon,
+  MetricLabel,
+  DeluxeBanner,
+  DeluxeIcon,
+  DeluxeTitle,
+  DeluxeText,
+  PostsHeaderRow,
+  PostsHeaderTitle,
+  PostsHeaderSubtitle,
+  NewRecipeLabel,
+  EmptyCreateWrap,
+} from "./styles";
 
 const FALLBACK_AVATAR =
   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&q=80";
@@ -63,56 +88,63 @@ export default function Profile() {
 
   return (
     <div>
-      <section className="overflow-hidden rounded-2xl border border-border/80 bg-white shadow-[0_8px_28px_rgba(39,73,58,0.06)]">
-        <div className="h-24 bg-primary sm:h-32" />
-        <div className="px-5 pb-5 sm:px-7">
-          <div className="-mt-12 flex flex-col gap-4 sm:-mt-14 sm:flex-row sm:items-end sm:justify-between">
-            <img
-              src={profile.avatar || FALLBACK_AVATAR}
-              alt={profile.name}
-              className="h-24 w-24 rounded-2xl border-4 border-white bg-muted object-cover shadow-sm sm:h-28 sm:w-28"
-            />
+      <HeroSection>
+        <Banner />
+        <HeroContent>
+          <AvatarRow>
+            <Avatar src={profile.avatar || FALLBACK_AVATAR} alt={profile.name} />
             {isOwnProfile && (
-              <Button variant="outline" onClick={() => navigate("/settings")} className="sm:mb-1">
-                <Pencil className="h-4 w-4" /> Editar perfil
+              <Button $variant="outline" onClick={() => navigate("/settings")} style={{ marginBottom: 4 }}>
+                <Pencil size={16} /> Editar perfil
               </Button>
             )}
-          </div>
-          <div className="mt-4">
-            <div className="flex flex-wrap items-center gap-2"><h1 className="text-2xl font-extrabold tracking-tight">{profile.name}</h1>{isOwnProfile && <PlanBadge plan={plan} />}</div>
-            <p className="mt-0.5 text-sm text-muted-foreground">@{profile.username}</p>
-          </div>
-          <div className="mt-5 grid grid-cols-3 divide-x divide-border rounded-xl bg-muted/70 py-3">
+          </AvatarRow>
+          <NameBlock>
+            <NameRow>
+              <Name>{profile.name}</Name>
+              {isOwnProfile && <PlanBadge plan={plan} />}
+            </NameRow>
+            <Username>@{profile.username}</Username>
+          </NameBlock>
+          <MetricsGrid>
             {metrics.map(({ label, value, icon: Icon }) => (
-              <div key={label} className="flex flex-col items-center gap-1 px-1 text-center">
-                <span className="flex items-center gap-1 text-base font-extrabold"><Icon className="hidden h-3.5 w-3.5 text-primary sm:block" />{value}</span>
-                <span className="text-[11px] font-medium text-muted-foreground sm:text-xs">{label}</span>
-              </div>
+              <MetricItem key={label}>
+                <MetricValue>
+                  <MetricIcon><Icon size={14} color="#2f6b54" /></MetricIcon>
+                  {value}
+                </MetricValue>
+                <MetricLabel>{label}</MetricLabel>
+              </MetricItem>
             ))}
-          </div>
-        </div>
-      </section>
+          </MetricsGrid>
+        </HeroContent>
+      </HeroSection>
 
       {isOwnProfile && hasPlan(plan, "deluxe") && (
-        <div className="mt-4 flex items-center gap-3 rounded-2xl border border-accent-foreground/15 bg-accent/50 p-4 text-sm">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-accent-foreground">★</span>
-          <div><p className="font-extrabold">Destaque Deluxe ativo</p><p className="mt-0.5 text-muted-foreground">Suas novas receitas recebem mais visibilidade no feed.</p></div>
-        </div>
+        <DeluxeBanner>
+          <DeluxeIcon>★</DeluxeIcon>
+          <div>
+            <DeluxeTitle>Destaque Deluxe ativo</DeluxeTitle>
+            <DeluxeText>Suas novas receitas recebem mais visibilidade no feed.</DeluxeText>
+          </div>
+        </DeluxeBanner>
       )}
 
-      <div className="mb-4 mt-8 flex items-center justify-between">
+      <PostsHeaderRow>
         <div>
-          <h2 className="text-lg font-extrabold">Receitas publicadas</h2>
-          <p className="text-sm text-muted-foreground">Sabores compartilhados por {isOwnProfile ? "você" : profile.name.split(" ")[0]}.</p>
+          <PostsHeaderTitle>Receitas publicadas</PostsHeaderTitle>
+          <PostsHeaderSubtitle>Sabores compartilhados por {isOwnProfile ? "você" : profile.name.split(" ")[0]}.</PostsHeaderSubtitle>
         </div>
         {isOwnProfile && (
-          <Button size="sm" onClick={() => navigate("/postForm")}>
-            <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Nova receita</span>
+          <Button $size="sm" onClick={() => navigate("/postForm")}>
+            <Plus size={16} /> <NewRecipeLabel>Nova receita</NewRecipeLabel>
           </Button>
         )}
-      </div>
+      </PostsHeaderRow>
 
-      {isLoadingPosts ? <Loader size="sm" className="py-10" /> : posts.length === 0 ? (
+      {isLoadingPosts ? (
+        <Loader size="sm" padY={40} />
+      ) : posts.length === 0 ? (
         <EmptyState
           title={isOwnProfile ? "Sua cozinha ainda está vazia" : "Ainda não há receitas por aqui"}
           description={isOwnProfile ? "Publique sua primeira receita saudável." : "Volte mais tarde para conferir as novidades."}
@@ -122,10 +154,12 @@ export default function Profile() {
       )}
 
       {isOwnProfile && posts.length === 0 && (
-        <div className="-mt-8 flex justify-center"><Button asChild><Link to="/postForm">Criar receita</Link></Button></div>
+        <EmptyCreateWrap>
+          <Button onClick={() => navigate("/postForm")}>Criar receita</Button>
+        </EmptyCreateWrap>
       )}
       <div ref={sentinelRef} />
-      {isFetchingNextPage && <Loader size="sm" className="py-4" />}
+      {isFetchingNextPage && <Loader size="sm" padY={16} />}
       <CommentsDialog postId={selectedPostId} onOpenChange={(open) => !open && setSelectedPostId(null)} />
     </div>
   );

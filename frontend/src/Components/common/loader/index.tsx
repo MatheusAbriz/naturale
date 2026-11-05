@@ -1,19 +1,20 @@
-import { cn } from "@/lib/utils";
+import { Wrap, Spinner } from "./styles";
 
 type LoaderProps = {
   size?: "sm" | "md";
-  className?: string;
+  padY?: number;
 };
 
-export function Loader({ size = "md", className }: LoaderProps) {
+const DIMENSIONS = {
+  sm: { size: 20, border: 2, padY: 16 },
+  md: { size: 32, border: 4, padY: 32 },
+};
+
+export function Loader({ size = "md", padY }: LoaderProps) {
+  const { size: s, border, padY: defaultPadY } = DIMENSIONS[size];
   return (
-    <div className={cn("flex items-center justify-center py-8", className)}>
-      <div
-        className={cn(
-          "animate-spin rounded-full border-emerald-600 border-t-transparent",
-          size === "sm" ? "h-5 w-5 border-2" : "h-8 w-8 border-4"
-        )}
-      />
-    </div>
+    <Wrap $padY={padY ?? defaultPadY}>
+      <Spinner $size={s} $border={border} />
+    </Wrap>
   );
 }

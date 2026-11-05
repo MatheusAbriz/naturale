@@ -8,10 +8,36 @@ import { uploadImage } from "@/services/ImageService";
 import { getMySubscription, cancelMySubscription } from "@/services/SubscriptionService";
 import { useAuth } from "@/stores/auth-store";
 import { PLANS, useSubscription } from "@/stores/subscription-store";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
+import { Button } from "@/styles/buttons";
+import { Input } from "@/styles/inputs";
 import { Loader } from "@/Components/common/loader";
 import { formatMaskCellphone, isValidEmail, isValidPhone } from "@/utils/regexMasks";
+import {
+  Root,
+  BackButton,
+  Header,
+  Eyebrow,
+  Title,
+  Description,
+  SubscriptionSection,
+  SectionHeaderRow,
+  SectionHeading,
+  SubscriptionRow,
+  PlanName,
+  PlanStatus,
+  Form,
+  Section,
+  AvatarRow,
+  AvatarWrap,
+  AvatarImg,
+  AvatarPlaceholder,
+  CameraOverlay,
+  HiddenFileInput,
+  AvatarHint,
+  FieldsGrid,
+  FieldLabel,
+  PasswordHint,
+} from "./styles";
 
 type SettingsForm = { name: string; username: string; phone: string; email: string; avatar: string; password: string };
 
@@ -114,83 +140,89 @@ export default function Settings() {
   if (isLoading) return <Loader />;
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <button onClick={() => navigate(-1)} className="mb-5 flex items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-primary">
-        <ArrowLeft className="h-4 w-4" /> Voltar
-      </button>
-      <div className="mb-6">
-        <p className="text-sm font-semibold text-primary">Sua conta</p>
-        <h1 className="mt-1 text-2xl font-extrabold tracking-tight">Configurações do perfil</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Mantenha suas informações atualizadas e escolha como você aparece na comunidade.</p>
-      </div>
+    <Root>
+      <BackButton onClick={() => navigate(-1)}>
+        <ArrowLeft size={16} /> Voltar
+      </BackButton>
+      <Header>
+        <Eyebrow>Sua conta</Eyebrow>
+        <Title>Configurações do perfil</Title>
+        <Description>Mantenha suas informações atualizadas e escolha como você aparece na comunidade.</Description>
+      </Header>
 
-      <section className="mb-5 rounded-2xl border border-border/80 bg-white p-5 shadow-[0_8px_28px_rgba(39,73,58,0.06)] sm:p-6">
-        <div className="mb-4 flex items-center gap-2"><CreditCard className="h-5 w-5 text-primary" /><h2 className="font-extrabold">Sua assinatura</h2></div>
+      <SubscriptionSection>
+        <SectionHeaderRow $mb={16}>
+          <CreditCard size={20} color="#2f6b54" />
+          <SectionHeading>Sua assinatura</SectionHeading>
+        </SectionHeaderRow>
         {isLoadingSubscription ? (
           <Loader size="sm" />
         ) : (
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <SubscriptionRow>
             <div>
-              <p className="font-bold">{PLANS[subscription?.effectivePlan ?? "essential"].name}</p>
+              <PlanName>{PLANS[subscription?.effectivePlan ?? "essential"].name}</PlanName>
               {subscription?.status === "active" && subscription.currentPeriodEnd && (
-                <p className="mt-0.5 text-sm text-muted-foreground">
-                  Renova em {new Date(subscription.currentPeriodEnd).toLocaleDateString("pt-BR")}
-                </p>
+                <PlanStatus>Renova em {new Date(subscription.currentPeriodEnd).toLocaleDateString("pt-BR")}</PlanStatus>
               )}
               {subscription?.status === "canceled" && subscription.currentPeriodEnd && (
-                <p className="mt-0.5 text-sm text-muted-foreground">
-                  Cancelada — acesso até {new Date(subscription.currentPeriodEnd).toLocaleDateString("pt-BR")}
-                </p>
+                <PlanStatus>Cancelada — acesso até {new Date(subscription.currentPeriodEnd).toLocaleDateString("pt-BR")}</PlanStatus>
               )}
-              {(!subscription || subscription.effectivePlan === "essential") && (
-                <p className="mt-0.5 text-sm text-muted-foreground">Você está no plano gratuito.</p>
-              )}
+              {(!subscription || subscription.effectivePlan === "essential") && <PlanStatus>Você está no plano gratuito.</PlanStatus>}
             </div>
             {subscription?.status === "active" ? (
-              <Button variant="outline" onClick={handleCancelSubscription} disabled={isCanceling}>
+              <Button $variant="outline" onClick={handleCancelSubscription} disabled={isCanceling}>
                 {isCanceling ? "Cancelando..." : "Cancelar assinatura"}
               </Button>
             ) : (
-              <Button variant="outline" onClick={() => navigate("/plans")}>Ver planos</Button>
+              <Button $variant="outline" onClick={() => navigate("/plans")}>Ver planos</Button>
             )}
-          </div>
+          </SubscriptionRow>
         )}
-      </section>
+      </SubscriptionSection>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <section className="rounded-2xl border border-border/80 bg-white p-5 shadow-[0_8px_28px_rgba(39,73,58,0.06)] sm:p-6">
-          <div className="mb-5 flex items-center gap-2"><UserRound className="h-5 w-5 text-primary" /><h2 className="font-extrabold">Informações públicas</h2></div>
-          <div className="mb-6 flex items-center gap-4">
-            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-muted">
-              {form.avatar ? <img src={form.avatar} alt="Seu avatar" className="h-full w-full object-cover" /> : <UserRound className="m-6 h-8 w-8 text-muted-foreground" />}
-              <label className="absolute inset-x-0 bottom-0 flex cursor-pointer items-center justify-center bg-primary/85 py-1.5 text-white"><Camera className="h-4 w-4" /><input type="file" accept="image/*" className="sr-only" onChange={handleAvatarChange} /></label>
-            </div>
-            <p className="text-sm leading-5 text-muted-foreground">Toque na câmera para trocar sua foto. Uma imagem quadrada funciona melhor.</p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-1.5 text-sm font-semibold">Nome<Input value={form.name} onChange={(event) => setField("name", event.target.value)} /></label>
-            <label className="grid gap-1.5 text-sm font-semibold">Nome de usuário<Input value={form.username} onChange={(event) => setField("username", event.target.value)} /></label>
-          </div>
-        </section>
+      <Form onSubmit={handleSubmit}>
+        <Section>
+          <SectionHeaderRow>
+            <UserRound size={20} color="#2f6b54" />
+            <SectionHeading>Informações públicas</SectionHeading>
+          </SectionHeaderRow>
+          <AvatarRow>
+            <AvatarWrap>
+              {form.avatar ? <AvatarImg src={form.avatar} alt="Seu avatar" /> : <AvatarPlaceholder />}
+              <CameraOverlay>
+                <Camera size={16} />
+                <HiddenFileInput type="file" accept="image/*" onChange={handleAvatarChange} />
+              </CameraOverlay>
+            </AvatarWrap>
+            <AvatarHint>Toque na câmera para trocar sua foto. Uma imagem quadrada funciona melhor.</AvatarHint>
+          </AvatarRow>
+          <FieldsGrid>
+            <FieldLabel>Nome<Input value={form.name} onChange={(event) => setField("name", event.target.value)} /></FieldLabel>
+            <FieldLabel>Nome de usuário<Input value={form.username} onChange={(event) => setField("username", event.target.value)} /></FieldLabel>
+          </FieldsGrid>
+        </Section>
 
-        <section className="rounded-2xl border border-border/80 bg-white p-5 shadow-[0_8px_28px_rgba(39,73,58,0.06)] sm:p-6">
-          <h2 className="mb-5 font-extrabold">Dados cadastrais</h2>
-          <div className="grid gap-4">
-            <label className="grid gap-1.5 text-sm font-semibold">E-mail<Input type="email" inputMode="email" placeholder="voce@email.com" value={form.email} onChange={(event) => setField("email", event.target.value)} /></label>
-            <label className="grid gap-1.5 text-sm font-semibold">Telefone<Input type="tel" inputMode="numeric" placeholder="(11) 99999-9999" value={form.phone} onChange={(event) => setField("phone", formatMaskCellphone(event.target.value))} /></label>
-          </div>
-        </section>
+        <Section>
+          <SectionHeading style={{ marginBottom: 20 }}>Dados cadastrais</SectionHeading>
+          <FieldsGrid style={{ gridTemplateColumns: "1fr" }}>
+            <FieldLabel>E-mail<Input type="email" inputMode="email" placeholder="voce@email.com" value={form.email} onChange={(event) => setField("email", event.target.value)} /></FieldLabel>
+            <FieldLabel>Telefone<Input type="tel" inputMode="numeric" placeholder="(11) 99999-9999" value={form.phone} onChange={(event) => setField("phone", formatMaskCellphone(event.target.value))} /></FieldLabel>
+          </FieldsGrid>
+        </Section>
 
-        <section className="rounded-2xl border border-border/80 bg-white p-5 shadow-[0_8px_28px_rgba(39,73,58,0.06)] sm:p-6">
-          <div className="mb-2 flex items-center gap-2"><LockKeyhole className="h-5 w-5 text-primary" /><h2 className="font-extrabold">Segurança</h2></div>
-          <p className="mb-4 text-sm text-muted-foreground">Deixe em branco se não quiser mudar sua senha agora.</p>
-          <label className="grid gap-1.5 text-sm font-semibold">Nova senha<Input type="password" autoComplete="new-password" value={form.password} onChange={(event) => setField("password", event.target.value)} /></label>
-        </section>
+        <Section>
+          <SectionHeaderRow $mb={8}>
+            <LockKeyhole size={20} color="#2f6b54" />
+            <SectionHeading>Segurança</SectionHeading>
+          </SectionHeaderRow>
+          <PasswordHint>Deixe em branco se não quiser mudar sua senha agora.</PasswordHint>
+          <FieldLabel>Nova senha<Input type="password" autoComplete="new-password" value={form.password} onChange={(event) => setField("password", event.target.value)} /></FieldLabel>
+        </Section>
 
-        <Button type="submit" size="lg" className="w-full" disabled={isSaving}>
-          <Save className="h-4 w-4" /> {isSaving ? "Salvando alterações..." : "Salvar alterações"}
+        <Button type="submit" $size="lg" $fullWidth disabled={isSaving}>
+          <Save size={16} /> {isSaving ? "Salvando alterações..." : "Salvar alterações"}
         </Button>
-      </form>
-    </div>
+      </Form>
+    </Root>
   );
 }

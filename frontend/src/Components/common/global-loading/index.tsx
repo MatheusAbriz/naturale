@@ -1,7 +1,23 @@
+import styled, { keyframes } from "styled-components";
+import { FullScreen } from "./styles";
+
+const spin = keyframes`
+  to { transform: rotate(360deg); }
+`;
+
+const Spinner = styled.div`
+  width: 40px;
+  height: 40px;
+  border: 4px solid #059669;
+  border-top-color: transparent;
+  border-radius: 9999px;
+  animation: ${spin} 0.6s linear infinite;
+`;
+
 export function GlobalLoading() {
   return (
-    <div className="flex h-screen w-full items-center justify-center">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
-    </div>
+    <FullScreen>
+      <Spinner />
+    </FullScreen>
   );
 }

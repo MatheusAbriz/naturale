@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { forgotPassword, resetPassword } from "@/services/AuthService";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
+import { Button } from "@/styles/buttons";
+import { Input, Label, FieldGroup } from "@/styles/inputs";
 import { AuthLayout } from "@/Components/auth/auth-layout";
 import { isValidEmail } from "@/utils/regexMasks";
+import { Text, MutedLink } from "@/styles/texts";
 import recoveryHero from "@/assets/img/auth-recovery-hero.jpg";
+import { Form, RetryButton } from "./styles";
 
 type FormValues = {
   email: string;
@@ -67,54 +68,45 @@ export default function ForgotPassword() {
       title={step === "request" ? "Recupere seu acesso." : "Crie uma nova senha."}
       description={step === "request" ? "Informe seu e-mail para receber as instruções de recuperação." : "Use o código enviado para concluir a redefinição com segurança."}
     >
-          <form
-            onSubmit={handleSubmit(step === "request" ? handleRequestCode : handleConfirmReset)}
-            className="flex flex-col gap-5"
-          >
-            {step === "request" ? (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  Informe o e-mail da sua conta. Se ele existir, vamos enviar um código de 6 dígitos para
-                  redefinir sua senha.
-                </p>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="email">E-mail</Label>
-                  <Input id="email" type="email" inputMode="email" placeholder="voce@email.com" {...register("email")} />
-                </div>
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Enviando..." : "Enviar código"}
-                </Button>
-              </>
-            ) : (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  Enviamos um código para {sentToEmail}. Digite-o abaixo junto com sua nova senha.
-                </p>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="code">Código</Label>
-                  <Input id="code" maxLength={6} {...register("code")} />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="newPassword">Nova senha</Label>
-                  <Input id="newPassword" type="password" {...register("newPassword")} />
-                </div>
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Salvando..." : "Redefinir senha"}
-                </Button>
-                <button
-                  type="button"
-                  onClick={() => setStep("request")}
-                  className="text-center text-sm font-semibold text-primary hover:underline"
-                >
-                  Não recebeu o código? Tentar de novo
-                </button>
-              </>
-            )}
+      <Form $gap={20} onSubmit={handleSubmit(step === "request" ? handleRequestCode : handleConfirmReset)}>
+        {step === "request" ? (
+          <>
+            <Text>
+              Informe o e-mail da sua conta. Se ele existir, vamos enviar um código de 6 dígitos para
+              redefinir sua senha.
+            </Text>
+            <FieldGroup>
+              <Label htmlFor="email">E-mail</Label>
+              <Input id="email" type="email" inputMode="email" placeholder="voce@email.com" {...register("email")} />
+            </FieldGroup>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Enviando..." : "Enviar código"}
+            </Button>
+          </>
+        ) : (
+          <>
+            <Text>Enviamos um código para {sentToEmail}. Digite-o abaixo junto com sua nova senha.</Text>
+            <FieldGroup>
+              <Label htmlFor="code">Código</Label>
+              <Input id="code" maxLength={6} {...register("code")} />
+            </FieldGroup>
+            <FieldGroup>
+              <Label htmlFor="newPassword">Nova senha</Label>
+              <Input id="newPassword" type="password" {...register("newPassword")} />
+            </FieldGroup>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Salvando..." : "Redefinir senha"}
+            </Button>
+            <RetryButton type="button" onClick={() => setStep("request")}>
+              Não recebeu o código? Tentar de novo
+            </RetryButton>
+          </>
+        )}
 
-            <Link to="/login" className="text-center text-sm text-muted-foreground hover:underline">
-              Voltar para o login
-            </Link>
-          </form>
+        <MutedLink to="/login" style={{ textAlign: "center" }}>
+          Voltar para o login
+        </MutedLink>
+      </Form>
     </AuthLayout>
   );
 }
