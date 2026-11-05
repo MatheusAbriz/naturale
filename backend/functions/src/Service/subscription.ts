@@ -121,33 +121,22 @@ function validateNotificationSignature(
     return false;
 }
 
-export async function handleWebhook(body: MercadoPagoWebhookBodyDTO, query: Record<string, unknown>, headerSignature: string | undefined, requestId: string | undefined): Promise<WebhookResult> {
-    const dataId = String(query?.['data.id'] ?? body?.data?.id ?? query?.['data_id'] ?? '');
-
-    if (!dataId || Number.isNaN(Number(dataId))) {
-        return 'ignored';
-    }
-
-    if (!validateNotificationSignature(headerSignature, requestId, dataId)) {
-        return 'rejected';
-    }
-
-    const response = await mercadoPago.get(`/v1/payments/${dataId}`);
-    const payment: MercadoPagoPaymentDTO = response.data;
-
+// Lógica compartilhada entre o webhook (caminho rápido) e a reconciliação
+// manual (fallback usado quando o webhook do MP não chega — comum no sandbox).
+async function recordPayment(payment: MercadoPagoPaymentDTO): Promise<WebhookResult> {
     const [refUserId, refPlan] = payment.external_reference?.split(':') ?? [];
     const plan = getPaidPlan(refPlan);
     const userId = Number(refUserId);
 
     if (!plan || Number.isNaN(userId)) {
-        console.error('Webhook MP: external_reference inválida', { external_reference: payment.external_reference });
+        console.error('Pagamento MP: external_reference inválida', { external_reference: payment.external_reference });
         return 'rejected';
     }
 
     const expectedPrice = PLAN_PRICES[plan].price;
     const paidAmount = Number(payment.transaction_amount ?? 0);
     if (paidAmount < expectedPrice - 0.001) {
-        console.error('Webhook MP: valor divergente', { paidAmount, expectedPrice });
+        console.error('Pagamento MP: valor divergente', { paidAmount, expectedPrice });
         return 'rejected';
     }
 
@@ -198,22 +187,84 @@ export async function handleWebhook(body: MercadoPagoWebhookBodyDTO, query: Reco
     return 'processed';
 }
 
+export async function handleWebhook(body: MercadoPagoWebhookBodyDTO, query: Record<string, unknown>, headerSignature: string | undefined, requestId: string | undefined): Promise<WebhookResult> {
+    const dataId = String(query?.['data.id'] ?? body?.data?.id ?? query?.['data_id'] ?? '');
+
+    if (!dataId || Number.isNaN(Number(dataId))) {
+        return 'ignored';
+    }
+
+    if (!validateNotificationSignature(headerSignature, requestId, dataId)) {
+        return 'rejected';
+    }
+
+    const response = await mercadoPago.get(`/v1/payments/${dataId}`);
+    return recordPayment(response.data);
+}
+
+// Fallback para quando a notificação do webhook não chega (comum no sandbox
+// do Mercado Pago). Pergunta direto pra API de pagamentos do MP se existe
+// algum pagamento aprovado/pendente pro usuário que ainda não foi registrado,
+// e aplica a mesma lógica que o webhook aplicaria.
+export async function reconcilePendingPayment(userId: number): Promise<boolean> {
+    for (const plan of Object.keys(PLAN_PRICES) as Array<Exclude<PlanId, 'essential'>>) {
+        try {
+            const response = await mercadoPago.get('/v1/payments/search', {
+                params: {
+                    external_reference: `${userId}:${plan}`,
+                    sort: 'date_created',
+                    criteria: 'desc',
+                    limit: 5,
+                },
+            });
+
+            const results: MercadoPagoPaymentDTO[] = response.data?.results ?? [];
+
+            for (const payment of results) {
+                if (payment.status !== 'approved' && payment.status !== 'pending' && payment.status !== 'in_process') continue;
+
+                const already = await pool`SELECT 1 FROM subscription_payment WHERE mp_payment_id = ${String(payment.id)}`;
+                if (already.count > 0) continue;
+
+                const result = await recordPayment(payment);
+                if (result === 'processed') return true;
+            }
+        } catch (err) {
+            console.error(`Erro ao reconciliar pagamento (plano ${plan}):`, err);
+        }
+    }
+
+    return false;
+}
+
+async function fetchSubscriptionRow(userId: number) {
+    return pool`
+        SELECT
+            plan,
+            status,
+            payment_method,
+            current_period_end,
+            CASE
+                WHEN status = 'active' AND (current_period_end IS NULL OR current_period_end > now()) THEN plan
+                WHEN status = 'canceled' AND current_period_end > now() THEN plan
+                ELSE 'essential'
+            END AS effective_plan
+        FROM subscription
+        WHERE user_id = ${userId}
+    `;
+}
+
 export async function getMySubscription(userId: number): Promise<SubscriptionDTO | false> {
     try {
-        const results = await pool`
-            SELECT
-                plan,
-                status,
-                payment_method,
-                current_period_end,
-                CASE
-                    WHEN status = 'active' AND (current_period_end IS NULL OR current_period_end > now()) THEN plan
-                    WHEN status = 'canceled' AND current_period_end > now() THEN plan
-                    ELSE 'essential'
-                END AS effective_plan
-            FROM subscription
-            WHERE user_id = ${userId}
-        `;
+        let results = await fetchSubscriptionRow(userId);
+
+        const hasActivePaidPlan = results.count > 0 && results[0].effective_plan !== 'essential';
+        if (!hasActivePaidPlan) {
+            const recovered = await reconcilePendingPayment(userId);
+            if (recovered) {
+                results = await fetchSubscriptionRow(userId);
+            }
+        }
 
         if (results.count >= 1) {
             const row = results[0];
