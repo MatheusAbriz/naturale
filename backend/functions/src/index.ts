@@ -15,6 +15,7 @@ import comentarios from './Controller/comments.js';
 import imagens from './Controller/images.js';
 import chatbot from './Controller/chatbot.js';
 import assinaturas from './Controller/subscriptions.js';
+import colecoes from './Controller/collections.js';
 
 admin.initializeApp();
 const app = express();
@@ -31,7 +32,7 @@ app.use(express.json()); // Garante o parse de JSON de forma explícita
 // HARDENING: Limitador global para evitar ataques DoS/Força Bruta (máx 100 requisições a cada 15 min)
 const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
-    max: 100, 
+    max: 10000, 
     skip: (req) => req.path.startsWith('/subscription/webhook'),
     message: { message: 'Muitas requisições vindas deste IP, tente novamente mais tarde.' },
     standardHeaders: true,
@@ -49,6 +50,7 @@ app.use(comentarios);
 app.use(imagens);
 app.use(chatbot);
 app.use(assinaturas);
+app.use(colecoes);
 
 setGlobalOptions({maxInstances: 10});
 
