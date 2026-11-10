@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Leaf, ListChecks, Search as SearchIcon, SlidersHorizontal, Sparkles, X } from "lucide-react";
 import { useAuth } from "@/stores/auth-store";
 import { Button } from "@/styles/buttons";
+import { resetAnalytics, track } from "@/lib/analytics";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,6 +39,7 @@ export function Header() {
   function handleSearchSubmit(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = search.trim();
+    track("recipe_search_submitted", { has_query: Boolean(trimmed), query_length: trimmed.length });
     navigate(trimmed ? `/home?search=${encodeURIComponent(trimmed)}` : "/home");
   }
 
@@ -47,7 +49,9 @@ export function Header() {
   }
 
   async function handleLogout() {
+    track("logout_completed");
     await logout();
+    resetAnalytics();
     navigate("/login", { replace: true });
   }
 

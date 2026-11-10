@@ -7,6 +7,7 @@ import { Button } from "@/styles/buttons";
 import { Loader } from "@/Components/common/loader";
 import { PlanBadge } from "@/Components/subscription/plan-badge";
 import { hasPlan, useSubscription } from "@/stores/subscription-store";
+import { track } from "@/lib/analytics";
 import {
   Page,
   HeaderRow,
@@ -49,6 +50,7 @@ export default function Chatbot() {
     const trimmed = text.trim();
     if (!trimmed || isSending) return;
     if (!hasExpandedChat && remaining === 0) {
+      track("chatbot_limit_reached", { plan });
       toast.error("Você atingiu suas 5 perguntas de hoje. Conheça o plano Extra para continuar.");
       return;
     }
@@ -56,13 +58,16 @@ export default function Chatbot() {
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "user", content: trimmed }]);
     setText("");
     setIsSending(true);
+    track("chatbot_question_submitted", { plan, has_expanded_access: hasExpandedChat });
 
     try {
       const reply = await askChatbot(trimmed);
       setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "bot", content: reply }]);
       if (!hasExpandedChat) consumeChatbotQuestion();
+      track("chatbot_response_received", { plan, has_expanded_access: hasExpandedChat });
     } catch (e) {
       console.error(e);
+      track("chatbot_response_failed", { plan });
       toast.error("Erro ao falar com o chatbot. Tente novamente.");
     } finally {
       setIsSending(false);

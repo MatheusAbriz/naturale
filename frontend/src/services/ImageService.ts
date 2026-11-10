@@ -1,4 +1,5 @@
 import { API } from "./api";
+import { track } from "@/lib/analytics";
 
 type UploadImageResponse = {
   path: string;
@@ -19,8 +20,10 @@ export async function uploadImage(file: File, bucket: "posts" | "usuarios") {
     const res = await API.post<UploadImageResponse>("/images", formData, {
       headers: { "Content-Type": undefined },
     });
+    track("image_uploaded", { bucket });
     return res.data.publicUrl;
   } catch (e: any) {
+    track("image_upload_failed", { bucket });
     console.error("Falha no upload de imagem:", e?.response?.status, e?.response?.data ?? e?.message);
     throw e;
   }

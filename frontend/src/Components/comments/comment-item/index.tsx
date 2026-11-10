@@ -10,6 +10,7 @@ import {
   deleteReply,
 } from "@/services/CommentService";
 import { Button } from "@/styles/buttons";
+import { track } from "@/lib/analytics";
 import {
   SmallInput,
   Wrap,
@@ -76,8 +77,10 @@ export function CommentItem({ comment, postId, currentUserId, level = 0 }: Comme
       setReplyText("");
       setShowReplyInput(false);
       invalidate();
+      track("comment_reply_created");
     } catch (e) {
       console.error(e);
+      track("comment_reply_creation_failed");
       toast.error("Erro ao responder. Tente novamente.");
     }
   }
@@ -90,8 +93,10 @@ export function CommentItem({ comment, postId, currentUserId, level = 0 }: Comme
       else await editComment(comment.id, trimmed);
       setIsEditing(false);
       invalidate();
+      track(isReply ? "comment_reply_updated" : "comment_updated");
     } catch (e) {
       console.error(e);
+      track(isReply ? "comment_reply_update_failed" : "comment_update_failed");
       toast.error("Erro ao editar. Tente novamente.");
     }
   }
@@ -102,8 +107,10 @@ export function CommentItem({ comment, postId, currentUserId, level = 0 }: Comme
       if (isReply) await deleteReply(comment.id);
       else await deleteComment(comment.id);
       invalidate();
+      track(isReply ? "comment_reply_deleted" : "comment_deleted");
     } catch (e) {
       console.error(e);
+      track(isReply ? "comment_reply_deletion_failed" : "comment_deletion_failed");
       toast.error("Erro ao excluir. Tente novamente.");
     }
   }

@@ -12,6 +12,7 @@ import { Button } from "@/styles/buttons";
 import { Input } from "@/styles/inputs";
 import { Loader } from "@/Components/common/loader";
 import { formatMaskCellphone, isValidEmail, isValidPhone } from "@/utils/regexMasks";
+import { track } from "@/lib/analytics";
 import {
   Root,
   BackButton,
@@ -67,11 +68,13 @@ export default function Settings() {
     setIsCanceling(true);
     try {
       const { data } = await cancelMySubscription();
+      track("subscription_canceled");
       toast.success(data.message);
       queryClient.invalidateQueries({ queryKey: ["my-subscription"] });
       await useSubscription.getState().syncPlan();
     } catch (error: any) {
       console.error(error);
+      track("subscription_cancellation_failed");
       toast.error(error?.response?.data?.message ?? "Não foi possível cancelar agora. Tente novamente.");
     } finally {
       setIsCanceling(false);
@@ -113,24 +116,28 @@ export default function Settings() {
     setIsSaving(true);
     try {
       const tasks: Promise<unknown>[] = [];
-      if (form.name.trim() !== profile.name) tasks.push(updateName(user.id, form.name.trim()));
-      if (form.username.trim() !== profile.username) tasks.push(updateUsername(user.id, form.username.trim()));
-      if (form.phone.trim() !== profile.phone) tasks.push(updatePhone(user.id, form.phone.trim()));
-      if (form.email.trim() !== profile.email) tasks.push(updateEmail(user.id, form.email.trim()));
-      if (form.password) tasks.push(updatePassword(user.id, form.password));
+      const updatedFields: string[] = [];
+      if (form.name.trim() !== profile.name) { tasks.push(updateName(user.id, form.name.trim())); updatedFields.push("name"); }
+      if (form.username.trim() !== profile.username) { tasks.push(updateUsername(user.id, form.username.trim())); updatedFields.push("username"); }
+      if (form.phone.trim() !== profile.phone) { tasks.push(updatePhone(user.id, form.phone.trim())); updatedFields.push("phone"); }
+      if (form.email.trim() !== profile.email) { tasks.push(updateEmail(user.id, form.email.trim())); updatedFields.push("email"); }
+      if (form.password) { tasks.push(updatePassword(user.id, form.password)); updatedFields.push("password"); }
 
       let finalAvatar = profile.avatar;
       if (avatarFile) {
         finalAvatar = await uploadImage(avatarFile, "usuarios");
         tasks.push(updateAvatar(user.id, finalAvatar));
+        updatedFields.push("avatar");
       }
       await Promise.all(tasks);
       updateUser({ name: form.name.trim(), username: form.username.trim(), email: form.email.trim(), avatar: finalAvatar });
       setField("password", "");
       setAvatarFile(null);
+      track("profile_settings_updated", { changed_fields: updatedFields.join(",") || "none", changed_field_count: updatedFields.length });
       toast.success("Dados atualizados com sucesso.");
     } catch (error) {
       console.error(error);
+      track("profile_settings_update_failed");
       toast.error("Não foi possível salvar as alterações. Tente novamente.");
     } finally {
       setIsSaving(false);

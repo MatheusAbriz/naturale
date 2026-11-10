@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getComments, addComment } from "@/services/CommentService";
@@ -8,6 +8,7 @@ import { Dialog, DialogHeader, DialogTitle } from "@/styles/overlays";
 import { Input } from "@/styles/inputs";
 import { Button } from "@/styles/buttons";
 import { Loader } from "@/Components/common/loader";
+import { track } from "@/lib/analytics";
 import { StyledDialogContent, List, EmptyMessage, LoadMoreButton, ComposerForm } from "./styles";
 
 type CommentsDialogProps = {
@@ -34,6 +35,10 @@ export function CommentsDialog({ postId, onOpenChange }: CommentsDialogProps) {
 
   const comments = data?.pages.flatMap((p) => p.data.msg) ?? [];
 
+  useEffect(() => {
+    if (postId !== null) track("comments_opened");
+  }, [postId]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = text.trim();
@@ -44,9 +49,11 @@ export function CommentsDialog({ postId, onOpenChange }: CommentsDialogProps) {
       await addComment({ post_id: postId, user_id: user.id, comment_text: trimmed });
       setText("");
       queryClient.invalidateQueries({ queryKey: ["comments"] });
+      track("comment_created");
       toast.success("Comentário publicado!");
     } catch (e) {
       console.error(e);
+      track("comment_creation_failed");
       toast.error("Erro ao comentar. Tente novamente.");
     } finally {
       setIsSubmitting(false);

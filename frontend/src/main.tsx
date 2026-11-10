@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "sonner";
 import { theme } from "@/styles/theme";
 import { GlobalStyle } from "@/styles/global";
+import { AnalyticsTracker } from "@/Components/analytics-tracker";
 import App from "./App";
 
 const queryClient = new QueryClient({
@@ -22,6 +23,7 @@ createRoot(document.getElementById("root")!).render(
     <GlobalStyle />
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <AnalyticsTracker />
         <Toaster richColors position="top-center" />
         <App />
       </BrowserRouter>

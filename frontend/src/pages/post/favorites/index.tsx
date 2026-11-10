@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { FolderHeart, FolderPlus } from "lucide-react";
@@ -13,6 +13,7 @@ import { Button } from "@/styles/buttons";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/styles/overlays";
 import { hasPlan, useSubscription } from "@/stores/subscription-store";
 import { UpgradePrompt } from "@/Components/subscription/upgrade-prompt";
+import { track } from "@/lib/analytics";
 import {
   Header,
   Eyebrow,
@@ -51,18 +52,28 @@ export default function Favorites() {
   const { mutate: runCreateCollection, isPending: isCreating } = useMutation({
     mutationFn: (name: string) => createCollection(name),
     onSuccess: () => {
+      track("favorite_collection_created");
       queryClient.invalidateQueries({ queryKey: ["favorite-collections"] });
       setNewCollectionName("");
       setCreateOpen(false);
     },
-    onError: () => toast.error("Não foi possível criar a coleção. Tente novamente."),
+    onError: () => {
+      track("favorite_collection_creation_failed");
+      toast.error("Não foi possível criar a coleção. Tente novamente.");
+    },
   });
 
   const { mutate: runTogglePost } = useMutation({
     mutationFn: ({ collectionId, postId }: { collectionId: number; postId: number }) =>
       togglePostInCollection(collectionId, postId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["favorite-collections"] }),
-    onError: () => toast.error("Não foi possível organizar a receita. Tente novamente."),
+    onSuccess: () => {
+      track("recipe_collection_toggled");
+      queryClient.invalidateQueries({ queryKey: ["favorite-collections"] });
+    },
+    onError: () => {
+      track("recipe_collection_toggle_failed");
+      toast.error("Não foi possível organizar a receita. Tente novamente.");
+    },
   });
 
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
@@ -80,6 +91,10 @@ export default function Favorites() {
       ? allPosts
       : allPosts.filter((post) => collections.find((collection) => collection.id === activeCollection)?.postIds.includes(post.postId));
   const sentinelRef = useInfiniteScrollSentinel(() => fetchNextPage(), !!hasNextPage && !isFetchingNextPage);
+
+  useEffect(() => {
+    if (data) track("favorite_recipes_loaded", { recipes_loaded: allPosts.length, page_count: data.pages.length });
+  }, [allPosts.length, data]);
 
   function handleCreateCollection() {
     if (!newCollectionName.trim() || isCreating) return;

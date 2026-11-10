@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Heart, MessageCircle, Bookmark, Clock, Pencil, Trash2, ArrowLeft } from "lucide-react";
 import { getPostById, deletePost } from "@/services/PostService";
 import { useToggleLike, useToggleFavorite } from "@/hooks/usePostMutations";
+import { track } from "@/lib/analytics";
 import { useAuth } from "@/stores/auth-store";
 import { EmptyState } from "@/Components/common/empty-state";
 import { Loader } from "@/Components/common/loader";
@@ -48,6 +49,10 @@ export default function PostDetails() {
   const { mutate: toggleLike, isPending: isLiking } = useToggleLike();
   const { mutate: toggleFavorite, isPending: isFavoriting } = useToggleFavorite();
 
+  useEffect(() => {
+    if (data) track("recipe_viewed", { is_owner: data.user?.id === user?.id });
+  }, [data, user?.id]);
+
   if (isLoading) return <Loader />;
   if (isError || !data) return <EmptyState title="Receita não encontrada" />;
 
@@ -60,6 +65,7 @@ export default function PostDetails() {
     if (!window.confirm("Tem certeza que deseja excluir esta receita?")) return;
     try {
       await deletePost(data!.postId);
+      track("recipe_deleted");
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       toast.success("Post excluído com sucesso!");
       navigate("/home");

@@ -9,6 +9,7 @@ import { useAuth } from "@/stores/auth-store";
 import { Button } from "@/styles/buttons";
 import { Input, Textarea } from "@/styles/inputs";
 import { Loader } from "@/Components/common/loader";
+import { track } from "@/lib/analytics";
 import {
   BackButton,
   Header,
@@ -87,10 +88,12 @@ export default function PostForm() {
 
       if (isEditMode) {
         await updatePost(Number(postId), { title, text, ingredients, image: imageUrl, time });
+        track("recipe_updated", { has_new_image: Boolean(imageFile) });
         toast.success("Receita atualizada com sucesso!");
         queryClient.invalidateQueries({ queryKey: ["post", Number(postId)] });
       } else {
         await createPost({ userId: user.id, title, text, ingredients, image: imageUrl, time, status: true });
+        track("recipe_created", { has_image: true });
         toast.success("Receita publicada com sucesso!");
       }
 

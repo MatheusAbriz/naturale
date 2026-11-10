@@ -7,6 +7,7 @@ import { Button } from "@/styles/buttons";
 import { Input, Label, FieldGroup } from "@/styles/inputs";
 import { AuthLayout } from "@/Components/auth/auth-layout";
 import { isValidEmail } from "@/utils/regexMasks";
+import { track } from "@/lib/analytics";
 import { Text, MutedLink } from "@/styles/texts";
 import recoveryHero from "@/assets/img/auth-recovery-hero.jpg";
 import { Form, RetryButton } from "./styles";
@@ -33,9 +34,11 @@ export default function ForgotPassword() {
       await forgotPassword(email);
       setSentToEmail(email);
       setStep("confirm");
+      track("password_reset_code_requested");
       toast.success("Se o e-mail existir, um código foi enviado.");
     } catch (e) {
       console.error(e);
+      track("password_reset_code_request_failed");
       toast.error("Erro ao solicitar código. Tente novamente.");
     } finally {
       setLoading(false);
@@ -50,10 +53,12 @@ export default function ForgotPassword() {
     try {
       setLoading(true);
       await resetPassword(sentToEmail, code, newPassword);
+      track("password_reset_completed");
       toast.success("Senha redefinida com sucesso! Faça login.");
       navigate("/login");
     } catch (e: any) {
       console.error(e);
+      track("password_reset_failed");
       toast.error(e?.response?.data?.message ?? "Código inválido ou expirado.");
     } finally {
       setLoading(false);

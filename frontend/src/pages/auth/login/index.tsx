@@ -9,6 +9,7 @@ import { Button } from "@/styles/buttons";
 import { Input, Label, FieldGroup } from "@/styles/inputs";
 import { AuthLayout } from "@/Components/auth/auth-layout";
 import { isValidEmail } from "@/utils/regexMasks";
+import { identifyUser, track } from "@/lib/analytics";
 import { Muted, StyledLink } from "@/styles/texts";
 import loginHero from "@/assets/img/auth-login-hero.jpg";
 import { Form, ForgotLink } from "./styles";
@@ -38,10 +39,13 @@ export default function Login() {
         role: (res.data as any)?.type,
       };
       await signIn(payload);
+      identifyUser(payload);
+      track("login_succeeded", { method: "email_password" });
       toast.success("Login realizado com sucesso, seja bem-vindo!");
       navigate("/home");
     } catch (e) {
       console.error(e);
+      track("login_failed", { method: "email_password" });
       toast.error("Login inválido!");
     } finally {
       setLoading(false);

@@ -6,6 +6,7 @@ import { Button } from "@/styles/buttons";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/styles/overlays";
 import { API } from "@/services/api";
 import { PLANS, isDowngrade, type PlanId, useSubscription } from "@/stores/subscription-store";
+import { track } from "@/lib/analytics";
 import {
   Page,
   Hero,
@@ -69,6 +70,7 @@ export default function Plans() {
     };
 
     syncPlan().then((ok) => {
+      track("checkout_returned", { status, subscription_synchronized: ok });
       if (ok) toast.success(messages[status] ?? "Assinatura atualizada!");
       else toast.info(messages[status] ?? "Assinatura atualizada!");
     });
@@ -93,6 +95,7 @@ export default function Plans() {
     pollRef.current = setInterval(async () => {
       const ok = await syncPlan();
       if (ok && useSubscription.getState().plan === pendingCheckout.plan) {
+        track("subscription_activated", { plan: pendingCheckout.plan, source: "polling" });
         stopPolling();
         toast.success("Pagamento aprovado! Bem-vindo ao plano assinado 🎉");
         setPendingCheckout(null);
@@ -108,6 +111,7 @@ export default function Plans() {
   }
 
   function dismissPendingCheckout() {
+    track("checkout_tracking_dismissed", { plan: pendingCheckout?.plan ?? null });
     stopPolling();
     setPendingCheckout(null);
     setLinkModalOpen(false);
@@ -116,14 +120,17 @@ export default function Plans() {
   function selectPlan(plan: PlanId) {
     if (plan === currentPlan) return;
     if (isDowngrade(currentPlan, plan)) {
+      track("plan_change_blocked", { current_plan: currentPlan, selected_plan: plan, reason: "downgrade" });
       toast.error("Para trocar para um plano inferior, cancele sua assinatura atual em Configurações primeiro.");
       return;
     }
     if (plan === "essential") {
       setPlan(plan);
+      track("plan_selected", { plan, current_plan: currentPlan });
       toast.success("Você está no plano Essencial.");
       return;
     }
+    track("plan_selected", { plan, current_plan: currentPlan });
     setSelectedPlan(plan);
   }
 
@@ -135,9 +142,11 @@ export default function Plans() {
       const { initPoint } = response.data;
       if (!initPoint) throw new Error("Sem URL de pagamento");
       setPendingCheckout({ plan: selectedPlan, link: initPoint });
+      track("checkout_link_created", { plan: selectedPlan });
       setLinkModalOpen(true);
       setSelectedPlan(null);
     } catch {
+      track("checkout_link_creation_failed", { plan: selectedPlan });
       toast.error("Não foi possível gerar o link de pagamento. Tente novamente.");
     } finally {
       setIsCreatingLink(false);
@@ -149,9 +158,11 @@ export default function Plans() {
     try {
       await navigator.clipboard.writeText(pendingCheckout.link);
       setCopied(true);
+      track("checkout_link_copied", { plan: pendingCheckout.plan });
       toast.success("Link copiado! Cole em uma aba, faça login no Mercado Pago e finalize o pagamento.");
       setTimeout(() => setCopied(false), 2000);
     } catch {
+      track("checkout_link_copy_failed", { plan: pendingCheckout.plan });
       toast.error("Não foi possível copiar o link. Tente novamente.");
     }
   }

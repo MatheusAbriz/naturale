@@ -1,6 +1,7 @@
 import axios from "axios";
 import { toast } from "sonner";
 import { useAuth } from "@/stores/auth-store";
+import { track } from "@/lib/analytics";
 
 const API_URL = import.meta.env.VITE_APP_BASE_URL;
 
@@ -27,6 +28,7 @@ API.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 403) {
+      track("session_expired");
       await useAuth.getState().logout();
       toast.error("Sessão expirada, faça login novamente!");
     }

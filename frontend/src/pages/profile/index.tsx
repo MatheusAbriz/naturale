@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Heart, MessageCircle, Pencil, Plus, Utensils } from "lucide-react";
@@ -13,6 +13,7 @@ import { Button } from "@/styles/buttons";
 import { useInfiniteScrollSentinel } from "@/lib/useInfiniteScrollSentinel";
 import { PlanBadge } from "@/Components/subscription/plan-badge";
 import { hasPlan, useSubscription } from "@/stores/subscription-store";
+import { track } from "@/lib/analytics";
 import {
   HeroSection,
   Banner,
@@ -76,6 +77,10 @@ export default function Profile() {
 
   const sentinelRef = useInfiniteScrollSentinel(() => fetchNextPage(), Boolean(hasNextPage) && !isFetchingNextPage);
   const posts = postsData?.pages.flatMap((page) => page.data.data) ?? [];
+
+  useEffect(() => {
+    if (profile) track("profile_viewed", { is_own_profile: isOwnProfile });
+  }, [profile, isOwnProfile]);
 
   if (isLoadingProfile) return <Loader />;
   if (isError || !profile) return <EmptyState title="Perfil não encontrado" description="Este perfil não está disponível." />;

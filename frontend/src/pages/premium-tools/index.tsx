@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ClipboardList, Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/styles/buttons";
 import { UpgradePrompt } from "@/Components/subscription/upgrade-prompt";
 import { hasPlan, useSubscription } from "@/stores/subscription-store";
+import { track } from "@/lib/analytics";
 import {
   Header,
   Eyebrow,
@@ -23,6 +25,13 @@ export default function PremiumTools() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const isSearch = pathname === "/advanced-search";
+
+  useEffect(() => {
+    track(hasPlan(plan, "extra") ? "premium_feature_viewed" : "premium_feature_blocked", {
+      feature: isSearch ? "advanced_search" : "shopping_list",
+      plan,
+    });
+  }, [isSearch, plan]);
 
   if (!hasPlan(plan, "extra")) {
     return <UpgradePrompt feature={isSearch ? "Busca avançada" : "Lista de compras automática"} />;
@@ -65,7 +74,7 @@ export default function PremiumTools() {
               </RawSelect>
             </FieldLabel>
           </FieldsGrid>
-          <Button onClick={() => navigate("/home")}>
+          <Button onClick={() => { track("advanced_search_submitted"); navigate("/home"); }}>
             <Search size={16} /> Buscar receitas
           </Button>
         </SearchSection>
@@ -77,7 +86,7 @@ export default function PremiumTools() {
             Ao integrar o backend, ingredientes de receitas favoritas serão agrupados automaticamente, com
             quantidades e itens repetidos unificados.
           </SectionText>
-          <Button style={{ marginTop: 20 }} onClick={() => navigate("/favorites")}>
+          <Button style={{ marginTop: 20 }} onClick={() => { track("shopping_list_favorites_opened"); navigate("/favorites"); }}>
             <SlidersHorizontal size={16} /> Escolher favoritos
           </Button>
         </Section>

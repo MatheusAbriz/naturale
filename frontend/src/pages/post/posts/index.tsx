@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getPosts } from "@/services/PostService";
@@ -7,6 +7,7 @@ import { EmptyState } from "@/Components/common/empty-state";
 import { Loader } from "@/Components/common/loader";
 import { useInfiniteScrollSentinel } from "@/lib/useInfiniteScrollSentinel";
 import { CommentsDialog } from "@/Components/comments/comments-dialog";
+import { track } from "@/lib/analytics";
 import { Header, Eyebrow, Title } from "./styles";
 
 export default function Home() {
@@ -26,6 +27,15 @@ export default function Home() {
 
   const posts = data?.pages.flatMap((page) => page.data.data) ?? [];
   const sentinelRef = useInfiniteScrollSentinel(() => fetchNextPage(), !!hasNextPage && !isFetchingNextPage);
+
+  useEffect(() => {
+    if (!data) return;
+    track("recipe_feed_loaded", {
+      has_search: Boolean(search),
+      recipes_loaded: posts.length,
+      page_count: data.pages.length,
+    });
+  }, [data, posts.length, search]);
 
   if (isLoading) {
     return <Loader />;
