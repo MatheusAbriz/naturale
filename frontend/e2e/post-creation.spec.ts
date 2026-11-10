@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { Buffer } from "node:buffer";
 import { setupAuthenticatedSession, DEFAULT_USER } from "./helpers/auth";
 import { fulfillJson, mockDefaultApis, DEFAULT_POST } from "./helpers/mocks";
 
