@@ -1,6 +1,6 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 import { Buffer } from "node:buffer";
-import { setupAuthenticatedSession, DEFAULT_USER } from "./helpers/auth";
+import { setupAuthenticatedSession, DEFAULT_USER, IS_REAL_API } from "./helpers/auth";
 import { fulfillJson, mockDefaultApis, DEFAULT_POST } from "./helpers/mocks";
 
 test.describe("Fluxo 2 — Criação e edição de receita", () => {
@@ -36,46 +36,54 @@ test.describe("Fluxo 2 — Criação e edição de receita", () => {
   test("criação de receita: upload de imagem, envio do post e redirecionamento para /home", async ({ page }) => {
     let imageUploaded = false;
     let postCreated = false;
+    const testTitle = IS_REAL_API ? `Receita Live ${Date.now()}` : "Bolo de Cenoura Fit";
 
-    await page.route(/\/images$/, async (route) => {
-      imageUploaded = true;
-      await fulfillJson(route, {
-        path: "uploads/posts/receita-fit.jpg",
-        publicUrl: "https://images.unsplash.com/receita-fit.jpg",
-      });
-    });
-
-    await page.route(/\/posts$/, async (route) => {
-      if (route.request().method() === "POST") {
-        postCreated = true;
-        const payload = route.request().postDataJSON();
-        expect(payload).toMatchObject({
-          userId: DEFAULT_USER.id,
-          title: "Bolo de Cenoura Fit",
-          time: "45 min",
-          ingredients: "Cenoura, Ovos, Aveia, Mel",
-          text: "Bata a cenoura com os ovos, adicione aveia e asse por 35 minutos.",
-          image: "https://images.unsplash.com/receita-fit.jpg",
-          status: true,
+    if (!IS_REAL_API) {
+      await page.route(/\/images$/, async (route) => {
+        imageUploaded = true;
+        await fulfillJson(route, {
+          path: "uploads/posts/receita-fit.jpg",
+          publicUrl: "https://images.unsplash.com/receita-fit.jpg",
         });
-        await fulfillJson(route, { message: "Receita criada com sucesso!", postId: 202 });
-      } else {
-        await route.continue();
-      }
-    });
+      });
+
+      await page.route(/\/posts$/, async (route) => {
+        if (route.request().method() === "POST") {
+          postCreated = true;
+          const payload = route.request().postDataJSON();
+          expect(payload).toMatchObject({
+            userId: DEFAULT_USER.id,
+            title: "Bolo de Cenoura Fit",
+            time: "45 min",
+            ingredients: "Cenoura, Ovos, Aveia, Mel",
+            text: "Bata a cenoura com os ovos, adicione aveia e asse por 35 minutos.",
+            image: "https://images.unsplash.com/receita-fit.jpg",
+            status: true,
+          });
+          await fulfillJson(route, { message: "Receita criada com sucesso!", postId: 202 });
+        } else {
+          await route.continue();
+        }
+      });
+    }
 
     await page.goto("/postForm");
+
+    const imageBuffer = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      "base64"
+    );
 
     await page.locator('input[type="file"]').setInputFiles({
       name: "receita.png",
       mimeType: "image/png",
-      buffer: Buffer.from("fake-image-bytes"),
+      buffer: imageBuffer,
     });
 
     const previewImg = page.locator('img[alt="Pré-visualização"]');
     await expect(previewImg).toBeVisible();
 
-    await page.getByPlaceholder("Título").fill("Bolo de Cenoura Fit");
+    await page.getByPlaceholder("Título").fill(testTitle);
     await page.getByPlaceholder("Tempo de preparo (ex: 30 min)").fill("45 min");
     await page.getByPlaceholder("Ingredientes (separados por vírgula)").fill("Cenoura, Ovos, Aveia, Mel");
     await page.getByPlaceholder("Modo de preparo").fill("Bata a cenoura com os ovos, adicione aveia e asse por 35 minutos.");
@@ -85,8 +93,29 @@ test.describe("Fluxo 2 — Criação e edição de receita", () => {
     await expect(page.getByText("Receita publicada com sucesso!")).toBeVisible();
     await expect(page).toHaveURL(/\/home$/);
 
-    expect(imageUploaded).toBe(true);
-    expect(postCreated).toBe(true);
+    if (IS_REAL_API) {
+      const createdPostCard = page.getByText(testTitle).first();
+      await expect(createdPostCard).toBeVisible();
+      await createdPostCard.click();
+
+      await expect(page).toHaveURL(/\/post\/\d+$/);
+      await expect(page.getByRole("heading", { name: testTitle })).toBeVisible();
+
+      page.once("dialog", async (dialog) => {
+        expect(dialog.type()).toBe("confirm");
+        await dialog.accept();
+      });
+
+      const deleteBtn = page.locator("button:has(svg.lucide-trash-2)");
+      await expect(deleteBtn).toBeVisible();
+      await deleteBtn.click();
+
+      await expect(page.getByText("Post excluído com sucesso!")).toBeVisible();
+      await expect(page).toHaveURL(/\/home$/);
+    } else {
+      expect(imageUploaded).toBe(true);
+      expect(postCreated).toBe(true);
+    }
   });
 
   test("modo de edição: pré-popula campos e atualiza sem reenviar imagem quando não alterada", async ({ page }) => {

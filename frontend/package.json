@@ -6,8 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test:e2e": "playwright test",
-    "deploy": "playwright test && yarn build && firebase deploy",
+    "test:e2e": "playwright test --project=chromium --project=webkit",
+    "test:e2e:all": "playwright test",
+    "test:e2e:live": "E2E_USE_REAL_API=true playwright test --project=chromium --project=webkit",
+    "test:e2e:coverage": "COVERAGE=true playwright test --project=chromium --project=webkit",
+    "test:e2e:coverage:live": "COVERAGE=true E2E_USE_REAL_API=true playwright test --project=chromium --project=webkit",
+    "deploy": "yarn test:e2e:live && yarn build && firebase deploy",
     "testing": "firebase emulators:start",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -41,7 +45,9 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
+    "monocart-coverage-reports": "^3.2.1",
     "typescript": "^5.9.3",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "vite-plugin-istanbul": "^9.0.1"
   }
 }

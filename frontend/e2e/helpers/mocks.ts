@@ -1,5 +1,5 @@
 import { Page, Route } from "@playwright/test";
-import { DEFAULT_USER, PlanId } from "./auth";
+import { DEFAULT_USER, IS_REAL_API, PlanId } from "./auth";
 
 export const API_BASE_PATTERN = /https:\/\/api-6yuvneknga-uc\.a\.run\.app/;
 
@@ -61,6 +61,7 @@ export async function mockDefaultApis(page: Page, overrides?: {
   subscription?: Partial<SubscriptionResponse>;
   posts?: typeof DEFAULT_POST[];
 }) {
+  if (IS_REAL_API) return;
   const currentSub: SubscriptionResponse = {
     ...DEFAULT_SUBSCRIPTION,
     ...overrides?.subscription,

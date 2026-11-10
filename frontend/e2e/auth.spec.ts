@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { setupAuthenticatedSession, DEFAULT_USER } from "./helpers/auth";
+import { test, expect } from "./fixtures";
+import { setupAuthenticatedSession, DEFAULT_USER, IS_REAL_API, REAL_USER_CREDENTIALS } from "./helpers/auth";
 import { fulfillJson, mockDefaultApis } from "./helpers/mocks";
 
 test.describe("Fluxo 3 — Login, cadastro e sessão", () => {
@@ -9,10 +9,12 @@ test.describe("Fluxo 3 — Login, cadastro e sessão", () => {
 
   test("login: validação de email e erro de credenciais inválidas (401)", async ({ page }) => {
     let loginCalled = false;
-    await page.route(/\/user\/login$/, async (route) => {
-      loginCalled = true;
-      await fulfillJson(route, { message: "Credenciais inválidas" }, 401);
-    });
+    if (!IS_REAL_API) {
+      await page.route(/\/user\/login$/, async (route) => {
+        loginCalled = true;
+        await fulfillJson(route, { message: "Credenciais inválidas" }, 401);
+      });
+    }
 
     await page.goto("/login");
 
@@ -25,35 +27,45 @@ test.describe("Fluxo 3 — Login, cadastro e sessão", () => {
     await submitBtn.click();
 
     await expect(page.getByText("Preencha os campos corretamente!")).toBeVisible();
-    expect(loginCalled).toBe(false);
+    if (!IS_REAL_API) {
+      expect(loginCalled).toBe(false);
+    }
 
-    await emailInput.fill("user@example.com");
+    await emailInput.fill(IS_REAL_API ? REAL_USER_CREDENTIALS.email : "user@example.com");
+    await passwordInput.fill("senhaErrada123");
     await submitBtn.click();
 
     await expect(page.getByText("Login inválido!")).toBeVisible();
-    expect(loginCalled).toBe(true);
+    if (!IS_REAL_API) {
+      expect(loginCalled).toBe(true);
+    }
   });
 
   test("login caminho feliz: autentica, grava sessão no localStorage e redireciona para /home", async ({ page }) => {
-    await page.route(/\/user\/login$/, async (route) => {
-      const data = route.request().postDataJSON();
-      expect(data).toEqual({ email: "matheus@teste.com", password: "password123" });
+    const targetEmail = IS_REAL_API ? REAL_USER_CREDENTIALS.email : "matheus@teste.com";
+    const targetPassword = IS_REAL_API ? REAL_USER_CREDENTIALS.password : "password123";
 
-      await fulfillJson(route, {
-        id: DEFAULT_USER.id,
-        name: DEFAULT_USER.name,
-        email: DEFAULT_USER.email,
-        username: DEFAULT_USER.username,
-        type: "USER",
-        avatar: DEFAULT_USER.avatar,
-        token: "fake-jwt-token-login-test",
+    if (!IS_REAL_API) {
+      await page.route(/\/user\/login$/, async (route) => {
+        const data = route.request().postDataJSON();
+        expect(data).toEqual({ email: targetEmail, password: targetPassword });
+
+        await fulfillJson(route, {
+          id: DEFAULT_USER.id,
+          name: DEFAULT_USER.name,
+          email: DEFAULT_USER.email,
+          username: DEFAULT_USER.username,
+          type: "USER",
+          avatar: DEFAULT_USER.avatar,
+          token: "fake-jwt-token-login-test",
+        });
       });
-    });
+    }
 
     await page.goto("/login");
 
-    await page.locator("#email").fill("matheus@teste.com");
-    await page.locator("#password").fill("password123");
+    await page.locator("#email").fill(targetEmail);
+    await page.locator("#password").fill(targetPassword);
     await page.getByRole("button", { name: "Entrar" }).click();
 
     await expect(page.getByText("Login realizado com sucesso, seja bem-vindo!")).toBeVisible();
@@ -63,7 +75,7 @@ test.describe("Fluxo 3 — Login, cadastro e sessão", () => {
     expect(authStorage).toBeTruthy();
     const parsed = JSON.parse(authStorage!);
     expect(parsed.state.isAuthenticated).toBe(true);
-    expect(parsed.state.user.email).toBe("matheus@teste.com");
+    expect(parsed.state.user.email).toBe(targetEmail);
   });
 
   test("persistência de sessão: acessa /home direto com dados no localStorage sem redirecionar para /login", async ({ page }) => {
@@ -87,7 +99,7 @@ test.describe("Fluxo 3 — Login, cadastro e sessão", () => {
     await setupAuthenticatedSession(page);
     await page.goto("/home");
 
-    const avatarButton = page.locator("header button:has(img)");
+    const avatarButton = page.locator("header button").last();
     await expect(avatarButton).toBeVisible();
     await avatarButton.click();
 

@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 import fs from "fs";
+import dotenv from "dotenv";
 
+dotenv.config();
 const BRAVE_PATH = "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser";
 const CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 
@@ -18,12 +20,12 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: [["list"], ["html", { open: "never" }]],
+  globalSetup: "./e2e/coverage/global-setup.ts",
+  globalTeardown: "./e2e/coverage/global-teardown.ts",
   use: {
     baseURL: "http://localhost:5173",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
-    permissions: ["clipboard-read", "clipboard-write"],
-    ...(executablePath ? { launchOptions: { executablePath } } : {}),
   },
 
   projects: [
@@ -34,12 +36,23 @@ export default defineConfig({
         ...(executablePath ? { launchOptions: { executablePath } } : {}),
       },
     },
+    {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+    },
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+    },
   ],
 
   webServer: {
     command: "yarn dev",
     url: "http://localhost:5173",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: !process.env.CI && process.env.COVERAGE !== "true",
     timeout: 120 * 1000,
+    env: {
+      VITE_COVERAGE: process.env.COVERAGE === "true" ? "true" : "false",
+    },
   },
 });

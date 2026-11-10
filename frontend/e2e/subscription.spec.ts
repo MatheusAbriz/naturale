@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { setupAuthenticatedSession } from "./helpers/auth";
+import { test, expect } from "./fixtures";
+import { setupAuthenticatedSession, IS_REAL_API } from "./helpers/auth";
 import { fulfillJson, mockDefaultApis } from "./helpers/mocks";
 
 test.describe("Fluxo 1 — Assinatura de plano (Mercado Pago + polling)", () => {
@@ -22,30 +22,32 @@ test.describe("Fluxo 1 — Assinatura de plano (Mercado Pago + polling)", () => 
     let getMeCalls = 0;
     const checkoutInitPoint = "https://www.mercadopago.com.br/checkout/extra-test-123";
 
-    await page.route(/\/subscription\/me$/, async (route) => {
-      if (route.request().method() === "GET") {
-        getMeCalls++;
-        const effectivePlan = getMeCalls >= 3 ? "extra" : "essential";
-        await fulfillJson(route, {
-          plan: effectivePlan,
-          status: effectivePlan === "extra" ? "active" : null,
-          paymentMethod: effectivePlan === "extra" ? "credit_card" : null,
-          currentPeriodEnd: effectivePlan === "extra" ? "2026-12-31T23:59:59Z" : null,
-          effectivePlan,
-        });
-      } else {
-        await route.continue();
-      }
-    });
-
-    await page.route(/\/subscription\/checkout$/, async (route) => {
-      const payload = route.request().postDataJSON();
-      expect(payload).toEqual({ plan: "extra" });
-      await fulfillJson(route, {
-        preferenceId: "pref_extra_999",
-        initPoint: checkoutInitPoint,
+    if (!IS_REAL_API) {
+      await page.route(/\/subscription\/me$/, async (route) => {
+        if (route.request().method() === "GET") {
+          getMeCalls++;
+          const effectivePlan = getMeCalls >= 3 ? "extra" : "essential";
+          await fulfillJson(route, {
+            plan: effectivePlan,
+            status: effectivePlan === "extra" ? "active" : null,
+            paymentMethod: effectivePlan === "extra" ? "credit_card" : null,
+            currentPeriodEnd: effectivePlan === "extra" ? "2026-12-31T23:59:59Z" : null,
+            effectivePlan,
+          });
+        } else {
+          await route.continue();
+        }
       });
-    });
+
+      await page.route(/\/subscription\/checkout$/, async (route) => {
+        const payload = route.request().postDataJSON();
+        expect(payload).toEqual({ plan: "extra" });
+        await fulfillJson(route, {
+          preferenceId: "pref_extra_999",
+          initPoint: checkoutInitPoint,
+        });
+      });
+    }
 
     await page.goto("/plans");
 
@@ -53,11 +55,12 @@ test.describe("Fluxo 1 — Assinatura de plano (Mercado Pago + polling)", () => 
     await expect(page.getByText("Seu plano")).toBeVisible();
     await expect(page.getByRole("button", { name: "Plano atual" })).toBeDisabled();
 
-    const chooseExtraBtn = page.getByRole("button", { name: "Escolher Extra" });
-    await expect(chooseExtraBtn).toBeEnabled();
-    await chooseExtraBtn.click();
+    const planToChoose = IS_REAL_API ? "Deluxe" : "Extra";
+    const choosePlanBtn = page.getByRole("button", { name: `Escolher ${planToChoose}` });
+    await expect(choosePlanBtn).toBeEnabled();
+    await choosePlanBtn.click();
 
-    await expect(page.getByRole("heading", { name: "Confirmar plano Extra" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: `Confirmar plano ${planToChoose}` })).toBeVisible();
     const generateLinkBtn = page.getByRole("button", { name: "Gerar link de pagamento" });
     await expect(generateLinkBtn).toBeVisible();
 
@@ -65,7 +68,11 @@ test.describe("Fluxo 1 — Assinatura de plano (Mercado Pago + polling)", () => 
 
     await expect(page.getByRole("heading", { name: "Falta pouco!" })).toBeVisible();
     const linkInput = page.locator("input[readonly]");
-    await expect(linkInput).toHaveValue(checkoutInitPoint);
+    if (IS_REAL_API) {
+      await expect(linkInput).toHaveValue(/mercadopago\.com\.br/);
+    } else {
+      await expect(linkInput).toHaveValue(checkoutInitPoint);
+    }
 
     const copyBtn = page.getByRole("button", { name: /Copiar link de pagamento/i });
     await expect(copyBtn).toBeVisible();
@@ -77,18 +84,24 @@ test.describe("Fluxo 1 — Assinatura de plano (Mercado Pago + polling)", () => 
     await closeBtn.click();
     await expect(page.getByRole("heading", { name: "Falta pouco!" })).not.toBeVisible();
 
-    const banner = page.getByText("Pagamento do plano Extra em andamento");
+    const banner = page.getByText(`Pagamento do plano ${planToChoose} em andamento`);
     await expect(banner).toBeVisible();
 
     const viewLinkBtn = page.getByRole("button", { name: "Ver link" });
     await expect(viewLinkBtn).toBeVisible();
 
-    await expect(page.getByText("Pagamento aprovado! Bem-vindo ao plano assinado")).toBeVisible({ timeout: 25000 });
-    await expect(banner).not.toBeVisible();
+    if (IS_REAL_API) {
+      const dismissBtn = page.getByRole("button", { name: "Dispensar" });
+      await dismissBtn.click();
+      await expect(banner).not.toBeVisible();
+    } else {
+      await expect(page.getByText("Pagamento aprovado! Bem-vindo ao plano assinado")).toBeVisible({ timeout: 25000 });
+      await expect(banner).not.toBeVisible();
 
-    const extraCard = page.locator("article", { hasText: "Extra" });
-    await expect(extraCard.getByText("Seu plano")).toBeVisible();
-    await expect(extraCard.getByRole("button", { name: "Plano atual" })).toBeDisabled();
+      const extraCard = page.locator("article", { hasText: "Extra" });
+      await expect(extraCard.getByText("Seu plano")).toBeVisible();
+      await expect(extraCard.getByRole("button", { name: "Plano atual" })).toBeDisabled();
+    }
   });
 
   test("botão 'X' do banner cancela o polling imediatamente", async ({ page }) => {
