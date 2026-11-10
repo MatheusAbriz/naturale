@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { register as registerUser } from "@/services/AuthService";
+import { register as registerUser, updateAvatar } from "@/services/AuthService";
 import { uploadImage } from "@/services/ImageService";
 import { useAuth } from "@/stores/auth-store";
 import type { User, UserDTO } from "@/types/auth";
@@ -10,6 +10,7 @@ import { Button } from "@/styles/buttons";
 import { Input, Label, FieldGroup } from "@/styles/inputs";
 import { AuthLayout } from "@/Components/auth/auth-layout";
 import { formatMaskCPF, formatMaskCellphone, isValidCPF, isValidEmail, isValidPhone } from "@/utils/regexMasks";
+import { identifyUser, track } from "@/lib/analytics";
 import registerHero from "@/assets/img/auth-register-hero.jpg";
 import { Muted, StyledLink } from "@/styles/texts";
 import { Form, Column, AvatarPicker, AvatarCircle, AvatarImg, AvatarPlaceholder, HiddenFileInput } from "./styles";
@@ -29,6 +30,7 @@ export default function Register() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>("");
   const signIn = useAuth((state) => state.signIn);
+  const updateUser = useAuth((state) => state.updateUser);
   const navigate = useNavigate();
 
   function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -47,8 +49,10 @@ export default function Register() {
 
     try {
       setLoading(true);
-      const avatarUrl = avatarFile ? await uploadImage(avatarFile, "usuarios") : "";
 
+      // A imagem só pode ser enviada depois que o usuário existir e tivermos um
+      // token (o endpoint de imagens é protegido): cria a conta primeiro, com
+      // avatar vazio, e só então envia a foto escolhida.
       const payload: UserDTO = {
         name: values.name,
         username: values.username,
@@ -57,7 +61,7 @@ export default function Register() {
         email: values.email,
         password: values.password,
         type: "USER",
-        avatar: avatarUrl,
+        avatar: "",
       };
 
       const res = await registerUser(payload);
@@ -67,11 +71,26 @@ export default function Register() {
       };
 
       await signIn(user);
+
+      if (avatarFile) {
+        try {
+          const avatarUrl = await uploadImage(avatarFile, "usuarios");
+          await updateAvatar(user.id, avatarUrl);
+          updateUser({ avatar: avatarUrl });
+        } catch (avatarError) {
+          console.error("Falha ao enviar avatar no cadastro:", avatarError);
+          toast.error("Conta criada, mas não foi possível enviar sua foto. Você pode adicionar depois em Configurações.");
+        }
+      }
+
+      identifyUser(user);
+      track("signup_completed", { has_avatar: Boolean(avatarFile) });
       toast.success("Cadastro realizado com sucesso!");
       navigate("/home");
     } catch (e: any) {
       console.error(e);
-      toast.error(e?.response?.data ?? "Erro ao realizar cadastro.");
+      track("signup_failed", { has_avatar: Boolean(avatarFile) });
+      toast.error(e?.response?.data?.message ?? "Erro ao realizar cadastro.");
     } finally {
       setLoading(false);
     }
