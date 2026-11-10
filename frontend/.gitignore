@@ -11,11 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
-<<<<<<< HEAD
-#.env tirando pra desenvolvimento
-=======
-#.env
->>>>>>> MatheusAbriz
+
+playwright-report/
+test-results/
 
 # Editor directories and files
 .vscode/*

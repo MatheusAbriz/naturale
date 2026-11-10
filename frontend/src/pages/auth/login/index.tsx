@@ -56,7 +56,7 @@ export default function Login() {
       title="Entre no seu ritmo."
       description="Acesse suas receitas favoritas e acompanhe a comunidade Naturale."
     >
-      <Form $gap={20} onSubmit={handleSubmit(onSubmit)}>
+      <Form $gap={20} noValidate onSubmit={handleSubmit(onSubmit)}>
         <FieldGroup>
           <Label htmlFor="email">E-mail</Label>
           <Input id="email" type="email" placeholder="exemplo@gmail.com" {...register("email")} />
