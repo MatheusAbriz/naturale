@@ -21,12 +21,13 @@ router.get('/posts', verifyToken, (req, res) => {
   const page = Number(req.query.page) || 1;
   const limit = Math.min(Number(req.query.limit) || 10, 20);
   const search = req.query.search?.toString();
+  const feedMode = req.query.feed === 'following' ? 'following' : 'discover';
 
   const filters = { page, limit };
 
   const userId = req.user?.id;
 
-  getAll(filters, userId!, search).then(result => {
+  getAll(filters, userId!, search, feedMode).then(result => {
     if (result) return res.status(200).json(result);
     return res.status(400).send("Erro!");
   });

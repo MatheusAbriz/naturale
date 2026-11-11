@@ -54,7 +54,7 @@ router.get('/user/:id', async (req: Request, res: Response, next: NextFunction) 
 // Estatísticas públicas do perfil (posts, curtidas e comentários recebidos)
 router.get('/user/:id/stats', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const stats = await getStats(req.params.id);
+        const stats = await getStats(req.params.id, req.user!.id);
         if (stats) return res.status(200).json(stats);
         return res.status(404).send("Erro! Não foi possível achar o usuário");
     } catch (error) {

@@ -30,7 +30,8 @@ export async function get(filters: Filters, userId: number | string) {
           'name', u.name,
           'username', u.username,
           'avatar', u.avatar,
-          'type', u.type
+          'type', u.type,
+          'isFollowedByMe', EXISTS(SELECT 1 FROM follows fw WHERE fw.follower_id = ${userId} AND fw.followed_id = u.id)
         ) AS user
       FROM favorites f
       INNER JOIN post p ON f.post_id = p.id

@@ -46,8 +46,8 @@ export async function getPublicById(id: string | number) {
     }
 }
 
-// Estatísticas públicas do perfil (posts, curtidas e comentários recebidos)
-export async function getStats(id: string | number) {
+// Estatísticas públicas do perfil (posts, curtidas, comentários recebidos e seguidores)
+export async function getStats(id: string | number, viewerId: string | number) {
     try {
         const results = await pool`
             SELECT
@@ -56,7 +56,12 @@ export async function getStats(id: string | number) {
                 (SELECT COUNT(*) FROM comments c
                     INNER JOIN post p ON p.id = c.post_id
                     WHERE p.user_id = ${id} AND c.status = TRUE
-                )::int AS "commentsReceived"
+                )::int AS "commentsReceived",
+                (SELECT COUNT(*) FROM follows WHERE followed_id = ${id})::int AS "followersCount",
+                (SELECT COUNT(*) FROM follows WHERE follower_id = ${id})::int AS "followingCount",
+                EXISTS(
+                    SELECT 1 FROM follows WHERE follower_id = ${viewerId} AND followed_id = ${id}
+                ) AS "isFollowedByMe"
         `;
 
         return results[0];

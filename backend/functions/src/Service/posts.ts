@@ -2,15 +2,16 @@ import pool from "../Model/pool.js";
 import { Filters } from '../types/shared/index.js';
 
 // Ler todos os posts
-export async function getAll(filters: Filters, userId: string | number, search?: string) {
+export async function getAll(filters: Filters, userId: string | number, search?: string, feedMode: 'discover' | 'following' = 'discover') {
   const { page, limit } = filters;
   const offSet = (page - 1) * limit;
 
   try {
     const hasSearch = search && search.trim().length > 0;
+    const isFollowingFeed = !hasSearch && feedMode === 'following';
 
-    const results = hasSearch ? await pool` 
-      SELECT 
+    const results = hasSearch ? await pool`
+      SELECT
         p.id AS "postId",
         p.title,
         p.text,
@@ -27,15 +28,16 @@ export async function getAll(filters: Filters, userId: string | number, search?:
           'name', u.name,
           'username', u.username,
           'avatar', u.avatar,
-          'type', u.type
+          'type', u.type,
+          'isFollowedByMe', EXISTS(SELECT 1 FROM follows fw WHERE fw.follower_id = ${userId} AND fw.followed_id = u.id)
         ) AS user
       FROM post p
       INNER JOIN users u ON u.id = p.user_id
       WHERE p.title ILIKE ${'%' + search + '%'}
       ORDER BY p.id DESC
       LIMIT ${limit} OFFSET ${offSet}
-    ` : await pool`
-      SELECT 
+    ` : isFollowingFeed ? await pool`
+      SELECT
         p.id AS "postId",
         p.title,
         p.text,
@@ -52,7 +54,34 @@ export async function getAll(filters: Filters, userId: string | number, search?:
           'name', u.name,
           'username', u.username,
           'avatar', u.avatar,
-          'type', u.type
+          'type', u.type,
+          'isFollowedByMe', EXISTS(SELECT 1 FROM follows fw WHERE fw.follower_id = ${userId} AND fw.followed_id = u.id)
+        ) AS user
+      FROM post p
+      INNER JOIN users u ON u.id = p.user_id
+      INNER JOIN follows fo ON fo.followed_id = p.user_id AND fo.follower_id = ${userId}
+      ORDER BY p.id DESC
+      LIMIT ${limit} OFFSET ${offSet}
+    ` : await pool`
+      SELECT
+        p.id AS "postId",
+        p.title,
+        p.text,
+        p.ingredients,
+        p.image,
+        p.time,
+        p.likes_count,
+        p.status,
+        (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id AND c.status = TRUE) AS "commentCount",
+        EXISTS(SELECT 1 FROM likes l WHERE l.user_id = ${userId} AND l.post_id = p.id) AS "isLiked",
+        EXISTS(SELECT 1 FROM favorites f WHERE f.user_id = ${userId} AND f.post_id = p.id) AS "isFavorited",
+        json_build_object(
+          'id', u.id,
+          'name', u.name,
+          'username', u.username,
+          'avatar', u.avatar,
+          'type', u.type,
+          'isFollowedByMe', EXISTS(SELECT 1 FROM follows fw WHERE fw.follower_id = ${userId} AND fw.followed_id = u.id)
         ) AS user
       FROM post p
       INNER JOIN users u ON u.id = p.user_id
@@ -62,28 +91,30 @@ export async function getAll(filters: Filters, userId: string | number, search?:
 
     const totalResult = hasSearch
       ? await pool`
-          SELECT COUNT(*) 
+          SELECT COUNT(*)
           FROM post p
           WHERE p.title ILIKE ${'%' + search + '%'}
         `
-      : await pool`
-          SELECT COUNT(*) FROM post
-        `;
+      : isFollowingFeed
+        ? await pool`
+            SELECT COUNT(*)
+            FROM post p
+            INNER JOIN follows fo ON fo.followed_id = p.user_id AND fo.follower_id = ${userId}
+          `
+        : await pool`
+            SELECT COUNT(*) FROM post
+          `;
     const total = Number(totalResult[0].count);
 
-    if (results.length > 0) {
-      return {
-        data: results,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit)
-        }
+    return {
+      data: results,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
       }
-    }
-
-    return false;
+    };
   } catch (err) {
     console.error("Erro ao ler posts:", err);
     return false;
@@ -114,7 +145,8 @@ export async function getByUserId(authorId: string | number, viewerId: string | 
           'name', u.name,
           'username', u.username,
           'avatar', u.avatar,
-          'type', u.type
+          'type', u.type,
+          'isFollowedByMe', EXISTS(SELECT 1 FROM follows fw WHERE fw.follower_id = ${viewerId} AND fw.followed_id = u.id)
         ) AS user
       FROM post p
       INNER JOIN users u ON u.id = p.user_id
@@ -281,7 +313,8 @@ export async function getById(
           'name', u.name,
           'username', u.username,
           'avatar', u.avatar,
-          'type', u.type
+          'type', u.type,
+          'isFollowedByMe', EXISTS(SELECT 1 FROM follows fw WHERE fw.follower_id = ${userId} AND fw.followed_id = u.id)
         ) AS user
 
       FROM post p
