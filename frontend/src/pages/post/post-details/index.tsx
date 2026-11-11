@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Heart, MessageCircle, Bookmark, Clock, Pencil, Trash2, ArrowLeft } from "lucide-react";
@@ -38,7 +38,9 @@ export default function PostDetails() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [searchParams] = useSearchParams();
+  const highlightCommentId = Number(searchParams.get("commentId")) || null;
+  const [commentsOpen, setCommentsOpen] = useState(Boolean(highlightCommentId));
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["post", Number(id)],
@@ -148,7 +150,11 @@ export default function PostDetails() {
         Ver comentários ({data.commentCount ?? 0})
       </Button>
 
-      <CommentsDialog postId={commentsOpen ? data.postId : null} onOpenChange={setCommentsOpen} />
+      <CommentsDialog
+        postId={commentsOpen ? data.postId : null}
+        onOpenChange={setCommentsOpen}
+        highlightCommentId={highlightCommentId}
+      />
     </div>
   );
 }

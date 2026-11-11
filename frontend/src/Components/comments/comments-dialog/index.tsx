@@ -14,20 +14,23 @@ import { StyledDialogContent, List, EmptyMessage, LoadMoreButton, ComposerForm }
 type CommentsDialogProps = {
   postId: number | null;
   onOpenChange: (open: boolean) => void;
+  highlightCommentId?: number | null;
 };
 
-export function CommentsDialog({ postId, onOpenChange }: CommentsDialogProps) {
+export function CommentsDialog({ postId, onOpenChange, highlightCommentId }: CommentsDialogProps) {
   const { user } = useAuth();
   const [text, setText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
 
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
-    queryKey: ["comments", postId],
-    queryFn: ({ pageParam = 1 }) => getComments(postId!, pageParam),
+    queryKey: ["comments", postId, highlightCommentId ? "deep-link" : "default"],
+    queryFn: ({ pageParam = 1 }) =>
+      highlightCommentId ? getComments(postId!, 1, true) : getComments(postId!, pageParam),
     enabled: postId !== null,
     initialPageParam: 1,
     getNextPageParam: (last) => {
+      if (highlightCommentId) return undefined;
       const { page, totalPages } = last.data.pagination;
       return page < totalPages ? page + 1 : undefined;
     },
@@ -38,6 +41,24 @@ export function CommentsDialog({ postId, onOpenChange }: CommentsDialogProps) {
   useEffect(() => {
     if (postId !== null) track("comments_opened");
   }, [postId]);
+
+  useEffect(() => {
+    if (!highlightCommentId || isLoading) return;
+
+    const el = document.getElementById(`comment-${highlightCommentId}`);
+    if (!el) {
+      toast.error("Comentário não encontrado.");
+      return;
+    }
+
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.style.transition = "background-color 1.5s ease";
+    el.style.backgroundColor = "#fef3c7";
+    const timeout = setTimeout(() => {
+      el.style.backgroundColor = "transparent";
+    }, 1800);
+    return () => clearTimeout(timeout);
+  }, [highlightCommentId, isLoading, comments.length]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

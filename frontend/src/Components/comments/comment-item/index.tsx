@@ -116,7 +116,7 @@ export function CommentItem({ comment, postId, currentUserId, level = 0 }: Comme
   }
 
   return (
-    <Wrap $level={level}>
+    <Wrap $level={level} id={`comment-${comment.id}`}>
       <Row>
         <Avatar src={comment.avatar || FALLBACK_AVATAR} alt={comment.username} />
         <Content>

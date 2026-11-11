@@ -1,9 +1,9 @@
 import { API } from "./api";
 import type { CommentDTO, CreateComment, CreateReply, CommentsResponse } from "@/types/comments";
 
-export function getComments(postId: number | string, page = 1) {
+export function getComments(postId: number | string, page = 1, all = false) {
   return API.get<CommentsResponse>(`/comments/post/${postId}`, {
-    params: { page, limit: 10 },
+    params: all ? { all: true } : { page, limit: 10 },
   });
 }
 

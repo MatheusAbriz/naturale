@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/styles/overlays";
+import { NotificationBell } from "@/Components/notifications/notification-bell";
 import {
   HeaderBar,
   Inner,
@@ -86,6 +87,8 @@ export function Header() {
             <SearchIcon size={16} />
           </Button>
         </SearchForm>
+
+        <NotificationBell />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
