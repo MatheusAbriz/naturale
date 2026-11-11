@@ -1,5 +1,6 @@
 import pool from "../Model/pool.js";
 import { Filters } from "../types/shared/index.js";
+import { createNotification } from "./notifications.js";
 
 export async function followUser(followerId: number | string, followedId: number | string) {
     if (Number(followerId) === Number(followedId)) {
@@ -7,11 +8,17 @@ export async function followUser(followerId: number | string, followedId: number
     }
 
     try {
-        await pool`
+        const inserted = await pool`
             INSERT INTO follows (follower_id, followed_id)
             VALUES (${followerId}, ${followedId})
             ON CONFLICT (follower_id, followed_id) DO NOTHING
+            RETURNING follower_id
         `;
+
+        if (inserted.length > 0) {
+            await createNotification({ type: "follow", followedId, actorId: followerId });
+        }
+
         return { status: true, msg: "Agora você está seguindo este usuário" };
     } catch (err) {
         console.error("Erro ao seguir usuário:", err);

@@ -10,14 +10,16 @@ import {
     deleteReply
 } from '../Service/comments.js';
 import { verifyToken } from '../middlewares/authMiddleware.js';
+import { createNotification } from '../Service/notifications.js';
 
 const router = express.Router();
 router.use(express.json());
 
 // Ler todos os comentários de um post
 router.get('/comments/post/:postId', verifyToken, (req, res) => {
-    const page = Number(req.query.page) || 1;
-    const limit = Math.min(Number(req.query.limit) || 10, 20);
+    const fetchAll = req.query.all === 'true';
+    const page = fetchAll ? 1 : (Number(req.query.page) || 1);
+    const limit = fetchAll ? 1000 : Math.min(Number(req.query.limit) || 10, 20);
     const filters = { page, limit };
 
     getByPost(req.params.postId, filters).then(result => {
@@ -39,6 +41,7 @@ router.post('/comments', verifyToken, (req, res) => {
 
     add(userIdFromToken!, post_id, comment_text).then(result => {
         if (result.status) {
+            createNotification({ type: 'comment', postId: post_id, actorId: userIdFromToken!, commentId: (result.msg as { id: number }).id });
             return res.status(201).json(result.msg);
         }
         return res.status(400).send(result.msg);
@@ -88,6 +91,7 @@ router.post('/comments/reply', verifyToken, (req, res) => {
     addReply(post_id, userIdFromToken!, comment_text, parent_comment_id)
         .then(result => {
             if (result.status) {
+                createNotification({ type: 'comment', postId: post_id, actorId: userIdFromToken!, commentId: (result.msg as { id: number }).id });
                 return res.status(201).json(result.msg);
             }
             return res.status(400).send(result.msg);

@@ -1,5 +1,6 @@
 import pool from "../Model/pool.js";
 import { Filters } from '../types/shared/index.js';
+import { createNotification } from './notifications.js';
 
 // Ler todos os posts
 export async function getAll(filters: Filters, userId: string | number, search?: string, feedMode: 'discover' | 'following' = 'discover') {
@@ -204,11 +205,15 @@ export async function toggleLike(userId: string | number, postId: string | numbe
     `;
 
     const results = await pool`
-      UPDATE post 
-      SET likes_count = likes_count + 1 
+      UPDATE post
+      SET likes_count = likes_count + 1
       WHERE id = ${postId}
       RETURNING id
     `;
+
+    if (results.length > 0) {
+      await createNotification({ type: "like", postId, actorId: userId });
+    }
 
     return results.length > 0;
   }catch(err){

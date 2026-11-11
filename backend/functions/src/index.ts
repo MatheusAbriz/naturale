@@ -17,6 +17,7 @@ import chatbot from './Controller/chatbot.js';
 import assinaturas from './Controller/subscriptions.js';
 import colecoes from './Controller/collections.js';
 import seguidores from './Controller/follows.js';
+import notificacoes from './Controller/notifications.js';
 
 admin.initializeApp();
 const app = express();
@@ -53,6 +54,7 @@ app.use(chatbot);
 app.use(assinaturas);
 app.use(colecoes);
 app.use(seguidores);
+app.use(notificacoes);
 
 setGlobalOptions({maxInstances: 10});
 
