@@ -59,7 +59,8 @@ export function NotificationBell() {
   const { data: unread } = useQuery({
     queryKey: ["notifications-unread-count"],
     queryFn: async () => (await getUnreadCount()).data,
-    refetchInterval: 15000,
+    // refetchInterval: 15000,
+    refetchInterval: 3600
   });
 
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
