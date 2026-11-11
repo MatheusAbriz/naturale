@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { Heart, MessageCircle, Pencil, Plus, Utensils } from "lucide-react";
+import { Heart, MessageCircle, Pencil, Plus, UserCheck, Users, Utensils } from "lucide-react";
 import { getPublicProfile, getUserStats } from "@/services/AuthService";
 import { getPostsByUser } from "@/services/PostService";
 import { useAuth } from "@/stores/auth-store";
 import { PostCard } from "@/Components/post/post-card";
 import { CommentsDialog } from "@/Components/comments/comments-dialog";
+import { FollowButton } from "@/Components/follow/follow-button";
+import { FollowListDialog, type FollowListMode } from "@/Components/follow/follow-list-dialog";
 import { EmptyState } from "@/Components/common/empty-state";
 import { Loader } from "@/Components/common/loader";
 import { Button } from "@/styles/buttons";
@@ -26,6 +28,7 @@ import {
   Username,
   MetricsGrid,
   MetricItem,
+  ClickableMetricItem,
   MetricValue,
   MetricIcon,
   MetricLabel,
@@ -50,6 +53,7 @@ export default function Profile() {
   const isOwnProfile = id === "me" || Number(id) === user?.id;
   const userId = isOwnProfile ? user?.id : Number(id);
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
+  const [followListMode, setFollowListMode] = useState<FollowListMode>(null);
   const plan = useSubscription((state) => state.plan);
 
   const { data: profile, isLoading: isLoadingProfile, isError } = useQuery({
@@ -89,6 +93,8 @@ export default function Profile() {
     { label: "receitas", value: stats?.postCount ?? posts.length, icon: Utensils },
     { label: "curtidas", value: stats?.likesReceived ?? 0, icon: Heart },
     { label: "comentários", value: stats?.commentsReceived ?? 0, icon: MessageCircle },
+    { label: "seguidores", value: stats?.followersCount ?? 0, icon: Users, onClick: () => setFollowListMode("followers") },
+    { label: "seguindo", value: stats?.followingCount ?? 0, icon: UserCheck, onClick: () => setFollowListMode("following") },
   ];
 
   return (
@@ -98,10 +104,12 @@ export default function Profile() {
         <HeroContent>
           <AvatarRow>
             <Avatar src={profile.avatar || FALLBACK_AVATAR} alt={profile.name} />
-            {isOwnProfile && (
+            {isOwnProfile ? (
               <Button $variant="outline" onClick={() => navigate("/settings")} style={{ marginBottom: 4 }}>
                 <Pencil size={16} /> Editar perfil
               </Button>
+            ) : (
+              stats && <FollowButton userId={userId!} isFollowing={Boolean(stats.isFollowedByMe)} />
             )}
           </AvatarRow>
           <NameBlock>
@@ -112,15 +120,18 @@ export default function Profile() {
             <Username>@{profile.username}</Username>
           </NameBlock>
           <MetricsGrid>
-            {metrics.map(({ label, value, icon: Icon }) => (
-              <MetricItem key={label}>
-                <MetricValue>
-                  <MetricIcon><Icon size={14} color="#2f6b54" /></MetricIcon>
-                  {value}
-                </MetricValue>
-                <MetricLabel>{label}</MetricLabel>
-              </MetricItem>
-            ))}
+            {metrics.map(({ label, value, icon: Icon, onClick }) => {
+              const Item = onClick ? ClickableMetricItem : MetricItem;
+              return (
+                <Item key={label} onClick={onClick}>
+                  <MetricValue>
+                    <MetricIcon><Icon size={14} color="#2f6b54" /></MetricIcon>
+                    {value}
+                  </MetricValue>
+                  <MetricLabel>{label}</MetricLabel>
+                </Item>
+              );
+            })}
           </MetricsGrid>
         </HeroContent>
       </HeroSection>
@@ -166,6 +177,11 @@ export default function Profile() {
       <div ref={sentinelRef} />
       {isFetchingNextPage && <Loader size="sm" padY={16} />}
       <CommentsDialog postId={selectedPostId} onOpenChange={(open) => !open && setSelectedPostId(null)} />
+      <FollowListDialog
+        userId={userId ?? null}
+        mode={followListMode}
+        onOpenChange={(open) => !open && setFollowListMode(null)}
+      />
     </div>
   );
 }

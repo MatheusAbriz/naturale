@@ -17,3 +17,9 @@ export const Title = styled.h1`
   font-weight: 800;
   letter-spacing: -0.01em;
 `;
+
+export const FeedToggle = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+`;

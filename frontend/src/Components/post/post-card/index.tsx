@@ -1,11 +1,14 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Bookmark, Clock } from "lucide-react";
 import type { Posts } from "@/types/posts";
 import { useToggleLike, useToggleFavorite } from "@/hooks/usePostMutations";
+import { useAuth } from "@/stores/auth-store";
+import { FollowButton } from "@/Components/follow/follow-button";
 import {
   Card,
   AuthorRow,
+  AuthorInfo,
   Avatar,
   Username,
   AuthorSubtitle,
@@ -34,18 +37,34 @@ type PostCardProps = {
 
 export function PostCard({ post, onOpenComments, footer }: PostCardProps) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const textRef = useRef<HTMLParagraphElement>(null);
   const { mutate: toggleLike, isPending: isLiking } = useToggleLike();
   const { mutate: toggleFavorite, isPending: isFavoriting } = useToggleFavorite();
+  const isOwnPost = post.user?.id === user?.id;
+
+  useEffect(() => {
+    const el = textRef.current;
+    if (el) setIsOverflowing(el.scrollHeight > el.clientHeight);
+  }, [post.text]);
 
   return (
     <Card data-testid={`post-card-${post.postId}`} onClick={() => navigate(`/post/${post.postId}`)}>
       <AuthorRow>
-        <Avatar src={post.user?.avatar || FALLBACK_AVATAR} alt={post.user?.username} />
-        <div>
-          <Username>{post.user?.username ?? post.user?.name}</Username>
-          <AuthorSubtitle>Receita saudável</AuthorSubtitle>
-        </div>
+        <AuthorInfo>
+          <Avatar src={post.user?.avatar || FALLBACK_AVATAR} alt={post.user?.username} />
+          <div>
+            <Username>{post.user?.username ?? post.user?.name}</Username>
+            <AuthorSubtitle>Receita saudável</AuthorSubtitle>
+          </div>
+        </AuthorInfo>
+        {!isOwnPost && post.user && (
+          <div onClick={(e) => e.stopPropagation()}>
+            <FollowButton userId={post.user.id} isFollowing={Boolean(post.user.isFollowedByMe)} size="sm" />
+          </div>
+        )}
       </AuthorRow>
 
       <CoverImage src={post.image} alt={post.title} />
@@ -95,8 +114,8 @@ export function PostCard({ post, onOpenComments, footer }: PostCardProps) {
 
       <Body>
         <Title>{post.title}</Title>
-        <PostText $expanded={expanded}>{post.text}</PostText>
-        {post.text?.length > 50 && (
+        <PostText ref={textRef} $expanded={expanded}>{post.text}</PostText>
+        {isOverflowing && (
           <ExpandButton
             onClick={(e) => {
               e.stopPropagation();

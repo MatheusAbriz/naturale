@@ -27,6 +27,9 @@ export type UserStats = {
   postCount: number;
   likesReceived: number;
   commentsReceived: number;
+  followersCount: number;
+  followingCount: number;
+  isFollowedByMe: boolean;
 };
 
 export type UserSimpleDetails = {
@@ -35,6 +38,7 @@ export type UserSimpleDetails = {
   username: string;
   avatar: string;
   type: UserRoles;
+  isFollowedByMe?: boolean;
 };
 
 export type UserDTO = {

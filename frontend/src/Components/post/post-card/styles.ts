@@ -17,8 +17,16 @@ export const Card = styled(BaseCard)`
 export const AuthorRow = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   padding: 10px 14px;
+`;
+
+export const AuthorInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
 `;
 
 export const Avatar = styled.img`

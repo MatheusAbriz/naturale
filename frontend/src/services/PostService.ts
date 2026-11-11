@@ -1,8 +1,8 @@
 import { API } from "./api";
 import type { PaginatedResponse, Posts, CreatePostDTO, UpdatePostDTO } from "@/types/posts";
 
-export function getPosts(page = 1, search = "") {
-  return API.get<PaginatedResponse<Posts>>(`/posts?page=${page}&search=${search}`);
+export function getPosts(page = 1, search = "", feed: "discover" | "following" = "discover") {
+  return API.get<PaginatedResponse<Posts>>(`/posts?page=${page}&search=${search}&feed=${feed}`);
 }
 
 export function getPostById(postId: number) {

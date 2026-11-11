@@ -82,7 +82,7 @@ export const Username = styled.p`
 export const MetricsGrid = styled.div`
   margin-top: 20px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   border-radius: ${({ theme }) => theme.radius.xl};
   background: ${({ theme }) => alpha(theme.colors.muted, 0.7)};
   padding: 12px 0;
@@ -99,6 +99,15 @@ export const MetricItem = styled.div`
   gap: 4px;
   padding: 0 4px;
   text-align: center;
+`;
+
+export const ClickableMetricItem = styled(MetricItem)`
+  cursor: pointer;
+  border-radius: ${({ theme }) => theme.radius.lg};
+
+  &:hover {
+    background: ${({ theme }) => alpha(theme.colors.muted, 1)};
+  }
 `;
 
 export const MetricValue = styled.span`
