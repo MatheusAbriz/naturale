@@ -86,6 +86,36 @@ export async function getNameById(id: number | string) {
     }
 }
 
+// Busca de usuários por prefixo de username (autocomplete de menção)
+export async function searchByUsername(query: string, limit = 8) {
+    try {
+        const results = await pool`
+            SELECT id, name, username, avatar
+            FROM users
+            WHERE username ILIKE ${query + '%'}
+            ORDER BY username ASC
+            LIMIT ${limit}
+        `;
+        return results;
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
+}
+
+// Resolve usernames para ids (menções em comentários)
+export async function getIdsByUsernames(usernames: string[]) {
+    if (usernames.length === 0) return [];
+    try {
+        return await pool`
+            SELECT id, username FROM users WHERE username = ANY(${usernames})
+        `;
+    } catch (err) {
+        console.log(err);
+        return [];
+    }
+}
+
 // Login de usuário com autenticação JWT
 export async function login(email: string, password: string) {
     try {

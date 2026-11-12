@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../middlewares/authMiddleware.js';
-import { getNotifications, getUnreadCount, markAllAsRead } from '../Service/notifications.js';
+import { getNotifications, getUnreadCount, markAllAsRead, deleteNotification, deleteAllNotifications } from '../Service/notifications.js';
 
 const router = express.Router();
 router.use(express.json());
@@ -31,6 +31,26 @@ router.get('/notifications/unread-count', verifyToken, async (req: Request, res:
 router.patch('/notifications/read-all', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const result = await markAllAsRead(req.user!.id);
+        if (result.status) return res.status(200).json({ message: result.msg });
+        return res.status(400).json({ message: result.msg });
+    } catch (error) {
+        return next(error);
+    }
+});
+
+router.delete('/notifications/:id', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await deleteNotification(req.params.id, req.user!.id);
+        if (result.status) return res.status(200).json({ message: result.msg });
+        return res.status(400).json({ message: result.msg });
+    } catch (error) {
+        return next(error);
+    }
+});
+
+router.delete('/notifications', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await deleteAllNotifications(req.user!.id);
         if (result.status) return res.status(200).json({ message: result.msg });
         return res.status(400).json({ message: result.msg });
     } catch (error) {

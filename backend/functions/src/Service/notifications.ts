@@ -1,11 +1,12 @@
 import pool from "../Model/pool.js";
 import { Filters } from "../types/shared/index.js";
 
-export type NotificationType = "like" | "comment" | "follow";
+export type NotificationType = "like" | "comment" | "follow" | "mention";
 
 type CreateNotificationInput =
   | { type: "follow"; followedId: number | string; actorId: number | string }
-  | { type: "like" | "comment"; postId: number | string; actorId: number | string; commentId?: number | string };
+  | { type: "like" | "comment"; postId: number | string; actorId: number | string; commentId?: number | string }
+  | { type: "mention"; recipientId: number | string; actorId: number | string; postId: number | string; commentId?: number | string };
 
 export async function createNotification(input: CreateNotificationInput) {
   try {
@@ -13,6 +14,8 @@ export async function createNotification(input: CreateNotificationInput) {
 
     if (input.type === "follow") {
       recipientId = Number(input.followedId);
+    } else if (input.type === "mention") {
+      recipientId = Number(input.recipientId);
     } else {
       const postResult = await pool`SELECT user_id FROM post WHERE id = ${input.postId}`;
       if (postResult.length === 0) return;
@@ -22,7 +25,7 @@ export async function createNotification(input: CreateNotificationInput) {
     if (recipientId === Number(input.actorId)) return;
 
     const postId = input.type === "follow" ? null : input.postId;
-    const commentId = input.type === "comment" ? (input.commentId ?? null) : null;
+    const commentId = (input.type === "comment" || input.type === "mention") ? (input.commentId ?? null) : null;
 
     await pool`
       INSERT INTO notifications (recipient_id, actor_id, type, post_id, comment_id)
@@ -94,6 +97,29 @@ export async function markAllAsRead(userId: number | string) {
     return { status: true, msg: "Notificações marcadas como lidas" };
   } catch (err) {
     console.error("Erro ao marcar notificações como lidas:", err);
+    return { status: false, msg: `${err}` };
+  }
+}
+
+export async function deleteNotification(id: number | string, userId: number | string) {
+  try {
+    const result = await pool`
+      DELETE FROM notifications WHERE id = ${id} AND recipient_id = ${userId}
+    `;
+    if (result.count >= 1) return { status: true, msg: "Notificação excluída" };
+    return { status: false, msg: "Notificação não encontrada ou não autorizada" };
+  } catch (err) {
+    console.error("Erro ao excluir notificação:", err);
+    return { status: false, msg: `${err}` };
+  }
+}
+
+export async function deleteAllNotifications(userId: number | string) {
+  try {
+    await pool`DELETE FROM notifications WHERE recipient_id = ${userId}`;
+    return { status: true, msg: "Notificações removidas" };
+  } catch (err) {
+    console.error("Erro ao excluir notificações:", err);
     return { status: false, msg: `${err}` };
   }
 }

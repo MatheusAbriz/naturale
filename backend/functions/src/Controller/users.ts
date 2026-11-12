@@ -6,6 +6,7 @@ import {
     getPublicById,
   getNameById,
   getStats,
+  searchByUsername,
   login,
   updateName,
   updateUsername,
@@ -68,6 +69,20 @@ router.get('/user/:id/name', async (req: Request, res: Response, next: NextFunct
         const user = await getNameById(req.params.id);
         if (user) return res.status(200).json(user);
         return res.status(404).send("Erro! Não foi possível achar o usuário");
+    } catch (error) {
+        return next(error);
+    }
+});
+
+// Busca de usuários por prefixo de username (autocomplete de menção em comentários)
+router.get('/users/search', verifyToken, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const q = String(req.query.q || '').trim();
+        if (!q) return res.status(200).json({ data: [] });
+
+        const results = await searchByUsername(q);
+        if (results === false) return res.status(400).json({ message: 'Erro ao buscar usuários' });
+        return res.status(200).json({ data: results });
     } catch (error) {
         return next(error);
     }
