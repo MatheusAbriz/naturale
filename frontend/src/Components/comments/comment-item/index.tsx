@@ -11,6 +11,9 @@ import {
 } from "@/services/CommentService";
 import { Button } from "@/styles/buttons";
 import { track } from "@/lib/analytics";
+import { adjustPostCommentCount } from "@/lib/postCommentCount";
+import { MentionInput } from "@/Components/common/mention-input";
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "@/styles/overlays";
 import {
   SmallInput,
   Wrap,
@@ -26,6 +29,7 @@ import {
   ActionsRow,
   ActionLink,
   ReplyRow,
+  MentionLink,
 } from "./styles";
 
 const FALLBACK_AVATAR =
@@ -42,18 +46,39 @@ function formatRelativeTime(dateStr: string): string {
   return `${Math.floor(h / 24)}d`;
 }
 
+// Conta o comentário + todas as respostas aninhadas (exclusão em cascata de um comentário raiz)
+function countWithReplies(comment: CommentDTO): number {
+  return 1 + (comment.replies ?? []).reduce((sum, reply) => sum + countWithReplies(reply), 0);
+}
+
+function renderCommentText(text: string, mentions: Record<string, number>) {
+  return text.split(/(@[\w.]+)/g).map((part, i) => {
+    const username = part.startsWith("@") ? part.slice(1) : null;
+    if (username && mentions[username] !== undefined) {
+      return (
+        <MentionLink key={i} to={`/profile/${mentions[username]}`}>
+          {part}
+        </MentionLink>
+      );
+    }
+    return part;
+  });
+}
+
 type CommentItemProps = {
   comment: CommentDTO;
   postId: number;
   currentUserId: number;
+  mentions: Record<string, number>;
   level?: number;
 };
 
-export function CommentItem({ comment, postId, currentUserId, level = 0 }: CommentItemProps) {
+export function CommentItem({ comment, postId, currentUserId, mentions, level = 0 }: CommentItemProps) {
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(comment.text);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const isOwner = comment.user_id === currentUserId;
@@ -77,6 +102,7 @@ export function CommentItem({ comment, postId, currentUserId, level = 0 }: Comme
       setReplyText("");
       setShowReplyInput(false);
       invalidate();
+      adjustPostCommentCount(queryClient, postId, 1);
       track("comment_reply_created");
     } catch (e) {
       console.error(e);
@@ -102,16 +128,18 @@ export function CommentItem({ comment, postId, currentUserId, level = 0 }: Comme
   }
 
   async function handleDelete() {
-    if (!window.confirm(isReply ? "Excluir resposta?" : "Excluir comentário?")) return;
     try {
       if (isReply) await deleteReply(comment.id);
       else await deleteComment(comment.id);
       invalidate();
+      adjustPostCommentCount(queryClient, postId, -(isReply ? 1 : countWithReplies(comment)));
       track(isReply ? "comment_reply_deleted" : "comment_deleted");
     } catch (e) {
       console.error(e);
       track(isReply ? "comment_reply_deletion_failed" : "comment_deletion_failed");
       toast.error("Erro ao excluir. Tente novamente.");
+    } finally {
+      setConfirmDeleteOpen(false);
     }
   }
 
@@ -128,12 +156,12 @@ export function CommentItem({ comment, postId, currentUserId, level = 0 }: Comme
 
           {isEditing ? (
             <EditRow>
-              <SmallInput value={editText} onChange={(e) => setEditText(e.target.value)} />
+              <MentionInput InputComponent={SmallInput} value={editText} onChange={setEditText} />
               <Button $size="sm" onClick={handleEditSubmit}>Salvar</Button>
               <Button $variant="ghost" $size="sm" onClick={() => setIsEditing(false)}>Cancelar</Button>
             </EditRow>
           ) : (
-            <CommentText>{comment.text}</CommentText>
+            <CommentText>{renderCommentText(comment.text, mentions)}</CommentText>
           )}
 
           <ActionsRow>
@@ -141,16 +169,17 @@ export function CommentItem({ comment, postId, currentUserId, level = 0 }: Comme
             {isOwner && !isEditing && (
               <>
                 <ActionLink onClick={() => setIsEditing(true)}>Editar</ActionLink>
-                <ActionLink $danger onClick={handleDelete}>Excluir</ActionLink>
+                <ActionLink $danger onClick={() => setConfirmDeleteOpen(true)}>Excluir</ActionLink>
               </>
             )}
           </ActionsRow>
 
           {showReplyInput && (
             <ReplyRow>
-              <SmallInput
+              <MentionInput
+                InputComponent={SmallInput}
                 value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
+                onChange={setReplyText}
                 placeholder={`Respondendo a @${comment.username}...`}
               />
               <Button $size="sm" onClick={handleReplySubmit}>Enviar</Button>
@@ -160,8 +189,25 @@ export function CommentItem({ comment, postId, currentUserId, level = 0 }: Comme
       </Row>
 
       {replies.map((reply) => (
-        <CommentItem key={reply.id} comment={reply} postId={postId} currentUserId={currentUserId} level={level + 1} />
+        <CommentItem key={reply.id} comment={reply} postId={postId} currentUserId={currentUserId} mentions={mentions} level={level + 1} />
       ))}
+
+      <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{isReply ? "Excluir resposta?" : "Excluir comentário?"}</DialogTitle>
+            <DialogDescription>
+              {isReply
+                ? "Essa ação não pode ser desfeita."
+                : "Essa ação também exclui todas as respostas desse comentário e não pode ser desfeita."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button $variant="outline" onClick={() => setConfirmDeleteOpen(false)}>Cancelar</Button>
+            <Button $variant="destructive" onClick={handleDelete}>Excluir</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Wrap>
   );
 }

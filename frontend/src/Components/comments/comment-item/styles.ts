@@ -1,5 +1,15 @@
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 import { Input as BaseInput } from "@/styles/inputs";
+
+export const MentionLink = styled(Link)`
+  font-weight: 600;
+  color: #047857;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
 
 export const SmallInput = styled(BaseInput)`
   height: 32px;

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { DropdownMenuContent, DropdownMenuItem } from "@/styles/overlays";
+import { DropdownMenuContent } from "@/styles/overlays";
 
 export const BellButton = styled.button`
   position: relative;
@@ -40,17 +40,78 @@ export const Panel = styled(DropdownMenuContent)`
 `;
 
 export const PanelHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 8px 10px 4px;
   font-size: 13px;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.mutedForeground};
 `;
 
-export const NotificationItem = styled(DropdownMenuItem)`
+export const ClearAllButton = styled.button`
+  font-size: 12px;
+  font-weight: 600;
+  color: #047857;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+export const NotificationItem = styled.div`
+  position: relative;
+  display: flex;
   align-items: flex-start;
   gap: 10px;
   padding: 8px 10px;
+  border-radius: ${({ theme }) => theme.radius.sm};
+  font-size: 14px;
   white-space: normal;
+  cursor: pointer;
+  outline: none;
+
+  &:hover,
+  &:focus-visible {
+    background: ${({ theme }) => theme.colors.accent};
+    color: ${({ theme }) => theme.colors.accentForeground};
+  }
+`;
+
+export const TextBlock = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+export const UnreadDot = styled.span`
+  flex-shrink: 0;
+  margin-top: 4px;
+  height: 8px;
+  width: 8px;
+  border-radius: ${({ theme }) => theme.radius.full};
+  background: ${({ theme }) => theme.colors.destructive};
+`;
+
+export const DeleteButton = styled.button`
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  width: 22px;
+  margin-top: 2px;
+  border-radius: ${({ theme }) => theme.radius.full};
+  color: ${({ theme }) => theme.colors.mutedForeground};
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.muted};
+    color: ${({ theme }) => theme.colors.foreground};
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
 `;
 
 export const Avatar = styled.img`

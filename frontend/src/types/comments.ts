@@ -23,6 +23,7 @@ export type CreateReply = CreateComment & {
 export type CommentsResponse = {
   status: boolean;
   msg: CommentDTO[];
+  mentions: Record<string, number>;
   pagination: {
     page: number;
     limit: number;

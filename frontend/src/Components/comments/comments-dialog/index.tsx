@@ -4,11 +4,12 @@ import { toast } from "sonner";
 import { getComments, addComment } from "@/services/CommentService";
 import { useAuth } from "@/stores/auth-store";
 import { CommentItem } from "../comment-item";
+import { MentionInput } from "@/Components/common/mention-input";
 import { Dialog, DialogHeader, DialogTitle } from "@/styles/overlays";
-import { Input } from "@/styles/inputs";
 import { Button } from "@/styles/buttons";
 import { Loader } from "@/Components/common/loader";
 import { track } from "@/lib/analytics";
+import { adjustPostCommentCount } from "@/lib/postCommentCount";
 import { StyledDialogContent, List, EmptyMessage, LoadMoreButton, ComposerForm } from "./styles";
 
 type CommentsDialogProps = {
@@ -23,7 +24,7 @@ export function CommentsDialog({ postId, onOpenChange, highlightCommentId }: Com
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
+  const { data, isLoading, isFetching, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ["comments", postId, highlightCommentId ? "deep-link" : "default"],
     queryFn: ({ pageParam = 1 }) =>
       highlightCommentId ? getComments(postId!, 1, true) : getComments(postId!, pageParam),
@@ -37,6 +38,7 @@ export function CommentsDialog({ postId, onOpenChange, highlightCommentId }: Com
   });
 
   const comments = data?.pages.flatMap((p) => p.data.msg) ?? [];
+  const mentions = Object.assign({}, ...(data?.pages.map((p) => p.data.mentions) ?? []));
 
   useEffect(() => {
     if (postId !== null) track("comments_opened");
@@ -70,6 +72,7 @@ export function CommentsDialog({ postId, onOpenChange, highlightCommentId }: Com
       await addComment({ post_id: postId, user_id: user.id, comment_text: trimmed });
       setText("");
       queryClient.invalidateQueries({ queryKey: ["comments"] });
+      adjustPostCommentCount(queryClient, postId, 1);
       track("comment_created");
       toast.success("Comentário publicado!");
     } catch (e) {
@@ -90,10 +93,11 @@ export function CommentsDialog({ postId, onOpenChange, highlightCommentId }: Com
 
         <List>
           {isLoading && <Loader size="sm" />}
+          {isFetching && !isLoading && !isFetchingNextPage && <Loader size="sm" padY={8} />}
           {!isLoading && comments.length === 0 && <EmptyMessage>Seja o primeiro a comentar.</EmptyMessage>}
           {user &&
             comments.map((comment) => (
-              <CommentItem key={comment.id} comment={comment} postId={postId!} currentUserId={user.id} />
+              <CommentItem key={comment.id} comment={comment} postId={postId!} currentUserId={user.id} mentions={mentions} />
             ))}
           {hasNextPage && (
             <LoadMoreButton onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
@@ -103,9 +107,9 @@ export function CommentsDialog({ postId, onOpenChange, highlightCommentId }: Com
         </List>
 
         <ComposerForm onSubmit={handleSubmit}>
-          <Input
+          <MentionInput
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={setText}
             placeholder="Escreva um comentário..."
             disabled={isSubmitting}
           />

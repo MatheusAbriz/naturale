@@ -13,3 +13,11 @@ export function getUnreadCount() {
 export function markAllAsRead() {
   return API.patch(`/notifications/read-all`);
 }
+
+export function deleteNotification(id: number) {
+  return API.delete(`/notifications/${id}`);
+}
+
+export function deleteAllNotifications() {
+  return API.delete(`/notifications`);
+}
