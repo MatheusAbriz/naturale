@@ -73,10 +73,10 @@ router.post('/posts', verifyToken, (req, res) => {
     const postData = { ...req.body, user_id: userIdFromToken! };
 
     add(postData).then(result => {
-        if (result) {
+        if (result.status) {
             return res.status(200).send("Sucesso! post adicionado com sucesso");
         }
-        return res.status(400).send("Erro! post nao adicionado");
+        return res.status(400).send(result.msg);
     });
 });
 
