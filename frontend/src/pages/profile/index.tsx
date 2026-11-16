@@ -115,7 +115,7 @@ export default function Profile() {
           <NameBlock>
             <NameRow>
               <Name>{profile.name}</Name>
-              {isOwnProfile && <PlanBadge plan={plan} />}
+              <PlanBadge plan={profile.effectivePlan ?? "essential"} />
             </NameRow>
             <Username>@{profile.username}</Username>
           </NameBlock>

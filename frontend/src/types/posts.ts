@@ -13,6 +13,10 @@ export type Posts = {
   commentCount: number;
   status: boolean;
   user: UserSimpleDetails;
+  calories?: number | null;
+  protein_g?: number | null;
+  carbs_g?: number | null;
+  fat_g?: number | null;
 };
 
 export type PaginatedResponse<T> = {
@@ -33,6 +37,10 @@ export type CreatePostDTO = {
   image: string;
   time: string;
   status: boolean;
+  calories?: number | null;
+  protein_g?: number | null;
+  carbs_g?: number | null;
+  fat_g?: number | null;
 };
 
 export type UpdatePostDTO = {
@@ -41,4 +49,8 @@ export type UpdatePostDTO = {
   ingredients: string;
   image: string;
   time: string;
+  calories?: number | null;
+  protein_g?: number | null;
+  carbs_g?: number | null;
+  fat_g?: number | null;
 };

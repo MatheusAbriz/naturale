@@ -1,30 +1,47 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ClipboardList, Search, SlidersHorizontal } from "lucide-react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { Search } from "lucide-react";
 import { Button } from "@/styles/buttons";
 import { UpgradePrompt } from "@/Components/subscription/upgrade-prompt";
 import { hasPlan, useSubscription } from "@/stores/subscription-store";
+import { getFavoritesPosts } from "@/services/PostService";
+import { Loader } from "@/Components/common/loader";
+import { EmptyState } from "@/Components/common/empty-state";
+import { useInfiniteScrollSentinel } from "@/lib/useInfiniteScrollSentinel";
 import { track } from "@/lib/analytics";
 import {
   Header,
   Eyebrow,
   Title,
   Description,
-  Section,
   SearchSection,
   FieldLabel,
   RawInput,
   RawSelect,
   FieldsGrid,
-  SectionTitle,
-  SectionText,
+  RecipeGroup,
+  RecipeGroupTitle,
+  RecipeGroupList,
 } from "./styles";
+
+const MAX_TIME_OPTIONS = [
+  { label: "Qualquer duração", value: "" },
+  { label: "Até 20 min", value: "20" },
+  { label: "Até 40 min", value: "40" },
+];
 
 export default function PremiumTools() {
   const plan = useSubscription((state) => state.plan);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const isSearch = pathname === "/advanced-search";
+  const [ingredient, setIngredient] = useState("");
+  const [maxTime, setMaxTime] = useState("");
+  const [maxCalories, setMaxCalories] = useState("");
+  const [minProtein, setMinProtein] = useState("");
+  const [maxCarbs, setMaxCarbs] = useState("");
+  const [maxFat, setMaxFat] = useState("");
 
   useEffect(() => {
     track(hasPlan(plan, "extra") ? "premium_feature_viewed" : "premium_feature_blocked", {
@@ -32,6 +49,33 @@ export default function PremiumTools() {
       plan,
     });
   }, [isSearch, plan]);
+
+  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
+    queryKey: ["favorite-posts"],
+    queryFn: ({ pageParam = 1 }) => getFavoritesPosts(pageParam),
+    initialPageParam: 1,
+    enabled: !isSearch && hasPlan(plan, "extra"),
+    getNextPageParam: (lastPage) => {
+      const { page, totalPages } = lastPage.data.pagination;
+      return page < totalPages ? page + 1 : undefined;
+    },
+  });
+  const favoritePosts = data?.pages.flatMap((page) => page.data.data) ?? [];
+  const sentinelRef = useInfiniteScrollSentinel(() => fetchNextPage(), !!hasNextPage && !isFetchingNextPage);
+
+  function handleSearch() {
+    track("advanced_search_submitted", { ingredient, max_time: maxTime });
+    const params = new URLSearchParams();
+    if (ingredient.trim()) params.set("ingredient", ingredient.trim());
+    if (maxTime) params.set("maxTime", maxTime);
+    if (hasPlan(plan, "deluxe")) {
+      if (maxCalories) params.set("maxCalories", maxCalories);
+      if (minProtein) params.set("minProtein", minProtein);
+      if (maxCarbs) params.set("maxCarbs", maxCarbs);
+      if (maxFat) params.set("maxFat", maxFat);
+    }
+    navigate(`/home?${params.toString()}`);
+  }
 
   if (!hasPlan(plan, "extra")) {
     return <UpgradePrompt feature={isSearch ? "Busca avançada" : "Lista de compras automática"} />;
@@ -53,43 +97,69 @@ export default function PremiumTools() {
         <SearchSection>
           <FieldLabel>
             Ingrediente
-            <RawInput placeholder="Ex.: grão-de-bico" />
+            <RawInput
+              placeholder="Ex.: grão-de-bico"
+              value={ingredient}
+              onChange={(e) => setIngredient(e.target.value)}
+            />
           </FieldLabel>
-          <FieldsGrid>
             <FieldLabel>
               Tempo máximo
-              <RawSelect>
-                <option>Qualquer duração</option>
-                <option>Até 20 min</option>
-                <option>Até 40 min</option>
+              <RawSelect value={maxTime} onChange={(e) => setMaxTime(e.target.value)}>
+                {MAX_TIME_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
               </RawSelect>
             </FieldLabel>
-            <FieldLabel>
-              Restrição alimentar
-              <RawSelect>
-                <option>Sem restrição</option>
-                <option>Vegetariana</option>
-                <option>Sem lactose</option>
-                <option>Low carb</option>
-              </RawSelect>
-            </FieldLabel>
-          </FieldsGrid>
-          <Button onClick={() => { track("advanced_search_submitted"); navigate("/home"); }}>
+
+          {hasPlan(plan, "deluxe") && (
+            <FieldsGrid>
+              <FieldLabel>
+                Calorias (máx. kcal)
+                <RawInput type="number" min="0" placeholder="Ex.: 400" value={maxCalories} onChange={(e) => setMaxCalories(e.target.value)} />
+              </FieldLabel>
+              <FieldLabel>
+                Proteína (mín. g)
+                <RawInput type="number" min="0" placeholder="Ex.: 20" value={minProtein} onChange={(e) => setMinProtein(e.target.value)} />
+              </FieldLabel>
+              <FieldLabel>
+                Carboidrato (máx. g)
+                <RawInput type="number" min="0" placeholder="Ex.: 30" value={maxCarbs} onChange={(e) => setMaxCarbs(e.target.value)} />
+              </FieldLabel>
+              <FieldLabel>
+                Gordura (máx. g)
+                <RawInput type="number" min="0" placeholder="Ex.: 15" value={maxFat} onChange={(e) => setMaxFat(e.target.value)} />
+              </FieldLabel>
+            </FieldsGrid>
+          )}
+
+          <Button onClick={handleSearch}>
             <Search size={16} /> Buscar receitas
           </Button>
         </SearchSection>
+      ) : isLoading ? (
+        <Loader size="sm" />
+      ) : favoritePosts.length === 0 ? (
+        <EmptyState
+          title="Nenhum favorito ainda"
+          description="Favorite receitas pra gente montar sua lista de compras automaticamente."
+        />
       ) : (
-        <Section>
-          <ClipboardList size={32} color="#2f6b54" />
-          <SectionTitle>Sua lista será gerada aqui</SectionTitle>
-          <SectionText>
-            Ao integrar o backend, ingredientes de receitas favoritas serão agrupados automaticamente, com
-            quantidades e itens repetidos unificados.
-          </SectionText>
-          <Button style={{ marginTop: 20 }} onClick={() => { track("shopping_list_favorites_opened"); navigate("/favorites"); }}>
-            <SlidersHorizontal size={16} /> Escolher favoritos
-          </Button>
-        </Section>
+        <>
+          {favoritePosts.map((post) => {
+            const ingredients = post.ingredients.split(",").map((i) => i.trim()).filter(Boolean);
+            return (
+              <RecipeGroup key={post.postId}>
+                <RecipeGroupTitle>{post.title}</RecipeGroupTitle>
+                <RecipeGroupList>
+                  {ingredients.map((item, i) => <li key={i}>{item}</li>)}
+                </RecipeGroupList>
+              </RecipeGroup>
+            );
+          })}
+          <div ref={sentinelRef} />
+          {isFetchingNextPage && <Loader size="sm" padY={16} />}
+        </>
       )}
     </div>
   );

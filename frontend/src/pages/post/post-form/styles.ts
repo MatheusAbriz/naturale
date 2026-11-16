@@ -64,3 +64,15 @@ export const ImageBadge = styled.div`
 export const HiddenFileInput = styled.input`
   display: none;
 `;
+
+export const NutritionGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+`;
+
+export const NutritionHint = styled.p`
+  margin: -4px 0 0;
+  font-size: 12px;
+  color: ${({ theme }) => theme.colors.mutedForeground};
+`;

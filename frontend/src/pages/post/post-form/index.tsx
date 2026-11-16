@@ -20,6 +20,8 @@ import {
   PreviewImg,
   ImageBadge,
   HiddenFileInput,
+  NutritionGrid,
+  NutritionHint,
 } from "./styles";
 
 const FALLBACK_IMAGE =
@@ -36,6 +38,10 @@ export default function PostForm() {
   const [text, setText] = useState("");
   const [ingredients, setIngredients] = useState("");
   const [time, setTime] = useState("");
+  const [calories, setCalories] = useState("");
+  const [proteinG, setProteinG] = useState("");
+  const [carbsG, setCarbsG] = useState("");
+  const [fatG, setFatG] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState("");
   const [isLoading, setIsLoading] = useState(isEditMode);
@@ -50,6 +56,10 @@ export default function PostForm() {
         setText(data.text);
         setIngredients(data.ingredients);
         setTime(data.time);
+        setCalories(data.calories != null ? String(data.calories) : "");
+        setProteinG(data.protein_g != null ? String(data.protein_g) : "");
+        setCarbsG(data.carbs_g != null ? String(data.carbs_g) : "");
+        setFatG(data.fat_g != null ? String(data.fat_g) : "");
         setImagePreview(data.image);
       } catch (e) {
         console.error(e);
@@ -85,14 +95,20 @@ export default function PostForm() {
       // Só reenviamos a imagem se o usuário trocou o arquivo; na edição, sem
       // novo arquivo, reaproveitamos a URL já existente.
       const imageUrl = imageFile ? await uploadImage(imageFile, "posts") : imagePreview;
+      const nutrition = {
+        calories: calories.trim() ? Number(calories) : null,
+        protein_g: proteinG.trim() ? Number(proteinG) : null,
+        carbs_g: carbsG.trim() ? Number(carbsG) : null,
+        fat_g: fatG.trim() ? Number(fatG) : null,
+      };
 
       if (isEditMode) {
-        await updatePost(Number(postId), { title, text, ingredients, image: imageUrl, time });
+        await updatePost(Number(postId), { title, text, ingredients, image: imageUrl, time, ...nutrition });
         track("recipe_updated", { has_new_image: Boolean(imageFile) });
         toast.success("Receita atualizada com sucesso!");
         queryClient.invalidateQueries({ queryKey: ["post", Number(postId)] });
       } else {
-        await createPost({ userId: user.id, title, text, ingredients, image: imageUrl, time, status: true });
+        await createPost({ userId: user.id, title, text, ingredients, image: imageUrl, time, status: true, ...nutrition });
         track("recipe_created", { has_image: true });
         toast.success("Receita publicada com sucesso!");
       }
@@ -143,6 +159,14 @@ export default function PostForm() {
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
+
+        <NutritionGrid>
+          <Input type="number" min="0" placeholder="Calorias (kcal)" value={calories} onChange={(e) => setCalories(e.target.value)} />
+          <Input type="number" min="0" step="0.1" placeholder="Proteína (g)" value={proteinG} onChange={(e) => setProteinG(e.target.value)} />
+          <Input type="number" min="0" step="0.1" placeholder="Carboidrato (g)" value={carbsG} onChange={(e) => setCarbsG(e.target.value)} />
+          <Input type="number" min="0" step="0.1" placeholder="Gordura (g)" value={fatG} onChange={(e) => setFatG(e.target.value)} />
+        </NutritionGrid>
+        <NutritionHint>Informação nutricional (opcional) — só aparece pra quem vê a receita com o plano Deluxe.</NutritionHint>
 
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Salvando..." : isEditMode ? "Salvar alterações" : "Publicar"}

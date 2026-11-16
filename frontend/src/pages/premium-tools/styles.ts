@@ -71,14 +71,18 @@ export const FieldsGrid = styled.div`
   }
 `;
 
-export const SectionTitle = styled.h2`
-  margin: 12px 0 0;
-  font-weight: 800;
+export const RecipeGroup = styled(Section)`
+  margin-bottom: 12px;
 `;
 
-export const SectionText = styled.p`
-  margin: 4px 0 0;
+export const RecipeGroupTitle = styled.h3`
+  margin: 0 0 8px;
+  font-weight: 700;
+`;
+
+export const RecipeGroupList = styled.ul`
+  margin: 0;
+  padding-left: 20px;
   font-size: 14px;
-  line-height: 24px;
-  color: ${({ theme }) => theme.colors.mutedForeground};
+  list-style: disc;
 `;

@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { Bot, Bookmark, Compass, Heart, Home, Sparkles, UserRound } from "lucide-react";
+import { Bot, Bookmark, Compass, Heart, Home, Search, Sparkles, UserRound } from "lucide-react";
 import { Header } from "../header";
 import { CreatePostFab } from "@/Components/post/create-post-fab";
 import {
@@ -22,6 +22,7 @@ export function AppLayout() {
   const navItems = [
     { to: "/home", label: "Início", icon: Home },
     { to: "/favorites", label: "Favoritos", icon: Bookmark },
+    { to: "/advanced-search", label: "Busca avançada", icon: Search },
     { to: "/chatbot", label: "Assistente", icon: Bot },
     { to: "/plans", label: "Planos", icon: Sparkles },
   ];

@@ -113,3 +113,29 @@ export const IngredientsList = styled.ul`
   font-size: 14px;
   list-style: disc;
 `;
+
+export const NutritionGrid = styled.div`
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 8px;
+`;
+
+export const NutritionItem = styled.div`
+  border-radius: ${({ theme }) => theme.radius.lg};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  padding: 8px;
+  text-align: center;
+`;
+
+export const NutritionValue = styled.p`
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+`;
+
+export const NutritionLabel = styled.p`
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: ${({ theme }) => theme.colors.mutedForeground};
+`;

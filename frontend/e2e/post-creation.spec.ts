@@ -144,6 +144,10 @@ test.describe("Fluxo 2 — Criação e edição de receita", () => {
           ingredients: "Alface, Tomate, Pepino, Azeite",
           image: "https://images.unsplash.com/original-image.jpg",
           time: "20 min",
+          calories: null,
+          protein_g: null,
+          carbs_g: null,
+          fat_g: null,
         });
         await fulfillJson(route, { message: "Receita atualizada com sucesso!" });
       } else {

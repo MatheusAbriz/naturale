@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Heart, MessageCircle, Bookmark, Clock, Pencil, Trash2, ArrowLeft } from "lucide-react";
+import { Heart, MessageCircle, Bookmark, Clock, Pencil, Trash2, ArrowLeft, Download } from "lucide-react";
 import { getPostById, deletePost } from "@/services/PostService";
 import { useToggleLike, useToggleFavorite } from "@/hooks/usePostMutations";
 import { track } from "@/lib/analytics";
 import { useAuth } from "@/stores/auth-store";
+import { hasPlan, useSubscription } from "@/stores/subscription-store";
+import { exportRecipePdf } from "@/lib/exportRecipePdf";
 import { EmptyState } from "@/Components/common/empty-state";
 import { Loader } from "@/Components/common/loader";
 import { CommentsDialog } from "@/Components/comments/comments-dialog";
@@ -28,6 +30,10 @@ import {
   SectionTitle,
   SectionText,
   IngredientsList,
+  NutritionGrid,
+  NutritionItem,
+  NutritionValue,
+  NutritionLabel,
 } from "./styles";
 
 const FALLBACK_AVATAR =
@@ -50,6 +56,7 @@ export default function PostDetails() {
 
   const { mutate: toggleLike, isPending: isLiking } = useToggleLike();
   const { mutate: toggleFavorite, isPending: isFavoriting } = useToggleFavorite();
+  const plan = useSubscription((state) => state.plan);
 
   useEffect(() => {
     if (data) track("recipe_viewed", { is_owner: data.user?.id === user?.id });
@@ -146,9 +153,52 @@ export default function PostDetails() {
         </>
       )}
 
+      {(data.calories != null || data.protein_g != null || data.carbs_g != null || data.fat_g != null) && (
+        <>
+          <SectionTitle>Informação nutricional</SectionTitle>
+          <NutritionGrid>
+            {data.calories != null && (
+              <NutritionItem>
+                <NutritionValue>{data.calories}</NutritionValue>
+                <NutritionLabel>kcal</NutritionLabel>
+              </NutritionItem>
+            )}
+            {data.protein_g != null && (
+              <NutritionItem>
+                <NutritionValue>{data.protein_g}g</NutritionValue>
+                <NutritionLabel>proteína</NutritionLabel>
+              </NutritionItem>
+            )}
+            {data.carbs_g != null && (
+              <NutritionItem>
+                <NutritionValue>{data.carbs_g}g</NutritionValue>
+                <NutritionLabel>carboidrato</NutritionLabel>
+              </NutritionItem>
+            )}
+            {data.fat_g != null && (
+              <NutritionItem>
+                <NutritionValue>{data.fat_g}g</NutritionValue>
+                <NutritionLabel>gordura</NutritionLabel>
+              </NutritionItem>
+            )}
+          </NutritionGrid>
+        </>
+      )}
+
       <Button $variant="outline" $fullWidth onClick={() => setCommentsOpen(true)}>
         Ver comentários ({data.commentCount ?? 0})
       </Button>
+
+      {hasPlan(plan, "deluxe") && (
+        <Button
+          $variant="ghost"
+          $fullWidth
+          style={{ marginTop: 8 }}
+          onClick={() => { track("recipe_pdf_exported"); exportRecipePdf(data); }}
+        >
+          <Download size={16} /> Exportar PDF
+        </Button>
+      )}
 
       <CommentsDialog
         postId={commentsOpen ? data.postId : null}

@@ -1,3 +1,5 @@
+import type { PlanId } from "@/stores/subscription-store";
+
 export enum UserRoles {
   ADMIN = "ADMIN",
   USER = "USER",
@@ -39,6 +41,7 @@ export type UserSimpleDetails = {
   avatar: string;
   type: UserRoles;
   isFollowedByMe?: boolean;
+  effectivePlan?: PlanId;
 };
 
 export type UserDTO = {

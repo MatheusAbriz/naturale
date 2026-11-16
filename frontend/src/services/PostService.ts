@@ -1,8 +1,31 @@
 import { API } from "./api";
 import type { PaginatedResponse, Posts, CreatePostDTO, UpdatePostDTO } from "@/types/posts";
 
-export function getPosts(page = 1, search = "", feed: "discover" | "following" = "discover") {
-  return API.get<PaginatedResponse<Posts>>(`/posts?page=${page}&search=${search}&feed=${feed}`);
+export type FeedMode = "discover" | "following" | "recommended";
+
+export type PostFilters = {
+  ingredient?: string;
+  maxTime?: number;
+  maxCalories?: number;
+  minProtein?: number;
+  maxCarbs?: number;
+  maxFat?: number;
+};
+
+export function getPosts(
+  page = 1,
+  search = "",
+  feed: FeedMode = "discover",
+  filters?: PostFilters
+) {
+  const params = new URLSearchParams({ page: String(page), search, feed });
+  if (filters?.ingredient) params.set("ingredient", filters.ingredient);
+  if (filters?.maxTime) params.set("maxTime", String(filters.maxTime));
+  if (filters?.maxCalories) params.set("maxCalories", String(filters.maxCalories));
+  if (filters?.minProtein) params.set("minProtein", String(filters.minProtein));
+  if (filters?.maxCarbs) params.set("maxCarbs", String(filters.maxCarbs));
+  if (filters?.maxFat) params.set("maxFat", String(filters.maxFat));
+  return API.get<PaginatedResponse<Posts>>(`/posts?${params.toString()}`);
 }
 
 export function getPostById(postId: number) {
