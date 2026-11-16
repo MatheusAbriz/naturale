@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { UserDTO } from '../types/users/index.js';
 import { sendPasswordResetEmail } from "./mailer.js";
+import { getEffectivePlan } from "./subscription.js";
 
 const RESET_TOKEN_TTL_MS = 15 * 60 * 1000;
 
@@ -38,8 +39,10 @@ export async function getPublicById(id: string | number) {
             WHERE id = ${id}
         `;
 
-        if (results.count >= 1) return results[0];
-        return false;
+        if (results.count === 0) return false;
+
+        const effectivePlan = await getEffectivePlan(Number(id));
+        return { ...results[0], effectivePlan };
     } catch (err) {
         console.log(err);
         return false;

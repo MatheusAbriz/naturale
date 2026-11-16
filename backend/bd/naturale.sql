@@ -202,3 +202,9 @@ VALUES (
     NULL,       -- comentário raiz
     'Esse strogonoff ficou incrível!'
 );
+
+-- Informação nutricional (Deluxe) — preenchida opcionalmente pelo autor ao criar/editar a receita
+ALTER TABLE post ADD COLUMN calories int null;
+ALTER TABLE post ADD COLUMN protein_g numeric(6,1) null;
+ALTER TABLE post ADD COLUMN carbs_g numeric(6,1) null;
+ALTER TABLE post ADD COLUMN fat_g numeric(6,1) null;
